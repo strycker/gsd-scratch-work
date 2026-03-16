@@ -37,9 +37,19 @@ def _tscv_reports(
     Each FoldReport also includes the train/test index positions so callers and
     tests can verify temporal ordering (no leakage).
     """
+    # On very small datasets, full TimeSeriesSplit is not feasible.
+    # If we have fewer than 3 samples, skip CV entirely and return no reports.
+    if len(X) < 3:
+        log.warning(
+            "%s: not enough samples (%d) for TimeSeriesSplit CV; skipping CV reports.",
+            label,
+            len(X),
+        )
+        return []
+
     # Guard against requesting more splits than samples — this can happen when
-    # running on very small synthetic datasets or heavily trimmed feature sets.
-    max_splits = max(2, min(n_splits, len(X) - 1))
+    # running on trimmed feature sets. TimeSeriesSplit requires n_splits < n_samples.
+    max_splits = min(max(n_splits, 2), len(X) - 1)
     tscv = TimeSeriesSplit(n_splits=max_splits)
     results: List[FoldReport] = []
 
@@ -191,7 +201,12 @@ def train_forward_classifiers(
         X_h = features.loc[mask]
 
         if len(X_h) == 0:
-            raise ValueError(f"no samples available for horizon {h}")
+            log.warning(
+                "train_forward_classifiers: no samples available for horizon %d; "
+                "skipping this horizon.",
+                h,
+            )
+            continue
 
         class_order = _unique_labels(y_h)
 
