@@ -3,7 +3,7 @@
 ## Phases
 
 - [ ] **Phase 1: Data & Constraints Foundations** - Establish ETF-only, non-intraday data universe with checkpointed, causal-aware feature pipeline.
-- [ ] **Phase 2: Regime Clustering & Interpretation** - Derive stable, interpretable market regimes and descriptive profiles.
+- [x] **Phase 2: Regime Clustering & Interpretation** - Derive stable, interpretable market regimes and descriptive profiles. (completed 2026-03-16)
 - [ ] **Phase 3: Supervised Regime & Behavior Models** - Train and evaluate models for current and forward regimes and ETF/portfolio behavior.
 - [ ] **Phase 4: Regime-Conditional ETF & Portfolio Behavior** - Quantify ETF and portfolio performance characteristics by regime.
 - [ ] **Phase 5: Recommendations & Machine-Readable Outputs** - Turn analysis into transparent ETF-level recommendations and structured artifacts.
@@ -80,7 +80,7 @@ Plans:
 | Phase | Name                                      | Plans Complete | Status       | Completed |
 |-------|-------------------------------------------|----------------|--------------|-----------|
 | 1     | 2/3 | In Progress|  | -         |
-| 2     | 1/2 | In Progress|  | -         |
+| 2     | 2/2 | Complete   | 2026-03-16 | -         |
 | 3     | Supervised Regime & Behavior Models       | 0/0            | Not started  | -         |
 | 4     | Regime-Conditional ETF & Portfolio Behavior | 0/0          | Not started  | -         |
 | 5     | Recommendations & Machine-Readable Outputs | 0/0          | Not started  | -         |

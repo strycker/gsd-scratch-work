@@ -186,7 +186,7 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 | DATA-01    | Phase 1 | Complete |
 | DATA-02    | Phase 1 | Complete |
 | DATA-03    | Phase 1 | Complete |
-| REGIME-01  | Phase 2 | Pending |
+| REGIME-01  | Phase 2 | Complete |
 | REGIME-02  | Phase 2 | Pending |
 | REGIME-03  | Phase 2 | Pending |
 | MODEL-01   | Phase 3 | Pending |
