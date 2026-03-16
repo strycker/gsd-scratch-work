@@ -179,3 +179,28 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 - `ROADMAP.md` will map these requirements to phases; each phase will reference specific IDs (e.g. DATA-01, REGIME-01).
 - Phase plans and tests should always reference requirement IDs to keep alignment explicit.
 
+## Traceability
+
+| Requirement | Phase  | Status  |
+|------------|--------|---------|
+| DATA-01    | Phase 1 | Pending |
+| DATA-02    | Phase 1 | Pending |
+| DATA-03    | Phase 1 | Pending |
+| REGIME-01  | Phase 2 | Pending |
+| REGIME-02  | Phase 2 | Pending |
+| REGIME-03  | Phase 2 | Pending |
+| MODEL-01   | Phase 3 | Pending |
+| MODEL-02   | Phase 3 | Pending |
+| MODEL-03   | Phase 3 | Pending |
+| MODEL-04   | Phase 3 | Pending |
+| PORT-01    | Phase 4 | Pending |
+| PORT-02    | Phase 4 | Pending |
+| PORT-03    | Phase 4 | Pending |
+| UX-01      | Phase 5 | Pending |
+| UX-02      | Phase 5 | Pending |
+| UX-03      | Phase 5 | Pending |
+| REPORT-01  | Phase 6 | Pending |
+| REPORT-02  | Phase 6 | Pending |
+| CONSTR-01  | Phase 1 | Pending |
+| CONSTR-02  | Phase 1 | Pending |
+
