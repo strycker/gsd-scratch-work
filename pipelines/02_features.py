@@ -1,15 +1,8 @@
 """
 Pipeline step 2 — Feature Engineering
 
-Reads data/raw/macro_raw.parquet, applies log transforms, smoothed
-derivatives, cross-ratios, and Bernstein gap filling.
-
-Writes two feature files:
-  data/processed/features.parquet            — centered rolling windows
-                                               (for clustering in step 3-4)
-  data/processed/features_supervised.parquet — causal/backward rolling windows
-                                               (for supervised learning in step 5-7;
-                                               no look-ahead bias)
+Thin wrapper around run_pipeline.step2_features so there is a single source
+of truth for how features are engineered and checkpointed.
 
 Run:
     python pipelines/02_features.py
@@ -20,34 +13,25 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from market_regime import DATA_DIR
 from market_regime.config import load, setup_logging
-from market_regime.transforms import engineer_all
+from market_regime.runtime import RunConfig
 
-import pandas as pd
+from run_pipeline import step2_features
 
 
 def main() -> None:
+    """Entry point for standalone step-02 execution."""
     setup_logging()
     cfg = load()
 
-    raw = pd.read_parquet(DATA_DIR / "raw" / "macro_raw.parquet")
-    print(f"Loaded raw data: {raw.shape}")
+    # For a direct step-02 run we always recompute features from the latest
+    # macro_raw checkpoint and skip plotting. Other flags use RunConfig defaults.
+    run_cfg = RunConfig(
+        recompute_derived_datasets=True,
+        generate_plots=False,
+    )
 
-    out_dir = DATA_DIR / "processed"
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    # Centered features — for clustering (steps 3-4)
-    features = engineer_all(raw, cfg, causal=False)
-    out_path = out_dir / "features.parquet"
-    features.to_parquet(out_path)
-    print(f"Wrote {features.shape} → {out_path}  (centered)")
-
-    # Causal features — for supervised learning and live scoring (steps 5-7)
-    features_sup = engineer_all(raw, cfg, causal=True)
-    out_path_sup = out_dir / "features_supervised.parquet"
-    features_sup.to_parquet(out_path_sup)
-    print(f"Wrote {features_sup.shape} → {out_path_sup}  (causal/backward)")
+    step2_features(cfg, run_cfg)
 
 
 if __name__ == "__main__":
