@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Callable, Dict, Hashable, Iterable, List
+from typing import Callable, Dict, Hashable, Iterable, List, Tuple
+import copy
 
 import numpy as np
 import pandas as pd
@@ -36,7 +37,10 @@ def _tscv_reports(
     Each FoldReport also includes the train/test index positions so callers and
     tests can verify temporal ordering (no leakage).
     """
-    tscv = TimeSeriesSplit(n_splits=n_splits)
+    # Guard against requesting more splits than samples — this can happen when
+    # running on very small synthetic datasets or heavily trimmed feature sets.
+    max_splits = max(2, min(n_splits, len(X) - 1))
+    tscv = TimeSeriesSplit(n_splits=max_splits)
     results: List[FoldReport] = []
 
     for fold, (train_idx, test_idx) in enumerate(tscv.split(X), start=1):
@@ -63,7 +67,7 @@ def _tscv_reports(
             "%s fold %d/%d — accuracy=%.3f",
             label,
             fold,
-            n_splits,
+            max_splits,
             float(rep.get("accuracy", 0.0)),
         )
 
@@ -294,18 +298,36 @@ def model_metrics_summary(results: dict) -> dict:
         single (current) regime model bundle.
       - Otherwise, results is assumed to be {horizon: {...}} from
         train_forward_classifiers.
+
+    IMPORTANT: This function must not mutate `results`.
     """
+    # Work on a deep copy so we never mutate the caller's object.
+    data = copy.deepcopy(results)
+
     # Single-bundle (current-regime) case
-    if "cv_reports" in results and isinstance(results.get("cv_reports"), dict):
-        summary = {}
-        for model_name, folds in results["cv_reports"].items():
+    if "cv_reports" in data and isinstance(data.get("cv_reports"), dict):
+        summary: Dict[str, dict] = {}
+        for model_name, folds in data["cv_reports"].items():
             rep_dicts = [fr.report if isinstance(fr, FoldReport) else fr for fr in folds]
             summary[model_name] = _aggregate_classification_reports(rep_dicts)
         return {"current": summary}
 
+    # Combined regime + behavior metrics case:
+    # results = {"regime": [...], "behavior": [...]}, where each inner list
+    # contains pre-aggregated metric rows (as dicts). We flatten these into
+    # a single rows list with a `family` tag.
+    if "regime" in data and "behavior" in data:
+        rows: list[dict] = []
+        for fam in ("regime", "behavior"):
+            for row in data.get(fam, []):
+                r = dict(row)
+                r["family"] = fam
+                rows.append(r)
+        return {"rows": rows}
+
     # Multi-horizon case
     out: Dict[int, dict] = {}
-    for horizon, bundle in results.items():
+    for horizon, bundle in data.items():
         cv_reports = bundle.get("cv_reports", {})
         model_summaries: Dict[str, dict] = {}
         for model_name, folds in cv_reports.items():
@@ -314,4 +336,102 @@ def model_metrics_summary(results: dict) -> dict:
         out[horizon] = model_summaries
 
     return out
+
+
+def make_behavior_labels(
+    returns: pd.Series,
+    horizon: int,
+    up_threshold: float,
+    down_threshold: float,
+) -> pd.Series:
+    """
+    Label forward returns as 'up' / 'flat' / 'down' for a single asset.
+
+    The label at time t is based on the return between t and t+horizon. The last
+    `horizon` periods are dropped so that every label corresponds to a full
+    forward window.
+    """
+    if horizon <= 0:
+        raise ValueError(f"horizon must be positive, got {horizon}")
+
+    fwd = returns.shift(-horizon)
+    mask = fwd.notna()
+    fwd = fwd[mask]
+
+    # Start with all 'flat', then override up/down with strict inequalities.
+    labels = pd.Series("flat", index=fwd.index, dtype=object)
+    labels[fwd > up_threshold] = "up"
+    labels[fwd < down_threshold] = "down"
+
+    return labels
+
+
+def train_forward_behavior_models(
+    features: pd.DataFrame,
+    regimes: pd.Series,
+    returns: pd.DataFrame,
+    horizons: List[int],
+    cv_splits: int = 3,
+) -> Dict[str, Dict[int, RandomForestClassifier]]:
+    """
+    Train per-asset, per-horizon behavior classifiers using features + regimes.
+
+    For each asset column in `returns` and each horizon in `horizons`, this
+    function:
+      - Builds behavior labels via make_behavior_labels()
+      - Intersects indices of features / regimes / labels
+      - Trains a RandomForestClassifier on [features, regime] → behavior_label
+
+    Returns:
+        {
+          "models": {asset: {h: RandomForestClassifier, ...}, ...},
+          "cv_reports": {}   # reserved for future extension
+        }
+    """
+    if features.empty:
+        raise ValueError("features must be non-empty")
+    if not horizons:
+        raise ValueError("horizons must be a non-empty list of integers")
+
+    models: Dict[str, Dict[int, RandomForestClassifier]] = {}
+
+    for asset in returns.columns:
+        asset_models: Dict[int, RandomForestClassifier] = {}
+        for h in horizons:
+            if h <= 0:
+                raise ValueError(f"horizon must be positive, got {h}")
+
+            labels = make_behavior_labels(
+                returns[asset],
+                horizon=h,
+                up_threshold=0.0,
+                down_threshold=0.0,
+            )
+            idx_joint = (
+                labels.index.intersection(features.index).intersection(regimes.index)
+            )
+            if idx_joint.empty:
+                continue
+
+            X_joint = features.loc[idx_joint].copy()
+            X_joint["regime"] = regimes.loc[idx_joint].astype(int)
+            y_joint = labels.loc[idx_joint]
+
+            clf = RandomForestClassifier(
+                max_depth=8,
+                n_estimators=100,
+                random_state=42,
+                n_jobs=-1,
+                class_weight="balanced",
+            )
+            clf.fit(X_joint, y_joint)
+            asset_models[h] = clf
+
+        if asset_models:
+            models[asset] = asset_models
+
+    return {
+        "models": models,
+        "cv_reports": {},
+    }
 

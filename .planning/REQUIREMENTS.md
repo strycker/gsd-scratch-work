@@ -49,9 +49,10 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 - **REGIME-02 — Regime profiling**
   - **Description**: For each regime, compute descriptive statistics over key macro features and ETF returns.
   - **Details**:
-    - Summaries should enable human-readable descriptions (e.g. “high inflation, low growth, tight credit”).
-    - Profiles must be reproducible from code (not manual notebooks only).
-  - **Rationale**: Users need to understand what each regime actually means.
+    - Macro profiles are produced via `regime.build_profiles()` and saved to `data/regimes/profiles.parquet`.
+    - ETF return behavior by regime is captured in `data/regimes/asset_return_profile.parquet` (written by step 6 `06_asset_returns.py` via `returns_by_regime()`).
+    - Summaries should enable human-readable descriptions (e.g. “high inflation, low growth, tight credit”) and be reproducible from code (not manual notebooks only).
+  - **Rationale**: Users need to understand what each regime actually means, both in macro terms and in terms of ETF performance.
 
 - **REGIME-03 — Stable regime naming**
   - **Description**: Provide a stable mapping from cluster IDs to human-readable regime names.
@@ -187,8 +188,8 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 | DATA-02    | Phase 1 | Complete |
 | DATA-03    | Phase 1 | Complete |
 | REGIME-01  | Phase 2 | Complete |
-| REGIME-02  | Phase 2 | Pending |
-| REGIME-03  | Phase 2 | Pending |
+| REGIME-02  | Phase 2 | Complete |
+| REGIME-03  | Phase 2 | Complete |
 | MODEL-01   | Phase 3 | Pending |
 | MODEL-02   | Phase 3 | Pending |
 | MODEL-03   | Phase 3 | Pending |

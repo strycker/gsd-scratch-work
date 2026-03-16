@@ -1,17 +1,17 @@
 {
   "name": "macro_raw",
-  "created": "2026-03-11T15:53:28.560250",
-  "config_hash": "06587e3d",
+  "created": "2026-03-16T14:52:48.787290",
+  "config_hash": "e5b4507f",
   "rows": 305,
-  "columns": 54,
+  "columns": 53,
   "col_names": [
     "fred_gnp",
     "fred_gdp",
-    "fred_cpi",
-    "fred_tb3ms",
     "fred_aaa",
-    "fred_gs10",
     "fred_baa",
+    "fred_tb3ms",
+    "fred_gs10",
+    "fred_cpi",
     "book",
     "dividend",
     "div_growth",
@@ -57,8 +57,7 @@
     "us_med_real_income",
     "us_infl",
     "us_pop",
-    "us_pop_growth",
-    "market_code"
+    "us_pop_growth"
   ],
   "index_start": "1950-03-31 00:00:00",
   "index_end": "2026-03-31 00:00:00"

@@ -18,8 +18,8 @@ def _require_checkpoint(name: str, cm: CheckpointManager) -> pd.DataFrame:
         return cm.load(name)
     except FileNotFoundError:
         pytest.skip(
-            f\"{name} checkpoint not found; run the corresponding pipeline steps to "
-            f"materialise data/checkpoints/{name}.parquet before enforcing cadence constraints.\"
+            f"{name} checkpoint not found; run the corresponding pipeline steps to "
+            f"materialise data/checkpoints/{name}.parquet before enforcing cadence constraints."
         )
 
 
@@ -31,11 +31,11 @@ def _assert_quarterly_index(index: pd.Index) -> None:
         return
 
     if not isinstance(index, pd.DatetimeIndex):
-        raise AssertionError(f\"Expected DatetimeIndex/PeriodIndex, got {type(index)!r}\")
+        raise AssertionError(f"Expected DatetimeIndex/PeriodIndex, got {type(index)!r}")
 
     freq = pd.infer_freq(index)
     if not (freq and freq.upper().startswith("Q")):
-        raise AssertionError(f\"Expected quarterly frequency, inferred {freq!r}\")
+        raise AssertionError(f"Expected quarterly frequency, inferred {freq!r}")
 
 
 def _assert_no_intraday(index: pd.Index) -> None:
@@ -62,7 +62,7 @@ def test_asset_prices_are_not_intraday(checkpoints: CheckpointManager) -> None:
 @pytest.mark.parametrize("name", ["features_noncausal", "features_causal"])
 def test_feature_artifacts_are_quarterly(name: str, checkpoints: CheckpointManager) -> None:
     features = _require_checkpoint(name, checkpoints)
-    assert not features.empty, f\"{name} checkpoint is empty\"
+    assert not features.empty, f"{name} checkpoint is empty"
     _assert_quarterly_index(features.index)
     _assert_no_intraday(features.index)
 
