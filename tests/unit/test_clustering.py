@@ -127,3 +127,30 @@ class TestFitClusters:
         pca_df, _, _ = reduce_pca(feature_df, n_components=5)
         result = fit_clusters(pca_df, best_k=3, balanced_k=5, use_constrained=False)
         pd.testing.assert_index_equal(result.index, pca_df.index)
+
+    def test_canonicalization_produces_contiguous_and_ordered_labels(self, feature_df):
+        """Cluster IDs should be contiguous [0..k-1] and ordered by mean PC1."""
+        pca_df, _, _ = reduce_pca(feature_df, n_components=3)
+        result = fit_clusters(pca_df, best_k=3, balanced_k=3, use_constrained=False)
+
+        for col in ["cluster", "balanced_cluster"]:
+            labels = result[col]
+            # Contiguous integer labels starting at 0
+            assert labels.min() == 0
+            assert labels.max() == labels.nunique() - 1
+
+            # Label order should match ascending mean PC1
+            means = result.groupby(col)["PC1"].mean()
+            ordered_means = means.loc[sorted(means.index)]
+            assert ordered_means.is_monotonic_increasing
+
+    def test_balanced_cluster_fallback_logs_warning_and_still_creates_column(
+        self, feature_df, caplog
+    ):
+        """When constrained KMeans is disabled, fallback still produces balanced_cluster."""
+        pca_df, _, _ = reduce_pca(feature_df, n_components=5)
+        with caplog.at_level("WARNING"):
+            result = fit_clusters(pca_df, best_k=3, balanced_k=5, use_constrained=False)
+
+        assert "balanced_cluster uses plain KMeans" in "\n".join(caplog.messages)
+        assert "balanced_cluster" in result.columns

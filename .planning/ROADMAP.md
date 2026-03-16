@@ -30,7 +30,10 @@
   1. Historical quarters are assigned to a manageable number of regimes (target ~4–7) via PCA + clustering, using the established feature set (REGIME-01).
   2. For each regime, reproducible code produces descriptive statistics over key macro variables and ETF returns that support human-readable descriptions (REGIME-02).
   3. A version-controlled mapping from cluster IDs to human-readable regime names exists, is applied consistently across runs, and any renames are documented (REGIME-03).
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 02-regime-clustering-interpretation-01-PLAN.md — Harden clustering pipeline and artifacts for deterministic regime labels (REGIME-01).
+- [ ] 02-regime-clustering-interpretation-02-PLAN.md — Implement regime profiling, naming, and transitions with tests (REGIME-01, REGIME-02, REGIME-03).
 
 ### Phase 3: Supervised Regime & Behavior Models
 **Goal**: Train, validate, and report on supervised models that turn regimes into real-time and forward-looking signals for regimes and ETF/portfolio behavior.
@@ -77,7 +80,7 @@
 | Phase | Name                                      | Plans Complete | Status       | Completed |
 |-------|-------------------------------------------|----------------|--------------|-----------|
 | 1     | 2/3 | In Progress|  | -         |
-| 2     | Regime Clustering & Interpretation        | 0/0            | Not started  | -         |
+| 2     | 1/2 | In Progress|  | -         |
 | 3     | Supervised Regime & Behavior Models       | 0/0            | Not started  | -         |
 | 4     | Regime-Conditional ETF & Portfolio Behavior | 0/0          | Not started  | -         |
 | 5     | Recommendations & Machine-Readable Outputs | 0/0          | Not started  | -         |
