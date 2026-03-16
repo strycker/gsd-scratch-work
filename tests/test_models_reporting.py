@@ -1,5 +1,78 @@
 from __future__ import annotations
 
+from market_regime.prediction import model_metrics_summary
+
+
+def test_model_metrics_summary_merges_regime_and_behavior() -> None:
+    # Regime-style pre-aggregated metrics (e.g. from current / forward regime models).
+    regime_rows = [
+        {
+            "model": "rf",
+            "metric": "accuracy",
+            "value": 0.82,
+            "asset": None,
+            "horizon": None,
+            "class_label": "0",
+        },
+        {
+            "model": "rf",
+            "metric": "macro_f1",
+            "value": 0.79,
+            "asset": None,
+            "horizon": None,
+            "class_label": None,
+        },
+    ]
+
+    # Behavior-style metrics keyed by asset / horizon / class.
+    behavior_rows = [
+        {
+            "model": "behavior-rf",
+            "metric": "accuracy",
+            "value": 0.70,
+            "asset": "ETF1",
+            "horizon": 1,
+            "class_label": "up",
+        },
+        {
+            "model": "behavior-rf",
+            "metric": "accuracy",
+            "value": 0.65,
+            "asset": "ETF1",
+            "horizon": 1,
+            "class_label": "down",
+        },
+    ]
+
+    combined = {
+        "regime": regime_rows,
+        "behavior": behavior_rows,
+    }
+
+    summary = model_metrics_summary(combined)
+    rows = summary["rows"]
+
+    # All rows should carry a family tag and preserve basic fields.
+    assert any(r["family"] == "regime" for r in rows)
+    assert any(r["family"] == "behavior" for r in rows)
+
+    # Behavior entries should be filterable by asset and class label.
+    etf1_up = [
+        r
+        for r in rows
+        if r["family"] == "behavior"
+        and r["asset"] == "ETF1"
+        and r["class_label"] == "up"
+    ]
+    assert len(etf1_up) == 1
+    assert 0.0 <= etf1_up[0]["value"] <= 1.0
+
+    # Ensure inputs are not mutated.
+    assert combined["regime"] is regime_rows
+    assert combined["behavior"] is behavior_rows
+
+from __future__ import annotations
+
 import copy
 
 from market_regime.prediction.classifier import model_metrics_summary
