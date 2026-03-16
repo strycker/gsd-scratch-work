@@ -1,4 +1,17 @@
-## Project State — Trading-Crab (V1)
+---
+gsd_state_version: 1.1
+milestone: v1.1
+milestone_name: ETF Behavior & Portfolios
+status: defining_requirements
+last_updated: "2026-03-16T21:59:00.000Z"
+progress:
+  total_phases: 6
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+---
+
+## Project State — Trading-Crab (v1.1)
 
 ## Project Reference
 
@@ -8,20 +21,20 @@
 
 ## Current Position
 
-- **Current phase**: Phase 1 — Data & Constraints Foundations
-- **Current plan**: Not yet planned (ready for `/gsd:plan-phase 1`)
-- **Overall status**: Roadmap created; implementation not started.
+- **Current milestone**: v1.1 ETF Behavior & Portfolios
+- **Current phase**: Not yet started (requirements and roadmap for v1.1 to be (re)defined)
+- **Overall status**: New milestone initialized; ready for refreshed REQUIREMENTS and ROADMAP.
 
 ### Phase Progress
 
-| Phase | Name                                      | Plans Complete | Status       | Notes                         |
-|-------|-------------------------------------------|----------------|--------------|-------------------------------|
-| 1     | Data & Constraints Foundations            | 0/0            | Not started  | First planning target         |
-| 2     | Regime Clustering & Interpretation        | 0/0            | Not started  | Depends on Phase 1            |
-| 3     | Supervised Regime & Behavior Models       | 0/0            | Not started  | Depends on Phases 1–2         |
-| 4     | Regime-Conditional ETF & Portfolio Behavior | 0/0          | Not started  | Depends on Phases 1–3         |
-| 5     | Recommendations & Machine-Readable Outputs | 0/0          | Not started  | Depends on Phases 1–4         |
-| 6     | Weekly Report Pipeline                    | 0/0            | Not started  | Depends on Phases 1–5         |
+| Phase | Name                               | Plans Complete | Status      | Notes                                      |
+|-------|------------------------------------|----------------|-------------|--------------------------------------------|
+| 1     | Data & Constraints Foundations     | 0/0            | Completed   | Shipped as part of v1.0 Trading-Crab       |
+| 2     | Regime Clustering & Interpretation | 0/0            | Completed   | Shipped as part of v1.0 Trading-Crab       |
+| 3     | Supervised Regime & Behavior Models | 0/0           | Completed   | Shipped as part of v1.0 Trading-Crab       |
+| 4     | Regime-Conditional ETF Behavior    | 0/0            | Not started | Primary focus area for milestone v1.1      |
+| 5     | Recommendations & Outputs          | 0/0            | Not started | Builds on enhanced behavior & regime views |
+| 6     | Weekly Report Pipeline             | 0/0            | Not started | Downstream consumer of v1.1 enhancements   |
 
 ## Performance & Health
 

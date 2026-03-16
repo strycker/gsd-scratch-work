@@ -11,8 +11,8 @@ Two public functions:
                            This is the format expected by all plotting helpers
                            and rank_assets_by_regime().
 
-  returns_full_stats()   → pivoted DataFrames for median_return, hit_rate, and
-                           n_quarters — returned as a dict keyed by stat name.
+  returns_full_stats()   → pivoted DataFrames for median_return, q25, q75, hit_rate,
+                           and n_quarters — returned as a dict keyed by stat name.
                            Useful for deeper analysis or custom reporting.
 
   rank_assets_by_regime() → flat DataFrame with columns [regime, asset,
@@ -131,10 +131,10 @@ def returns_full_stats(
     cluster_labels: pd.Series,
 ) -> dict[str, pd.DataFrame]:
     """
-    Compute median return, hit rate, and n_quarters for each (regime, asset) pair.
+    Compute median return, q25, q75, hit rate, and n_quarters for each (regime, asset) pair.
 
     Returns:
-        dict with keys "median_return", "hit_rate", "n_quarters", each mapping
+        dict with keys "median_return", "q25", "q75", "hit_rate", "n_quarters", each mapping
         to a pivoted DataFrame: index=regime, columns=tickers.
 
     Use this when you need richer statistics than median_return alone (e.g.
@@ -150,20 +150,27 @@ def returns_full_stats(
             col = asset_data[ticker].dropna()
             if col.empty:
                 continue
+            q = col.quantile([0.25, 0.75])
             records.append({
                 "regime":        regime,
                 "asset":         ticker,
                 "median_return": col.median(),
+                "q25":           q.iloc[0],
+                "q75":           q.iloc[1],
                 "hit_rate":      (col > 0).mean(),
                 "n_quarters":    len(col),
             })
 
     if not records:
-        return {"median_return": pd.DataFrame(), "hit_rate": pd.DataFrame(), "n_quarters": pd.DataFrame()}
+        empty = pd.DataFrame()
+        return {
+            "median_return": empty, "q25": empty, "q75": empty,
+            "hit_rate": empty, "n_quarters": empty,
+        }
 
     flat = pd.DataFrame(records)
     result = {}
-    for stat in ("median_return", "hit_rate", "n_quarters"):
+    for stat in ("median_return", "q25", "q75", "hit_rate", "n_quarters"):
         pivot = flat.pivot(index="regime", columns="asset", values=stat)
         pivot.index.name = "regime"
         pivot.columns.name = None
@@ -194,4 +201,153 @@ def rank_assets_by_regime(profile: pd.DataFrame) -> pd.DataFrame:
                 "median_quarterly_return": ret,
                 "rank":                    rank,
             })
+    return pd.DataFrame(records)
+
+
+def compute_template_returns(
+    returns: pd.DataFrame,
+    templates: list[dict],
+) -> pd.DataFrame:
+    """
+    Compute quarterly returns for portfolio templates (weighted sum of ETF returns).
+
+    Args:
+        returns: DataFrame index=quarter, columns=ETF tickers, values=quarterly return.
+        templates: List of {"name": str, "weights": {ticker: weight, ...}}.
+                   Weights are normalized per template; only tickers present in returns are used.
+
+    Returns:
+        DataFrame with same index as returns, columns=template names.
+    """
+    out = pd.DataFrame(index=returns.index)
+    for tpl in templates:
+        name = tpl.get("name", "unknown")
+        weights = tpl.get("weights") or {}
+        if not weights:
+            continue
+        common = [t for t in weights if t in returns.columns]
+        if not common:
+            log.warning("Template %s: no weight keys found in returns columns", name)
+            continue
+        w = {t: weights[t] for t in common}
+        total = sum(w.values())
+        if total <= 0:
+            continue
+        w = {t: w[t] / total for t in w}
+        out[name] = sum(returns[t] * w[t] for t in w)
+    return out
+
+
+# Default behavior thresholds (overridden by config dashboard.behavior_thresholds).
+_DEFAULT_BEHAVIOR = {"green_median": 0.02, "red_median": 0.0}
+
+
+def _absolute_signal(median: float, green_median: float, red_median: float) -> str:
+    if median >= green_median:
+        return "GREEN"
+    # Treat exact red_median (e.g. 0%) as neutral; strictly below is RED.
+    if median < red_median:
+        return "RED"
+    return "NEUTRAL"
+
+
+def _score_absolute(median: float) -> float:
+    """Map median quarterly return to 0–100. 0% ≈ 50, +2% ≈ 70, +4% ≈ 85, -2% ≈ 30."""
+    # Linear segments: -3% -> 15, 0% -> 50, 2% -> 70, 4% -> 85, 6%+ -> 100
+    if median >= 0.06:
+        return 100.0
+    if median >= 0.04:
+        return 50.0 + (median - 0.04) * (35.0 / 0.02)  # 85–100
+    if median >= 0.02:
+        return 50.0 + (median - 0.02) * (20.0 / 0.02)   # 70–85
+    if median >= 0.0:
+        return 50.0 + median * (20.0 / 0.02)           # 50–70
+    if median >= -0.02:
+        return 50.0 + median * (20.0 / 0.02)           # 30–50
+    if median >= -0.03:
+        return 30.0 + (median + 0.02) * (15.0 / 0.01)   # 15–30
+    return max(0.0, 15.0 + (median + 0.03) * (15.0 / 0.03))
+
+
+def behavior_tables(
+    returns: pd.DataFrame,
+    cluster_labels: pd.Series,
+    thresholds: dict[str, float] | None = None,
+) -> pd.DataFrame:
+    """
+    Per-regime behavior: median, IQR, stoplight (absolute + tertile shading), and scores.
+
+    Stoplight rules:
+      - Absolute: green if median >= green_median (default 2%), red if median <= red_median (0%), else neutral.
+      - Tertile: within each regime, rank by median; top 1/3 → lighter green, middle → lighter blue, bottom 1/3 → darker red.
+    Combined display: green_strong, green, neutral, light_blue, red, red_strong.
+
+    Scores:
+      - score_relative: 0–100, rank within regime (best median = 100).
+      - score_absolute: 0–100 from absolute median return level.
+
+    Returns:
+        Flat DataFrame with columns: regime, asset, median_return, q25, q75, hit_rate,
+        n_quarters, signal_absolute, tertile, signal_display, score_relative, score_absolute, rank.
+    """
+    th = {**_DEFAULT_BEHAVIOR, **(thresholds or {})}
+    green_med = th["green_median"]
+    red_med = th["red_median"]
+
+    full = returns_full_stats(returns, cluster_labels)
+    median_df = full["median_return"]
+    q25_df = full["q25"]
+    q75_df = full["q75"]
+    hit_df = full["hit_rate"]
+    n_df = full["n_quarters"]
+
+    records = []
+    for regime in median_df.index:
+        med = median_df.loc[regime].dropna()
+        if med.empty:
+            continue
+        # Tertile ranks (1 = top, 2 = mid, 3 = bottom)
+        ranked = med.rank(ascending=False, method="first").astype(int)
+        n = len(med)
+        tertile = (ranked - 1) * 3 // n + 1  # 1-based tertile
+
+        for asset in med.index:
+            m = med[asset]
+            abs_sig = _absolute_signal(m, green_med, red_med)
+            tert = tertile[asset]
+            # Combined display: top+green -> green_strong, mid+neutral -> light_blue, bottom+red -> red_strong
+            if abs_sig == "GREEN" and tert == 1:
+                display = "green_strong"
+            elif abs_sig == "GREEN":
+                display = "green"
+            elif abs_sig == "NEUTRAL" and tert == 2:
+                display = "light_blue"
+            elif abs_sig == "NEUTRAL":
+                display = "neutral"
+            elif abs_sig == "RED" and tert == 3:
+                display = "red_strong"
+            else:
+                display = "red"
+
+            # Relative score 0–100 (best in regime = 100)
+            rrank = ranked[asset]
+            score_rel = 100.0 * (1.0 - (rrank - 1) / max(1, n - 1)) if n > 1 else 50.0
+            score_abs = _score_absolute(m)
+
+            records.append({
+                "regime":          regime,
+                "asset":           asset,
+                "median_return":   m,
+                "q25":             q25_df.loc[regime, asset] if asset in q25_df.columns else None,
+                "q75":             q75_df.loc[regime, asset] if asset in q75_df.columns else None,
+                "hit_rate":        hit_df.loc[regime, asset] if asset in hit_df.columns else None,
+                "n_quarters":      int(n_df.loc[regime, asset]) if asset in n_df.columns else None,
+                "signal_absolute": abs_sig,
+                "tertile":         int(tert),
+                "signal_display":   display,
+                "score_relative":  round(score_rel, 1),
+                "score_absolute":  round(_score_absolute(m), 1),
+                "rank":            int(ranked[asset]),
+            })
+
     return pd.DataFrame(records)

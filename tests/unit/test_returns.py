@@ -11,9 +11,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from market_regime.asset_returns import (
     compute_quarterly_returns,
+    compute_template_returns,
     returns_by_regime,
     returns_full_stats,
     rank_assets_by_regime,
+    behavior_tables,
 )
 
 
@@ -89,11 +91,11 @@ class TestReturnsByRegime:
 # ── returns_full_stats ─────────────────────────────────────────────────────
 
 class TestReturnsFullStats:
-    def test_returns_three_keys(self, asset_prices, cluster_labels):
+    def test_returns_five_keys_including_iqr(self, asset_prices, cluster_labels):
         returns = compute_quarterly_returns(asset_prices)
         common = returns.index.intersection(cluster_labels.index)
         stats = returns_full_stats(returns.loc[common], cluster_labels.loc[common])
-        assert set(stats.keys()) == {"median_return", "hit_rate", "n_quarters"}
+        assert set(stats.keys()) == {"median_return", "q25", "q75", "hit_rate", "n_quarters"}
 
     def test_hit_rate_between_0_and_1(self, asset_prices, cluster_labels):
         returns = compute_quarterly_returns(asset_prices)
@@ -137,3 +139,73 @@ class TestRankAssetsByRegime:
         for _, grp in ranked.groupby("regime"):
             sorted_grp = grp.sort_values("rank")
             assert sorted_grp["median_quarterly_return"].is_monotonic_decreasing
+
+
+# ── compute_template_returns ─────────────────────────────────────────────────
+
+class TestComputeTemplateReturns:
+    def test_template_weights_sum_to_return(self, quarterly_index):
+        returns = pd.DataFrame(
+            {"SPY": [0.02, 0.01, -0.01], "IEF": [0.01, 0.005, 0.0]},
+            index=quarterly_index[:3],
+        )
+        templates = [{"name": "60_40", "weights": {"SPY": 0.6, "IEF": 0.4}}]
+        out = compute_template_returns(returns, templates)
+        assert "60_40" in out.columns
+        assert len(out) == 3
+        # 0.6*0.02 + 0.4*0.01 = 0.016
+        assert abs(out.loc[out.index[0], "60_40"] - 0.016) < 1e-10
+
+    def test_empty_templates_returns_empty_df(self, asset_prices):
+        returns = compute_quarterly_returns(asset_prices)
+        out = compute_template_returns(returns, [])
+        assert out.empty
+
+    def test_skips_missing_tickers(self, quarterly_index):
+        returns = pd.DataFrame({"SPY": [0.01, 0.02]}, index=quarterly_index[:2])
+        templates = [{"name": "Mix", "weights": {"SPY": 0.5, "IEF": 0.5}}]
+        out = compute_template_returns(returns, templates)
+        assert "Mix" in out.columns
+        # Only SPY present → effectively 100% SPY after normalizing
+        assert abs(out.loc[out.index[0], "Mix"] - 0.01) < 1e-10
+
+
+# ── behavior_tables ─────────────────────────────────────────────────────────
+
+class TestBehaviorTables:
+    def test_columns_include_stoplight_and_scores(self, asset_prices, cluster_labels):
+        returns = compute_quarterly_returns(asset_prices)
+        common = returns.index.intersection(cluster_labels.index)
+        bt = behavior_tables(returns.loc[common], cluster_labels.loc[common])
+        required = {
+            "regime", "asset", "median_return", "q25", "q75", "hit_rate", "n_quarters",
+            "signal_absolute", "tertile", "signal_display", "score_relative", "score_absolute", "rank",
+        }
+        assert required <= set(bt.columns)
+
+    def test_signal_absolute_green_red_neutral(self, quarterly_index):
+        # One asset, three regimes: high median, zero, negative
+        idx = quarterly_index[:3]
+        returns = pd.DataFrame({"A": [0.03, 0.0, -0.02]}, index=idx)
+        labels = pd.Series([0, 1, 2], index=idx)
+        bt = behavior_tables(returns, labels)
+        row_0 = bt[(bt["regime"] == 0) & (bt["asset"] == "A")].iloc[0]
+        row_1 = bt[(bt["regime"] == 1) & (bt["asset"] == "A")].iloc[0]
+        row_2 = bt[(bt["regime"] == 2) & (bt["asset"] == "A")].iloc[0]
+        assert row_0["signal_absolute"] == "GREEN"   # 3% >= 2%
+        assert row_1["signal_absolute"] == "NEUTRAL"  # 0%
+        assert row_2["signal_absolute"] == "RED"    # -2% <= 0%
+
+    def test_scores_in_range(self, asset_prices, cluster_labels):
+        returns = compute_quarterly_returns(asset_prices)
+        common = returns.index.intersection(cluster_labels.index)
+        bt = behavior_tables(returns.loc[common], cluster_labels.loc[common])
+        assert (bt["score_relative"] >= 0).all() and (bt["score_relative"] <= 100).all()
+        assert (bt["score_absolute"] >= 0).all() and (bt["score_absolute"] <= 100).all()
+
+    def test_signal_display_values(self, asset_prices, cluster_labels):
+        returns = compute_quarterly_returns(asset_prices)
+        common = returns.index.intersection(cluster_labels.index)
+        bt = behavior_tables(returns.loc[common], cluster_labels.loc[common])
+        allowed = {"green_strong", "green", "neutral", "light_blue", "red", "red_strong"}
+        assert set(bt["signal_display"].unique()) <= allowed

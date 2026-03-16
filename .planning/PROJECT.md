@@ -132,5 +132,16 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 ---
 
-*Last updated: 2026-03-16 after project initialization questioning*
+## Current Milestone: v1.1 ETF Behavior & Portfolios
+
+**Goal:** Extend Trading-Crab beyond regime discovery into richer ETF behavior analysis and portfolio guidance, focusing on expanded ETF coverage, per-regime behavior tables, and clearer portfolio-oriented outputs.
+
+**Target features:**
+- Expanded ETF universe and templates reflecting the user’s preferred sectors, bonds, commodities, and bitcoin ETF wrappers.
+- Regime-conditional ETF and template tables (medians, IQR bands, stoplight / composite scores) suitable for human interpretation.
+- Clearer portfolio-facing artifacts that tie model outputs to simple buy/hold/sell style guidance for ETF portfolios.
+
+---
+
+*Last updated: 2026-03-16 after v1.1 milestone initialization*
 

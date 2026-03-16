@@ -42,8 +42,10 @@ from market_regime.config import load, setup_logging
 from market_regime.asset_returns import (
     compute_quarterly_returns,
     compute_proxy_returns,
+    compute_template_returns,
     returns_by_regime,
     rank_assets_by_regime,
+    behavior_tables,
 )
 
 import pandas as pd
@@ -113,13 +115,32 @@ def main() -> None:
             return
 
     common = returns.index.intersection(labels.index)
-    profile = returns_by_regime(returns.loc[common], labels.loc[common])
+    returns_aligned = returns.loc[common]
+    labels_aligned = labels.loc[common]
+    profile = returns_by_regime(returns_aligned, labels_aligned)
     ranked = rank_assets_by_regime(profile)
 
-    out = DATA_DIR / "regimes" / "asset_return_profile.parquet"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    profile.to_parquet(out)
-    print(f"Wrote asset return profile → {out}")
+    out_dir = DATA_DIR / "regimes"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    profile.to_parquet(out_dir / "asset_return_profile.parquet")
+    print(f"Wrote asset return profile → {out_dir / 'asset_return_profile.parquet'}")
+
+    # Phase 4: behavior tables (median, IQR, stoplights, scores) for ETFs
+    behavior_thresholds = cfg.get("dashboard", {}).get("behavior_thresholds") or {}
+    etf_behavior = behavior_tables(returns_aligned, labels_aligned, thresholds=behavior_thresholds)
+    etf_behavior.to_parquet(out_dir / "etf_behavior_by_regime.parquet", index=False)
+    print(f"Wrote ETF behavior by regime → {out_dir / 'etf_behavior_by_regime.parquet'}")
+
+    # Phase 4: template returns and behavior (if config has portfolio_templates)
+    templates = cfg.get("assets", {}).get("portfolio_templates") or []
+    if templates:
+        template_returns = compute_template_returns(returns_aligned, templates)
+        if not template_returns.empty:
+            template_behavior = behavior_tables(
+                template_returns, labels_aligned, thresholds=behavior_thresholds
+            )
+            template_behavior.to_parquet(out_dir / "template_behavior_by_regime.parquet", index=False)
+            print(f"Wrote template behavior by regime → {out_dir / 'template_behavior_by_regime.parquet'}")
 
     print("\nTop assets per regime (by median quarterly return):")
     print(ranked.to_string(index=False))
