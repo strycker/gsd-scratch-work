@@ -183,9 +183,9 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 
 | Requirement | Phase  | Status  |
 |------------|--------|---------|
-| DATA-01    | Phase 1 | Pending |
+| DATA-01    | Phase 1 | Complete |
 | DATA-02    | Phase 1 | Pending |
-| DATA-03    | Phase 1 | Pending |
+| DATA-03    | Phase 1 | Complete |
 | REGIME-01  | Phase 2 | Pending |
 | REGIME-02  | Phase 2 | Pending |
 | REGIME-03  | Phase 2 | Pending |
@@ -201,6 +201,6 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 | UX-03      | Phase 5 | Pending |
 | REPORT-01  | Phase 6 | Pending |
 | REPORT-02  | Phase 6 | Pending |
-| CONSTR-01  | Phase 1 | Pending |
-| CONSTR-02  | Phase 1 | Pending |
+| CONSTR-01  | Phase 1 | Complete |
+| CONSTR-02  | Phase 1 | Complete |
 

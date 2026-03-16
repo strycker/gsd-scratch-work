@@ -76,7 +76,7 @@
 
 | Phase | Name                                      | Plans Complete | Status       | Completed |
 |-------|-------------------------------------------|----------------|--------------|-----------|
-| 1     | Data & Constraints Foundations            | 0/0            | Not started  | -         |
+| 1     | 2/3 | In Progress|  | -         |
 | 2     | Regime Clustering & Interpretation        | 0/0            | Not started  | -         |
 | 3     | Supervised Regime & Behavior Models       | 0/0            | Not started  | -         |
 | 4     | Regime-Conditional ETF & Portfolio Behavior | 0/0          | Not started  | -         |
