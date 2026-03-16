@@ -81,7 +81,7 @@ Plans:
 |-------|-------------------------------------------|----------------|--------------|-----------|
 | 1     | 2/3 | In Progress|  | -         |
 | 2     | 2/2 | Complete   | 2026-03-16 | -         |
-| 3     | Supervised Regime & Behavior Models       | 0/0            | Not started  | -         |
+| 3     | 1/3 | In Progress|  | -         |
 | 4     | Regime-Conditional ETF & Portfolio Behavior | 0/0          | Not started  | -         |
 | 5     | Recommendations & Machine-Readable Outputs | 0/0          | Not started  | -         |
 | 6     | Weekly Report Pipeline                    | 0/0            | Not started  | -         |
