@@ -5,7 +5,7 @@
 
 data:
   start_date: "1950-01-01"
-  end_date:   "2025-09-30"    # set to null to use today
+  end_date:   null            # null → use today's date at runtime
   frequency:  "Q"             # quarterly resampling target
 
   # Remove the most-recent quarter from consideration for prediction/training
@@ -317,6 +317,13 @@ prediction:
   cv_splits:                 3     # TimeSeriesSplit folds for walk-forward CV
   dt_max_depth:              8     # DecisionTree depth (shallow = human-readable)
   rf_max_depth:              12    # RandomForest max_depth (null = unlimited)
+  # Phase 9: optional boosted models + interpretability trees
+  use_boosted:               true  # try to train a boosted model when library is available
+  boosted_max_depth:         6
+  boosted_learning_rate:     0.1
+  boosted_n_estimators:      200
+  interpret_tree_max_depth:  3     # shallow tree for human-readable splits
+  interpret_top_k_features:  10    # number of top features to use when fitting interpretability tree
 
 # ── Asset classes ─────────────────────────────────────────────────────────────
 # Phase 4 (v1.1): expanded ETF universe + portfolio templates.
@@ -447,3 +454,13 @@ diagnostics:
   rrg_benchmarks:
     - SPY
     - VT
+
+# ── Tactics (Phase 10A) ────────────────────────────────────────────────────────
+tactics:
+  vol_windows: [5, 20, 60]
+  vol_bands:
+    low: 0.05
+    high: 0.25
+  trend_windows: [20, 60]
+  trend_min_slope: 0.0
+  corr_lookback: 60

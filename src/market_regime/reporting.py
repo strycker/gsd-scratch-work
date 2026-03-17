@@ -419,6 +419,30 @@ def write_weekly_report_md(
         lines.append("Transition probabilities not available.")
     lines.append("")
 
+    # Optional tactics section (Phase 10A)
+    from market_regime import OUTPUT_DIR  # local import to avoid circulars
+
+    tactics_path = OUTPUT_DIR / "reports" / "tactics_signals.parquet"
+    if tactics_path.exists():
+        try:
+            tac = pd.read_parquet(tactics_path)
+            buy_hold = tac[tac["tactics_label"] == "buy_hold"]["asset"].tolist()
+            swing = tac[tac["tactics_label"] == "swing"]["asset"].tolist()
+            stand_aside = tac[tac["tactics_label"] == "stand_aside"]["asset"].tolist()
+
+            lines.append("## Tactics")
+            lines.append("")
+            if buy_hold:
+                lines.append(f"- **Buy-and-hold candidates:** {', '.join(buy_hold)}")
+            if swing:
+                lines.append(f"- **Swing-trade candidates:** {', '.join(swing)}")
+            if stand_aside:
+                lines.append(f"- **Stand-aside:** {', '.join(stand_aside)}")
+            lines.append("")
+        except Exception:
+            # Do not let a malformed tactics file break the report.
+            pass
+
     text = "\n".join(lines)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(text, encoding="utf-8")

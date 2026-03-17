@@ -62,3 +62,36 @@ bash scripts/run_tests.sh tests/unit/test_returns.py -q
 - Runs `python -m pytest` inside `${TRADING_CRAB_CONDA_ENV:-py310}` via `conda run`.
 - Fails fast if `pytest` is not importable in that env.
 - Passes all extra arguments directly through to pytest.
+
+## install_trading_crab.sh
+
+One-shot installer for Trading-Crab on a new machine.
+
+**Usage:**
+
+```bash
+bash scripts/install_trading_crab.sh
+```
+
+**What it does:**
+
+- Uses conda `${TRADING_CRAB_CONDA_ENV:-py310}` if available, otherwise falls back to `.venv/`.
+- Installs the project (including dev extras) via `pip install -e ".[dev]"`.
+- Scaffolds `.env` and `config/email.local.yaml` from their example files if missing.
+- Runs a small pytest smoke set to catch obvious environment issues early.
+
+## check_env.sh
+
+Quick environment health check.
+
+**Usage:**
+
+```bash
+bash scripts/check_env.sh
+```
+
+**What it does:**
+
+- Prints the `python` and `pytest` executables and versions in use.
+- Verifies that `market_regime` can be imported.
+- Runs a tiny pytest smoke test (`test_current_regime_models_and_probabilities`).

@@ -118,6 +118,19 @@ If you ever see `pytest` and `python -m pytest` disagree, use the wrapper above 
 conda run -n py310 python -m pytest
 ```
 
+#### One-shot install (recommended)
+
+On a new machine, you can let the repo bootstrap the environment and run a couple of smoke tests:
+
+```bash
+# From repo root
+bash scripts/install_trading_crab.sh
+
+# Verify environment health
+bash scripts/check_env.sh
+pytest
+```
+
 ### Common Commands (via Makefile)
 
 ```bash

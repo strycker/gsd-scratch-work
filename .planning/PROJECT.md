@@ -1,5 +1,11 @@
 ## Project: Trading-Crab — Market Regime Analysis & ETF Portfolio Guidance
 
+### What This Is
+
+Trading-Crab is a Python-based research and execution environment for understanding macro-driven market regimes and turning that understanding into ETF-level portfolio decisions. It is the living, code-centered expression of the ideas captured in `CLAUDE.md`, using GSD-style planning (`.planning/`) to keep architecture, requirements, and implementation in sync.
+
+The project is intentionally opinionated about data sources, modeling choices, and UX so that the owner can iterate quickly with AI assistance while still preserving reproducibility and auditability.
+
 ### Purpose
 
 Trading-Crab is a research and decision-support system that analyzes macroeconomic time series and ETF performance to:
@@ -10,6 +16,10 @@ Trading-Crab is a research and decision-support system that analyzes macroeconom
 - Provide forward-looking guidance and weekly buy/hold/sell recommendations for a real ETF portfolio.
 
 This repository is also a scratch/workbench for experimenting with Claude Code–assisted development; Trading-Crab is the primary, production-quality project inside it.
+
+### Core Value
+
+The core value of Trading-Crab is **transparent, regime-aware ETF guidance**: instead of opaque black-box signals, it provides a traceable pipeline from raw macro data → engineered features → regimes → diagnostics → portfolio recommendations and tactics. The goal is to help a single, quantitatively minded investor make fewer, better decisions with clear context, not to maximize automation or complexity for its own sake.
 
 ### Target Users
 

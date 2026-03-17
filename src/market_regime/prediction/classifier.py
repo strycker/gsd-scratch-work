@@ -7,7 +7,7 @@ import copy
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.metrics import classification_report
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.tree import DecisionTreeClassifier
@@ -100,7 +100,8 @@ def _unique_labels(labels: pd.Series | Iterable[Hashable]) -> List[Hashable]:
 def train_current_regime(
     features: pd.DataFrame,
     labels: pd.Series,
-    cv_splits: int = 5,
+    cfg: dict | None = None,
+    cv_splits: int | None = None,
 ) -> dict:
     """
     Train current-regime classifiers with walk-forward TimeSeriesSplit CV.
@@ -121,28 +122,50 @@ def train_current_regime(
         raise ValueError("features and labels must have the same length")
 
     label_list = _unique_labels(labels)
+    pred_cfg = (cfg or {}).get("prediction", {})
+    rf_max_depth = pred_cfg.get("rf_max_depth", 12)
+    n_estimators = pred_cfg.get("n_estimators", 200)
+    dt_max_depth = pred_cfg.get("dt_max_depth", 8)
+    if cv_splits is None:
+        cv_splits = pred_cfg.get("cv_splits", 3)
+    use_boosted = bool(pred_cfg.get("use_boosted", False))
 
     def make_dt() -> DecisionTreeClassifier:
-        return DecisionTreeClassifier(max_depth=8, random_state=42)
+        return DecisionTreeClassifier(max_depth=dt_max_depth, random_state=42)
 
     def make_rf() -> RandomForestClassifier:
         return RandomForestClassifier(
-            max_depth=12,
-            n_estimators=200,
+            max_depth=rf_max_depth,
+            n_estimators=n_estimators,
             random_state=42,
             n_jobs=-1,
             class_weight="balanced",
+        )
+
+    def make_gb() -> GradientBoostingClassifier:
+        return GradientBoostingClassifier(
+            max_depth=pred_cfg.get("boosted_max_depth", 6),
+            learning_rate=pred_cfg.get("boosted_learning_rate", 0.1),
+            n_estimators=pred_cfg.get("boosted_n_estimators", 200),
+            random_state=42,
         )
 
     cv_reports: Dict[str, List[FoldReport]] = {
         "dt": _tscv_reports(make_dt, features, labels, cv_splits, "DT current-regime"),
         "rf": _tscv_reports(make_rf, features, labels, cv_splits, "RF current-regime"),
     }
-
-    models = {
+    models: Dict[str, object] = {
         "dt": make_dt(),
         "rf": make_rf(),
     }
+    if use_boosted:
+        try:
+            models["gb"] = make_gb()
+            cv_reports["gb"] = _tscv_reports(
+                make_gb, features, labels, cv_splits, "GB current-regime"
+            )
+        except Exception as exc:  # pragma: no cover - defensive
+            log.warning("Boosted model could not be initialised: %s", exc)
     for name, clf in models.items():
         clf.fit(features, labels)
         log.info(
@@ -162,7 +185,8 @@ def train_forward_classifiers(
     features: pd.DataFrame,
     regimes: pd.Series,
     horizons: List[int],
-    cv_splits: int = 5,
+    cfg: dict | None = None,
+    cv_splits: int | None = None,
 ) -> Dict[int, dict]:
     """
     Train forward regime classifiers for each horizon in `horizons`.
@@ -189,6 +213,14 @@ def train_forward_classifiers(
     if not horizons:
         raise ValueError("horizons must be a non-empty list of integers")
 
+    pred_cfg = (cfg or {}).get("prediction", {})
+    rf_max_depth = pred_cfg.get("rf_max_depth", 12)
+    n_estimators = pred_cfg.get("n_estimators", 200)
+    dt_max_depth = pred_cfg.get("dt_max_depth", 8)
+    if cv_splits is None:
+        cv_splits = pred_cfg.get("cv_splits", 3)
+    use_boosted = bool(pred_cfg.get("use_boosted", False))
+
     results: Dict[int, dict] = {}
 
     for h in horizons:
@@ -211,15 +243,23 @@ def train_forward_classifiers(
         class_order = _unique_labels(y_h)
 
         def make_dt() -> DecisionTreeClassifier:
-            return DecisionTreeClassifier(max_depth=8, random_state=42)
+            return DecisionTreeClassifier(max_depth=dt_max_depth, random_state=42)
 
         def make_rf() -> RandomForestClassifier:
             return RandomForestClassifier(
-                max_depth=12,
-                n_estimators=200,
+                max_depth=rf_max_depth,
+                n_estimators=n_estimators,
                 random_state=42,
                 n_jobs=-1,
                 class_weight="balanced",
+            )
+
+        def make_gb() -> GradientBoostingClassifier:
+            return GradientBoostingClassifier(
+                max_depth=pred_cfg.get("boosted_max_depth", 6),
+                learning_rate=pred_cfg.get("boosted_learning_rate", 0.1),
+                n_estimators=pred_cfg.get("boosted_n_estimators", 200),
+                random_state=42,
             )
 
         cv_reports: Dict[str, List[FoldReport]] = {
@@ -227,10 +267,18 @@ def train_forward_classifiers(
             "rf": _tscv_reports(make_rf, X_h, y_h, cv_splits, f"RF forward h={h}"),
         }
 
-        models = {
+        models: Dict[str, object] = {
             "dt": make_dt(),
             "rf": make_rf(),
         }
+        if use_boosted:
+            try:
+                models["gb"] = make_gb()
+                cv_reports["gb"] = _tscv_reports(
+                    make_gb, X_h, y_h, cv_splits, f"GB forward h={h}"
+                )
+            except Exception as exc:  # pragma: no cover - defensive
+                log.warning("Boosted forward model h=%d failed init: %s", h, exc)
         for name, clf in models.items():
             clf.fit(X_h, y_h)
             log.info(
@@ -449,4 +497,46 @@ def train_forward_behavior_models(
         "models": models,
         "cv_reports": {},
     }
+
+
+def extract_top_features(
+    model,
+    feature_names: List[str],
+    top_k: int,
+) -> List[str]:
+    """
+    Extract the top_k feature names from a fitted model with feature_importances_.
+
+    Falls back to the original feature_names if the attribute is missing.
+    """
+    importances = getattr(model, "feature_importances_", None)
+    if importances is None or len(importances) != len(feature_names):
+        return feature_names[:top_k]
+    idx = np.argsort(importances)[-top_k:]
+    return [feature_names[i] for i in idx]
+
+
+def train_interpretability_tree(
+    base_model,
+    features: pd.DataFrame,
+    labels: pd.Series,
+    cfg: dict | None = None,
+) -> Tuple[DecisionTreeClassifier, List[str]]:
+    """
+    Fit a shallow DecisionTree on the top-K features from a base model.
+
+    This is intended purely for interpretability; it is not the primary
+    predictive model.
+    """
+    pred_cfg = (cfg or {}).get("prediction", {})
+    max_depth = pred_cfg.get("interpret_tree_max_depth", 3)
+    top_k = int(pred_cfg.get("interpret_top_k_features", 10))
+
+    feature_names = list(features.columns)
+    top_features = extract_top_features(base_model, feature_names, top_k)
+    X_sub = features[top_features]
+
+    tree = DecisionTreeClassifier(max_depth=max_depth, random_state=42)
+    tree.fit(X_sub, labels)
+    return tree, top_features
 

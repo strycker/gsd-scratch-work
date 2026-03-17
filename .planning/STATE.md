@@ -1,17 +1,17 @@
 ---
-gsd_state_version: 1.2
-milestone: v1.2
-milestone_name: TBD
-status: defining_requirements
+gsd_state_version: 1.3
+milestone: v1.3
+milestone_name: Multi-horizon diagnostics & UX
+status: planning
 last_updated: "2026-03-17"
 progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_phases: 11
+  completed_phases: 11
+  total_plans: 9
+  completed_plans: 9
 ---
 
-## Project State — Trading-Crab (v1.2)
+## Project State — Trading-Crab (v1.3)
 
 ## Project Reference
 
@@ -21,17 +21,19 @@ progress:
 
 ## Current Position
 
-- **Current milestone**: v1.2 (name and goal TBD)
-- **Current phase**: Not started — define milestone focus, then requirements & roadmap.
-- **Overall status**: New milestone started; ready for goal + requirements.
+- **Current milestone**: v1.3 — Multi-horizon diagnostics & UX
+- **Current phase**: 11 phases (1–11) complete; next up are phases 12–15 for v1.3.
+- **Overall status**: Core pipeline, recommendations, tactics, and env cleanup are shipped through Phase 11; planning next wave.
 
 ### Phase Progress
 
-| Phase | Name                               | Status      | Notes                    |
-|-------|------------------------------------|-------------|--------------------------|
-| 1–3   | Foundations, Clustering, Models    | Completed   | Shipped in v1.0          |
-| 4–6   | ETF Behavior, Recommendations, Weekly | Completed | Shipped in v1.1          |
-| 7+    | v1.2 phases                        | Not started | To be defined            |
+| Phase range | Name / theme                                      | Status     | Notes                          |
+|-------------|---------------------------------------------------|------------|--------------------------------|
+| 1–3         | Foundations, Clustering, Supervised Models        | Completed  | Shipped in v1.0                |
+| 4–6         | ETF Behavior, Recommendations, Weekly Pipeline    | Completed  | Shipped in v1.1                |
+| 7–10        | Portfolio+Email, Diagnostics, Tactics, Installer | Completed  | Shipped in v1.2                |
+| 11          | Core Cleanup & Env Sanity                         | Completed  | First phase of v1.3 complete   |
+| 12–15       | Multi-horizon smoothing, visuals, dashboard UX   | Planned    | To be detailed in v1.3 roadmap |
 
 ## Performance & Health
 
@@ -54,6 +56,6 @@ progress:
 
 ### Working Notes
 
-- Use `ROADMAP.md` as the source of truth for phase goals, dependencies, and success criteria.
-- Use `REQUIREMENTS.md` to keep requirement IDs and traceability aligned as implementation proceeds.
+- Use `ROADMAP.md` as the source of truth for phase goals, dependencies, and success criteria (now including phases 1–11 as complete).
+- Use `REQUIREMENTS.md` to keep requirement IDs and traceability aligned as implementation proceeds, and extend it for v1.3 features (multi-horizon smoothing, visuals, dashboard/email plots).
 

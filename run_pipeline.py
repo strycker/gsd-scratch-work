@@ -510,7 +510,9 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
     from market_regime.prediction import (
         train_current_regime, train_decision_tree, train_forward_classifiers, predict_current,
     )
+    from market_regime.prediction.classifier import train_interpretability_tree
     from market_regime import plotting
+    from sklearn.tree import export_text
     import pandas as pd
     import pickle
 
@@ -531,9 +533,9 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
     X = features.loc[common].drop(columns=["market_code"], errors="ignore").dropna(axis=1, how="any")
     y = labels.loc[common]
 
-    current_model = train_current_regime(X, y, cfg)
+    current_rf = train_current_regime(X, y, cfg)
 
-    latest = predict_current(current_model, X)
+    latest = predict_current(current_rf, X)
     log.info("Latest quarter → regime %d", latest["regime"])
     for r, p in sorted(latest["probabilities"].items(), key=lambda x: -x[1]):
         log.info("  Regime %d: %.1f%%", r, p * 100)
@@ -546,7 +548,7 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
     model_dir.mkdir(parents=True, exist_ok=True)
 
     with open(model_dir / "current_regime.pkl", "wb") as f:
-        pickle.dump(current_model, f)
+        pickle.dump(current_rf, f)
     with open(model_dir / "decision_tree.pkl", "wb") as f:
         pickle.dump(dt_model, f)
     with open(model_dir / "forward_classifiers.pkl", "wb") as f:
@@ -554,7 +556,7 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
 
     # Optionally save predicted labels as a market_code checkpoint
     predicted_labels = pd.Series(
-        current_model.predict(X), index=X.index, name="market_code"
+        current_rf.predict(X), index=X.index, name="market_code"
     ).astype(int)
     _save_market_code(predicted_labels, "predicted")
     log.info(
@@ -571,11 +573,23 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
                 with open(regime_names_path) as f:
                     regime_names = yaml.safe_load(f) or {}
                 regime_names = {int(k): v for k, v in regime_names.items()}
-            plotting.plot_feature_importance(current_model, X.columns.tolist(), run_cfg)
+            plotting.plot_feature_importance(current_rf, X.columns.tolist(), run_cfg)
             plotting.plot_forward_probabilities(latest, regime_names, run_cfg)
-            plotting.plot_predicted_vs_actual(X, y, current_model, regime_names, run_cfg)
+            plotting.plot_predicted_vs_actual(X, y, current_rf, regime_names, run_cfg)
         except Exception as exc:
             log.warning("Could not generate prediction plots: %s", exc)
+
+    # ── Interpretability tree (Phase 9) ───────────────────────────────────────
+    try:
+        tree_model, tree_features = train_interpretability_tree(current_rf, X, y, cfg)
+        tree_txt = export_text(tree_model, feature_names=tree_features)
+        report_dir = OUTPUT_DIR / "reports"
+        report_dir.mkdir(parents=True, exist_ok=True)
+        tree_path = report_dir / "current_regime_tree.txt"
+        tree_path.write_text(tree_txt, encoding="utf-8")
+        log.info("Wrote interpretability tree → %s", tree_path)
+    except Exception as exc:  # pragma: no cover - defensive
+        log.warning("Could not generate interpretability tree: %s", exc)
 
     log.info("Step 5 done — models saved to %s", model_dir)
 
@@ -769,6 +783,36 @@ def step7_dashboard(cfg: dict, run_cfg: RunConfig) -> None:
 
 # ── Step dispatch table ────────────────────────────────────────────────────────
 
+from market_regime.tactics import compute_tactics_metrics, classify_tactics
+
+
+def step9_tactics(cfg: dict, run_cfg: RunConfig) -> None:
+    """Compute per-asset tactics signals and write tactics_signals.parquet."""
+    import pandas as pd
+
+    prices_path = DATA_DIR / "raw" / "asset_prices.parquet"
+    labels_path = DATA_DIR / "regimes" / "cluster_labels.parquet"
+
+    if not prices_path.exists():
+        log.warning("Step 9: ETF prices checkpoint %s not found; skipping tactics.", prices_path)
+        return
+    if not labels_path.exists():
+        log.warning("Step 9: cluster labels %s not found; skipping tactics.", labels_path)
+        return
+
+    prices = pd.read_parquet(prices_path)
+    labels = pd.read_parquet(labels_path)["balanced_cluster"]
+
+    metrics = compute_tactics_metrics(prices, labels, cfg)
+    tactics_df = classify_tactics(metrics, cfg).reset_index()
+
+    out_dir = OUTPUT_DIR / "reports"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / "tactics_signals.parquet"
+    tactics_df.to_parquet(out_path, index=False)
+    log.info("Step 9: tactics signals written to %s", out_path)
+
+
 STEPS: dict[int, tuple[str, callable]] = {
     1: ("Ingest macro data",            step1_ingest),
     2: ("Engineer features",            step2_features),
@@ -777,6 +821,7 @@ STEPS: dict[int, tuple[str, callable]] = {
     5: ("Supervised prediction",        step5_predict),
     6: ("Asset returns",                step6_asset_returns),
     7: ("Dashboard",                    step7_dashboard),
+    9: ("Tactics signals",              step9_tactics),
 }
 
 

@@ -5,9 +5,14 @@
 - [ ] **Phase 1: Data & Constraints Foundations** - Establish ETF-only, non-intraday data universe with checkpointed, causal-aware feature pipeline.
 - [x] **Phase 2: Regime Clustering & Interpretation** - Derive stable, interpretable market regimes and descriptive profiles. (completed 2026-03-16)
 - [ ] **Phase 3: Supervised Regime & Behavior Models** - Train and evaluate models for current and forward regimes and ETF/portfolio behavior.
-- [ ] **Phase 4: Regime-Conditional ETF & Portfolio Behavior** - Quantify ETF and portfolio performance characteristics by regime.
-- [ ] **Phase 5: Recommendations & Machine-Readable Outputs** - Turn analysis into transparent ETF-level recommendations and structured artifacts.
-- [ ] **Phase 6: Weekly Report Pipeline** - Provide a one-button weekly report flow with email-ready summary.
+- [x] **Phase 4: Regime-Conditional ETF & Portfolio Behavior** - Quantify ETF and portfolio performance characteristics by regime. (completed 2026-03-17)
+- [x] **Phase 5: Recommendations & Machine-Readable Outputs** - Turn analysis into transparent ETF-level recommendations and structured artifacts. (completed 2026-03-17)
+- [x] **Phase 6: Weekly Report Pipeline** - Provide a one-button weekly report flow with email-ready summary. (completed 2026-03-17)
+- [x] **Phase 7: Portfolio & Email Integration** - Wire portfolio config and SMTP/email delivery into the weekly pipeline. (completed 2026-03-17)
+- [x] **Phase 8: Data + Signals + Diagnostics** - Add extra FRED series, yield-curve spreads, ratios, and RRG diagnostics. (completed 2026-03-17)
+- [x] **Phase 9: Tactics & Diagnostics Integration** - Integrate diagnostics + tactics into the core pipeline and weekly report. (completed 2026-03-17)
+- [x] **Phase 10: Tactics Layer + Install & Env Automation** - Add tactics layer and one-shot installer/env health checks. (completed 2026-03-17)
+- [x] **Phase 11: Core Cleanup & Env Sanity** - Normalize directory layout, date handling, and style imports. (completed 2026-03-17)
 
 ## Phase Details
 
@@ -75,14 +80,67 @@ Plans:
   2. The pipeline outputs a concise text summary suitable as the body of a weekly email, including current regime with confidence, notable transition risks, and ETF-level buy/hold/sell suggestions (REPORT-02).
 **Plans**: TBD
 
+### Phase 7: Portfolio & Email Integration
+**Goal**: Make the pipeline portfolio-aware and wire email delivery so that weekly recommendations reflect a real ETF portfolio and can be sent automatically.
+**Depends on**: Phases 1–6
+**Requirements**: PORT-04, REPORT-03
+**Success Criteria** (what must be TRUE):
+  1. A portfolio config file (e.g. `config/portfolio.yaml`) defines tickers and weights and is consumed by the weekly pipeline.
+  2. Machine-readable recommendation bundles include portfolio-aware deltas and summary metrics.
+  3. Email configuration (`config/email.local.yaml`) can be provided and a `--send-email` flag sends the generated report to the configured recipient.
+**Plans**: TBD
+
+### Phase 8: Data + Signals + Diagnostics
+**Goal**: Expand macro inputs and diagnostics so that regime decisions and tactics are grounded in richer FRED series, yield-curve spreads, ratios, and RRG-style views.
+**Depends on**: Phases 1–3
+**Requirements**: DATA-04, DIAG-01, DIAG-02
+**Success Criteria** (what must be TRUE):
+  1. Additional FRED series (e.g. VIXCLS, UNRATE, M2, yield-curve spreads) are configured and ingested when available.
+  2. Yield-curve spreads and key ratios (Oil:Gold, Oil:Bonds, Bonds:Gold, Lumber:Gold proxy, etc.) are computed and surfaced as diagnostics.
+  3. RRG-style diagnostics (RS-ratio, RS-momentum) are available as machine-readable artifacts for at least one benchmark (e.g. SPY).
+**Plans**: TBD
+
+### Phase 9: Tactics & Diagnostics Integration
+**Goal**: Integrate diagnostics and tactics into the core pipeline and weekly report so that tactical views are first-class alongside regimes and recommendations.
+**Depends on**: Phases 3, 4, 5, 8
+**Requirements**: TACTICS-01, TACTICS-02
+**Success Criteria** (what must be TRUE):
+  1. A pipeline step computes per-asset tactics metrics and labels (buy-and-hold / swing / stand-aside) and writes a stable `tactics_signals` artifact.
+  2. Weekly reports surface tactics sections that are consistent with diagnostics and recommendation artifacts.
+**Plans**: TBD
+
+### Phase 10: Tactics Layer + Install & Env Automation
+**Goal**: Harden the tactics layer and make installation/environment health as close to one-command as possible.
+**Depends on**: Phases 1–3, 6, 9
+**Requirements**: TACTICS-03, INSTALL-10
+**Success Criteria** (what must be TRUE):
+  1. Tactics metrics and labels are parameterized via `config/settings.yaml` and covered by tests.
+  2. One-shot install and env-check scripts exist and are documented, and they can run a small smoke suite successfully.
+**Plans**: TBD
+
+### Phase 11: Core Cleanup & Env Sanity
+**Goal**: Normalize directory layout, date handling, and style imports so that the pipeline behaves predictably across machines and over time.
+**Depends on**: Phases 1–3
+**Requirements**: CORE-01, CORE-02
+**Success Criteria** (what must be TRUE):
+  1. Expected `data/` and `outputs/` subdirectories are created automatically by setup scripts or pipeline steps.
+  2. `data.end_date` handling in config and ingestion is robust (null → “today”) and tested.
+  3. Style imports (`from __future__ import annotations`, etc.) are consistent in key modules.
+**Plans**: TBD
+
 ## Progress
 
-| Phase | Name                                      | Plans Complete | Status       | Completed |
-|-------|-------------------------------------------|----------------|--------------|-----------|
-| 1     | 2/3 | In Progress|  | -         |
-| 2     | 2/2 | Complete   | 2026-03-16 | -         |
-| 3     | 1/3 | In Progress|  | -         |
-| 4     | Regime-Conditional ETF & Portfolio Behavior | 0/0          | Not started  | -         |
-| 5     | Recommendations & Machine-Readable Outputs | 0/0          | Not started  | -         |
-| 6     | Weekly Report Pipeline                    | 0/0            | Not started  | -         |
+| Phase | Name                                      | Plans Complete | Status       | Completed    |
+|-------|-------------------------------------------|----------------|--------------|--------------|
+| 1     | Data & Constraints Foundations            | 2/3            | In Progress  | -            |
+| 2     | Regime Clustering & Interpretation        | 2/2            | Complete     | 2026-03-16   |
+| 3     | Supervised Regime & Behavior Models       | 1/3            | In Progress  | -            |
+| 4     | Regime-Conditional ETF & Portfolio Behavior | 0/0          | Complete     | 2026-03-17   |
+| 5     | Recommendations & Machine-Readable Outputs | 0/0          | Complete     | 2026-03-17   |
+| 6     | Weekly Report Pipeline                    | 0/0            | Complete     | 2026-03-17   |
+| 7     | Portfolio & Email Integration             | 0/0            | Complete     | 2026-03-17   |
+| 8     | Data + Signals + Diagnostics              | 1/1            | Complete     | 2026-03-17   |
+| 9     | Tactics & Diagnostics Integration         | 0/0            | Complete     | 2026-03-17   |
+| 10    | Tactics Layer + Install & Env Automation  | 0/0            | Complete     | 2026-03-17   |
+| 11    | Core Cleanup & Env Sanity                 | 0/0            | Complete     | 2026-03-17   |
 
