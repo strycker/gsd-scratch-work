@@ -135,6 +135,15 @@ Total: 213 passed, 8 skipped (HDBSCAN optional) — ✅ all passing (Python 3.11
 
 ## Known Gaps (Not Yet Implemented)
 
+### External reference repos
+
+- The root directory includes two git-submodule mirrors:
+  - `trading-crab-repo-copy` — upstream Trading-Crab reference
+  - `claude-scratch-work-repo-copy` — earlier Claude scratch + testing reference
+- This repo (root) is the **canonical, actively-developed codebase**. The submodules are:
+  - Alignment references for algorithms and layout
+  - Sources of additional test patterns (especially model/reporting/behavior tests) that can be selectively ported here
+
 ### Priority 1 (implement next)
 | Gap | Where | Effort |
 |-----|-------|--------|
@@ -249,3 +258,4 @@ outputs/plots/               — PNG figures from --plots flag
 - Causal vs centered smoothing split implemented
 - Clustering investigation suite fully implemented and tested (GMM, DBSCAN, Spectral, gap statistic, SVD, feature selection)
 - All critical bugs fixed: GMM scaler consistency, gap_std vs gap_sk separation, spectral affinity caching, cluster comparison index alignment
+

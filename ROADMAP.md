@@ -350,5 +350,6 @@ Implementation approach (when ready):
 3. Add `compute_forward_probabilities()` to `profiler.py` — small gap, legacy already has it
 4. Add `plot_confusion_matrix()` to `plotting.py` — small visualization gap
 5. Start `macrotrends.py` scraper — extends gold/oil back to 1915/1946
+6. When adding tests for new work, borrow patterns from the `claude-scratch-work-repo-copy` submodule (model/reporting/behavior/constraint tests) rather than re-inventing them
 
 Items 1-4 can be done in a single session. Item 5 needs care with scraping.
