@@ -70,17 +70,13 @@ def test_step01_ingest_writes_macro_raw_without_network(monkeypatch, tmp_path, c
     out_path = raw_dir / "macro_raw.parquet"
     if out_path.exists():
         out_path.unlink()
+    CheckpointManager().clear("macro_raw")
 
     # Pass an empty argv list so argparse inside pipelines/01_ingest.py does not
     # see pytest's own CLI arguments (which would otherwise cause parsing errors).
     step01.main([])
 
-    # In environments where the ingestion script cannot run (e.g. missing Python
-    # binary or project dependencies), treat lack of output as a skipped test
-    # rather than a hard failure. On a properly configured dev machine this
-    # should pass and materialise macro_raw.parquet.
-    if not out_path.exists():
-        pytest.skip("01_ingest.main() did not write macro_raw.parquet; check local Python/env setup.")
+    assert out_path.exists(), "01_ingest.main() did not write macro_raw.parquet"
     loaded = pd.read_parquet(out_path)
     pd.testing.assert_index_equal(loaded.index, synthetic.index)
 

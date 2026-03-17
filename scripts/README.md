@@ -28,3 +28,37 @@ python scripts/run_weekly_report.py --send-email       # also send via SMTP (see
 ```
 
 Replace `/path/to/gsd-scratch-work` with your repo root. Ensure your environment (venv, `FRED_API_KEY` in `.env` if using `--full`) is active or sourced in the cron job if needed.
+
+## activate_py310.sh
+
+Source this helper to activate the repo's conda env and validate that `pytest`
+is usable in the active interpreter.
+
+**Usage:**
+
+```bash
+source scripts/activate_py310.sh
+```
+
+**What it does:**
+
+- Activates `${TRADING_CRAB_CONDA_ENV:-py310}` using your local conda install.
+- Prepends `src/` to `PYTHONPATH` so local imports work in ad hoc shells.
+- Runs `python -m pytest --version` as a quick sanity check.
+
+## run_tests.sh
+
+Conda-aware pytest wrapper for the repo.
+
+**Usage:**
+
+```bash
+bash scripts/run_tests.sh
+bash scripts/run_tests.sh tests/unit/test_returns.py -q
+```
+
+**What it does:**
+
+- Runs `python -m pytest` inside `${TRADING_CRAB_CONDA_ENV:-py310}` via `conda run`.
+- Fails fast if `pytest` is not importable in that env.
+- Passes all extra arguments directly through to pytest.

@@ -38,6 +38,7 @@ Predict market conditions, optimal portfolios, and stock picks by:
 - **Python 3.10+** — check with `python3 --version`
 - **Git** — to clone the repo
 - **FRED API key** — free at [fred.stlouisfed.org/docs/api/api_key.html](https://fred.stlouisfed.org/docs/api/api_key.html)
+- **Conda / Miniconda recommended** — the repo ships with a `py310` conda workflow and a pytest wrapper that avoids PATH/shebang mismatches.
 
 ### Quick Start (automated)
 
@@ -88,6 +89,33 @@ cp .env.example .env
 # Create runtime directories
 mkdir -p data/{raw,processed,regimes,checkpoints}
 mkdir -p outputs/{plots,models,reports}
+```
+
+### Conda / Miniconda setup
+
+If you use conda, the simplest path is to create and activate the `py310` env and then source the repo helper:
+
+```bash
+# Create the env once (or reuse the existing py310 env)
+conda create -n py310 python=3.10 pytest -y
+
+# Activate the env in your shell
+conda activate py310
+
+# Install project deps into the active env
+pip install -e ".[dev]"
+
+# Source the repo helper to verify the env and prepend src/ to PYTHONPATH
+source scripts/activate_py310.sh
+
+# Run tests through the conda-aware wrapper
+bash scripts/run_tests.sh
+```
+
+If you ever see `pytest` and `python -m pytest` disagree, use the wrapper above or run:
+
+```bash
+conda run -n py310 python -m pytest
 ```
 
 ### Common Commands (via Makefile)

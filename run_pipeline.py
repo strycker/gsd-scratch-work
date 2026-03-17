@@ -141,7 +141,9 @@ from __future__ import annotations
 
 import argparse
 import logging
+import shutil
 import sys
+from datetime import date
 from pathlib import Path
 
 # Allow running from repo root without `pip install -e .`
@@ -150,6 +152,11 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 from market_regime import DATA_DIR, OUTPUT_DIR, CONFIG_DIR
 from market_regime.config import load, setup_logging
 from market_regime.runtime import RunConfig
+from market_regime.email import (
+    build_weekly_email_body,
+    load_email_config,
+    send_weekly_email,
+)
 
 log = logging.getLogger(__name__)
 
@@ -773,6 +780,34 @@ STEPS: dict[int, tuple[str, callable]] = {
 }
 
 
+# ── Weekly report helpers (archive + email) ────────────────────────────────────
+
+def archive_weekly_report(reports_dir: Path | None = None) -> None:
+    """
+    Copy weekly_report.md to weekly_YYYY-MM-DD.md and write email_body.txt.
+
+    No-op if weekly_report.md does not exist. This mirrors the behaviour of
+    scripts/run_weekly_report.py so that the full weekly flow can be driven
+    directly via run_pipeline.
+    """
+    reports = reports_dir or (OUTPUT_DIR / "reports")
+    report_path = reports / "weekly_report.md"
+    if not report_path.exists():
+        print(f"No weekly_report.md at {report_path} — skip archive/email body.")
+        return
+
+    today = date.today().isoformat()
+    stamped = reports / f"weekly_{today}.md"
+    stamped.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(report_path, stamped)
+    print(f"Archived report → {stamped}")
+
+    email_body_path = reports / "email_body.txt"
+    body = report_path.read_text(encoding="utf-8")
+    email_body_path.write_text(body, encoding="utf-8")
+    print(f"Email body → {email_body_path}")
+
+
 # ── CLI ────────────────────────────────────────────────────────────────────────
 
 def build_parser() -> argparse.ArgumentParser:
@@ -822,6 +857,22 @@ def build_parser() -> argparse.ArgumentParser:
                        "'market_code_clustered' checkpoint for future use with "
                        "--market-code clustered."
                    ))
+    p.add_argument(
+        "--weekly-report",
+        action="store_true",
+        help=(
+            "After running the selected steps, archive outputs/reports/weekly_report.md "
+            "to a dated copy and write outputs/reports/email_body.txt."
+        ),
+    )
+    p.add_argument(
+        "--send-email",
+        action="store_true",
+        help=(
+            "After weekly-report post-processing, send the weekly report email via "
+            "config/email.local.yaml (see config/email.example.yaml)."
+        ),
+    )
     return p
 
 
@@ -875,6 +926,22 @@ def main() -> None:
             log.exception("Step %d failed: %s", step_num, exc)
             print(f"   ✗ FAILED: {exc}\n")
             sys.exit(1)
+
+    # Optional weekly-report archive + email sending
+    if getattr(args, "weekly_report", False) or getattr(args, "send_email", False):
+        archive_weekly_report()
+
+    if getattr(args, "send_email", False):
+        email_cfg = load_email_config()
+        if not email_cfg:
+            print("Email config not found or invalid; skipping send.")
+        else:
+            subject, body = build_weekly_email_body()
+            ok = send_weekly_email(email_cfg, subject, body)
+            if ok:
+                print("Weekly report email sent.")
+            else:
+                print("Weekly report email failed to send (see logs).")
 
     print("Pipeline complete.")
 
