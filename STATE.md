@@ -258,3 +258,4 @@ outputs/plots/               — PNG figures from --plots flag
 - Causal vs centered smoothing split implemented
 - Clustering investigation suite fully implemented and tested (GMM, DBSCAN, Spectral, gap statistic, SVD, feature selection)
 - All critical bugs fixed: GMM scaler consistency, gap_std vs gap_sk separation, spectral affinity caching, cluster comparison index alignment
+
