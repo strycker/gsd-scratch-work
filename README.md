@@ -159,6 +159,30 @@ python run_pipeline.py --steps 6,7 --refresh-assets --plots
 python run_pipeline.py --steps 3 --verbose --plots --show-plots
 ```
 
+#### Weekly report (one command)
+
+To run the pipeline for a weekly report and archive the output (timestamped report + email-ready body):
+
+```bash
+# From repo root: steps 2–7 (cached ingest; no re-scrape)
+python scripts/run_weekly_report.py
+
+# Full refresh (steps 1–7)
+python scripts/run_weekly_report.py --full
+
+# With figures and verbose logging
+python scripts/run_weekly_report.py --plots --verbose
+```
+
+After each run you get:
+
+- `outputs/reports/weekly_report.md` — current regime, BUY/SELL bullets, risk note
+- `outputs/reports/weekly_YYYY-MM-DD.md` — timestamped copy for archiving
+- `outputs/reports/email_body.txt` — plain-text body to paste into email or pipe to `sendmail`
+
+**Cron example** (e.g. Monday 9am):  
+`0 9 * * 1 cd /path/to/repo && python scripts/run_weekly_report.py`
+
 #### Individual Step Scripts
 
 ```bash

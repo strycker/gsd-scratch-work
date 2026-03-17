@@ -1,14 +1,14 @@
 ---
-gsd_state_version: 1.1
-milestone: v1.1
-milestone_name: ETF Behavior & Portfolios
-status: defining_requirements
-last_updated: "2026-03-16T21:59:00.000Z"
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: unknown
+last_updated: "2026-03-17T00:37:20.882Z"
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  completed_phases: 2
+  total_plans: 9
+  completed_plans: 7
 ---
 
 ## Project State — Trading-Crab (v1.1)
