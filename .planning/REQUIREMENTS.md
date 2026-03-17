@@ -205,3 +205,66 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 | CONSTR-01  | Phase 1 | Complete |
 | CONSTR-02  | Phase 1 | Complete |
 
+---
+
+## v1.2 — Planned Requirements (high-level, to be refined)
+
+These capture the intent for the v1.2 milestone (Tactics, Triggers & Expanded Signals). They are **not yet mapped to phases** and will be refined into full REQ-IDs + traceability when we create the v1.2 roadmap.
+
+### 1. Data & APIs (v1.2-DATA)
+
+- **DATA-10 — Additional FRED series & spreads**
+  - VIX (VIXCLS), unemployment (UNRATE), money supply (M2 series), and yield-curve proxies/spreads (e.g. 10Y–2Y, 10Y–3M).
+  - Derived yield-curve spread features added in `transforms.py`, keeping causal vs non-causal variants consistent with existing design.
+- **DATA-11 — Expanded price data sources**
+  - Build on the existing stooq fallback and evaluate additional APIs the user may have (e.g. finviz Elite, and optionally others like polygon/Massive, FMP, Finnhub, Alpha Vantage) in a **configurable** way.
+  - Preserve the current ingestion contract (checkpoint locations, ETF lists) and keep any new provider optional / guarded by config.
+
+### 2. Signals, Ratios, and Diagnostics (v1.2-SIGNAL)
+
+- **SIGNAL-10 — Ratio and trigger diagnostics**
+  - Implement diagnostic ratios/triggers such as Lumber:Gold, Saylor↔Schiff-style signals, Oil:Gold, Oil:Bonds, Bonds:Gold, and related cross-asset ratios, with regime overlays.
+  - Surface these first as **plots/tables and report excerpts**, not as hardwired allocation rules.
+- **SIGNAL-11 — Relative Rotation Graphs (RRG)**
+  - Add RS-ratio / RS-momentum style views (e.g. vs a benchmark like SPY or a core portfolio) to show leaders/laggards per regime.
+  - Expose them via notebooks and/or saved plots, and consider later promotion into feature engineering for models.
+
+### 3. Models (v1.2-MODEL)
+
+- **MODEL-10 — Additional classifiers**
+  - Introduce XGBoost and/or LightGBM (or similar gradient-boosting models) alongside the current RF/DT stack, for:
+    - Current regime prediction.
+    - Forward regime/behavior/return predictions.
+  - Keep the same causal-feature discipline and TimeSeriesSplit-style validation.
+- **MODEL-11 — Human-readable trees for interpretation**
+  - For every RF / boosted model, also fit a simple `DecisionTreeClassifier` on the top-ranked RF (or boosted) features.
+  - Visualize this tree (e.g. as text/plot) so a human can inspect decision boundaries, spot noisy or implicitly forward-looking features, and derive candidate new features.
+
+### 4. Tactics & Volatility (v1.2-TACTICS)
+
+- **TACTICS-10 — Strategy vs tactics classification**
+  - Add a layer that classifies each asset (and/or template) into:
+    - Buy-and-hold suitable.
+    - Swing-trade candidate.
+    - Stand-aside / wait (too noisy or unclear).
+  - Use volatility at different time scales, trend slope, and correlations to inform this, with soft constraints:
+    - Weekly **entries** preferred; **exits** can happen any day after close (no intraday day-trading).
+    - Emphasis on finding weekly setups where a reasonable stop-loss (e.g. anchored VWAP) can be placed and trailed.
+
+### 5. Email Delivery (v1.2-EMAIL)
+
+- **EMAIL-10 — SMTP-based weekly report sending**
+  - Add a small, optional email-sending helper/module that:
+    - Reads SMTP host/port, username, and app password (e.g. Gmail) plus recipient address from a local, untracked config.
+    - Sends `outputs/reports/weekly_report.md` (or a plain-text/HTML body derived from it) to the configured address.
+  - Keep this **opt-in** and avoid committing any secrets; provide a template config and instructions instead.
+
+### 6. Install & Secrets Setup (v1.2-INSTALL)
+
+- **INSTALL-10 — Guided local setup for secrets**
+  - Provide a small installation/setup helper (script or command) that:
+    - Prompts for and writes `.env` (e.g. `FRED_API_KEY`) without committing secrets.
+    - Prompts for and writes `config/email.local.yaml` (or similar secret configs) based on example templates.
+    - Leaves `.env` and `email.local.yaml` gitignored and clearly documented.
+  - Intended as a final v1.2 phase (E), once EMAIL-10 and other secret-dependent features exist.
+

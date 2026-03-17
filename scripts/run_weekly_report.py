@@ -28,6 +28,15 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 REPORTS_DIR = REPO_ROOT / "outputs" / "reports"
 WEEKLY_REPORT = "weekly_report.md"
 
+# Allow importing the market_regime package when run as a script.
+sys.path.insert(0, str(REPO_ROOT / "src"))
+
+from market_regime.email import (  # noqa: E402
+    build_weekly_email_body,
+    load_email_config,
+    send_weekly_email,
+)
+
 
 def archive_weekly_report(reports_dir: Path) -> None:
     """
@@ -58,6 +67,11 @@ def main() -> int:
     )
     parser.add_argument("--plots", action="store_true", help="Generate and save figures.")
     parser.add_argument("--verbose", action="store_true", help="Set logging to DEBUG.")
+    parser.add_argument(
+        "--send-email",
+        action="store_true",
+        help="Send the weekly report via SMTP using config/email.local.yaml.",
+    )
     args = parser.parse_args()
 
     steps = "1,2,3,4,5,6,7" if args.full else "2,3,4,5,6,7"
@@ -76,6 +90,18 @@ def main() -> int:
         archive_weekly_report(REPORTS_DIR)
     else:
         print(f"No {WEEKLY_REPORT} at {report_path} — skip archive/email body.")
+
+    if args.send_email:
+        cfg = load_email_config()
+        if not cfg:
+            print("Email config not found or invalid; skipping send.")
+        else:
+            subject, body = build_weekly_email_body(REPORTS_DIR)
+            ok = send_weekly_email(cfg, subject, body)
+            if ok:
+                print("Weekly report email sent.")
+            else:
+                print("Weekly report email failed to send (see logs).")
 
     return 0
 

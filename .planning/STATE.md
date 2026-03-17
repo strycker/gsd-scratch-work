@@ -1,17 +1,17 @@
 ---
-gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: unknown
-last_updated: "2026-03-17T00:37:20.882Z"
+gsd_state_version: 1.2
+milestone: v1.2
+milestone_name: TBD
+status: defining_requirements
+last_updated: "2026-03-17"
 progress:
-  total_phases: 6
-  completed_phases: 2
-  total_plans: 9
-  completed_plans: 7
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
-## Project State — Trading-Crab (v1.1)
+## Project State — Trading-Crab (v1.2)
 
 ## Project Reference
 
@@ -21,20 +21,17 @@ progress:
 
 ## Current Position
 
-- **Current milestone**: v1.1 ETF Behavior & Portfolios
-- **Current phase**: Not yet started (requirements and roadmap for v1.1 to be (re)defined)
-- **Overall status**: New milestone initialized; ready for refreshed REQUIREMENTS and ROADMAP.
+- **Current milestone**: v1.2 (name and goal TBD)
+- **Current phase**: Not started — define milestone focus, then requirements & roadmap.
+- **Overall status**: New milestone started; ready for goal + requirements.
 
 ### Phase Progress
 
-| Phase | Name                               | Plans Complete | Status      | Notes                                      |
-|-------|------------------------------------|----------------|-------------|--------------------------------------------|
-| 1     | Data & Constraints Foundations     | 0/0            | Completed   | Shipped as part of v1.0 Trading-Crab       |
-| 2     | Regime Clustering & Interpretation | 0/0            | Completed   | Shipped as part of v1.0 Trading-Crab       |
-| 3     | Supervised Regime & Behavior Models | 0/0           | Completed   | Shipped as part of v1.0 Trading-Crab       |
-| 4     | Regime-Conditional ETF Behavior    | 0/0            | Not started | Primary focus area for milestone v1.1      |
-| 5     | Recommendations & Outputs          | 0/0            | Not started | Builds on enhanced behavior & regime views |
-| 6     | Weekly Report Pipeline             | 0/0            | Not started | Downstream consumer of v1.1 enhancements   |
+| Phase | Name                               | Status      | Notes                    |
+|-------|------------------------------------|-------------|--------------------------|
+| 1–3   | Foundations, Clustering, Models    | Completed   | Shipped in v1.0          |
+| 4–6   | ETF Behavior, Recommendations, Weekly | Completed | Shipped in v1.1          |
+| 7+    | v1.2 phases                        | Not started | To be defined            |
 
 ## Performance & Health
 

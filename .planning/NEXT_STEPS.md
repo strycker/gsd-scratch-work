@@ -1,9 +1,9 @@
-# When you return — next steps (post Phase 5 verify)
+# Next steps (v1.2 started)
 
-Phase 5 is **verified**. When you're back, pick one (or more):
+**v1.1** is complete (Phases 4–6 shipped). **v1.2** is initialized with a placeholder goal.
 
-1. **Plan/execute Phase 6** — Weekly report automation (e.g. cron or runner script) or add an email/send step for `weekly_report.md`.
-2. **Update docs** — Add a short README in `outputs/reports/` or refresh CLAUDE.md with the new Phase 4/5 artifacts and `config/portfolio.yaml`.
-3. **Run GSD complete-milestone** — Treat v1.1 as done and archive (e.g. `$gsd:complete-milestone` or equivalent).
+1. **Define v1.2** — Tell the AI what you want to build next (e.g. more FRED series, RRG/rotation plots, email send, LightGBM, etc.). We'll update PROJECT.md and then create REQUIREMENTS.md + ROADMAP.md for v1.2.
+2. **Update docs** — Refresh CLAUDE.md or add `outputs/reports/` README if useful.
+3. **Jump to a phase** — Once v1.2 has a roadmap: `$gsd:discuss-phase 7` or `$gsd:plan-phase 7`.
 
-Tell the AI: "Remind me of the next steps" or "What were my options after Phase 5?"
+Tell the AI: "Remind me of the next steps" or "I want v1.2 to focus on X."

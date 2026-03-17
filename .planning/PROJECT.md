@@ -132,16 +132,24 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 ---
 
-## Current Milestone: v1.1 ETF Behavior & Portfolios
+## Current Milestone: v1.2 — Tactics, Triggers & Expanded Signals
 
-**Goal:** Extend Trading-Crab beyond regime discovery into richer ETF behavior analysis and portfolio guidance, focusing on expanded ETF coverage, per-regime behavior tables, and clearer portfolio-oriented outputs.
+**Goal:** Deepen Trading-Crab from regime-aware strategy into actionable tactics by expanding data sources, adding richer signals (ratios, correlations, differential-equation-style views), upgrading models, and wiring the weekly report all the way to email delivery.
 
-**Target features:**
-- Expanded ETF universe and templates reflecting the user’s preferred sectors, bonds, commodities, and bitcoin ETF wrappers.
-- Regime-conditional ETF and template tables (medians, IQR bands, stoplight / composite scores) suitable for human interpretation.
-- Clearer portfolio-facing artifacts that tie model outputs to simple buy/hold/sell style guidance for ETF portfolios.
+**Target features (high level):**
+- **Email delivery first (D):** Simple SMTP-based sending of the weekly report (e.g. via Gmail) with email address and SMTP credentials stored in a local, non-committed config file.
+- **More macro + ratios (A):** Additional FRED series (e.g. VIX, UNRATE, M2, yield-curve spreads) and derived triggers/ratios such as Lumber:Gold and Saylor↔Schiff-style signals, Oil:Gold, Oil:Bonds, Bonds:Gold, etc., surfaced as diagnostic plots/tables first.
+- **Richer models (B):** Add XGBoost / LightGBM (or similar) alongside RF/DT for regime and forward-return prediction, using non-forward-looking features including correlations, ratios, and higher-order derivatives; always also fit a simple DecisionTree on top RF features and visualize it for human review.
+- **Tactics layer (C):** Classify assets into buy-and-hold vs swing-trade vs stand-aside based on volatility at different time scales, trend slope, and correlations, with a focus on weekly entries and multi-day holds, anchored-VWAP-style stop-loss ideas, and soft constraints (no strict enforcement).
+- **More assets/APIs:** Broaden ETF/asset coverage (REITs and other investable exposures beyond current broker-specific lists) and evaluate/plug in additional data providers where practical (e.g. stooq, and—optionally and safely—other APIs the user has access to such as finviz Elite), while preserving the existing pipeline’s integrity.
+
+At each step of the pipeline, v1.2 should encourage answers to:
+- **Is now a good time to invest at all (vs cash)?**
+- **If yes, in what (cash vs stocks vs bonds vs gold vs energy/commodities)?**
+- **What should be done now (tactics) and on what horizon?**
+- **What human review is helpful here (plots, trees, triggers), and can it be toggled via a flag?**
 
 ---
 
-*Last updated: 2026-03-16 after v1.1 milestone initialization*
+*Last updated: 2026-03-17 after v1.2 milestone initialization*
 

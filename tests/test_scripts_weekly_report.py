@@ -92,3 +92,32 @@ class TestScriptArgv:
             with patch("sys.argv", ["run_weekly_report.py"]):
                 result = weekly.main()
             assert result == 1
+
+
+class TestScriptSendEmail:
+    def test_send_email_flag_calls_helpers_when_config_valid(self, tmp_path, monkeypatch):
+        # Point REPORTS_DIR to a temp dir with a weekly_report.md present
+        weekly.REPORTS_DIR = tmp_path
+        (tmp_path / "weekly_report.md").write_text("# Report\n", encoding="utf-8")
+
+        with patch("run_weekly_report.subprocess.run") as m:
+            m.return_value = MagicMock(returncode=0)
+            monkeypatch.setattr("run_weekly_report.load_email_config", lambda: {"smtp_host": "h", "smtp_port": 587, "username": "u", "password": "p", "from_address": "f", "to_address": "t", "use_tls": True, "use_ssl": False})
+            monkeypatch.setattr("run_weekly_report.send_weekly_email", lambda cfg, subj, body: True)
+            with patch("sys.argv", ["run_weekly_report.py", "--send-email"]):
+                result = weekly.main()
+            assert result == 0
+
+    def test_send_email_skips_when_config_missing(self, tmp_path, monkeypatch):
+        weekly.REPORTS_DIR = tmp_path
+        (tmp_path / "weekly_report.md").write_text("# Report\n", encoding="utf-8")
+
+        with patch("run_weekly_report.subprocess.run") as m:
+            m.return_value = MagicMock(returncode=0)
+            monkeypatch.setattr("run_weekly_report.load_email_config", lambda: {})
+            send_mock = MagicMock()
+            monkeypatch.setattr("run_weekly_report.send_weekly_email", send_mock)
+            with patch("sys.argv", ["run_weekly_report.py", "--send-email"]):
+                result = weekly.main()
+            assert result == 0
+            send_mock.assert_not_called()

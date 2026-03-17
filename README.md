@@ -172,6 +172,9 @@ python scripts/run_weekly_report.py --full
 
 # With figures and verbose logging
 python scripts/run_weekly_report.py --plots --verbose
+
+# Also send the weekly email (requires config/email.local.yaml)
+python scripts/run_weekly_report.py --send-email
 ```
 
 After each run you get:
@@ -179,6 +182,7 @@ After each run you get:
 - `outputs/reports/weekly_report.md` — current regime, BUY/SELL bullets, risk note
 - `outputs/reports/weekly_YYYY-MM-DD.md` — timestamped copy for archiving
 - `outputs/reports/email_body.txt` — plain-text body to paste into email or pipe to `sendmail`
+- (Optional) with `--send-email`: the same content emailed via SMTP (see `config/email.example.yaml`).
 
 **Cron example** (e.g. Monday 9am):  
 `0 9 * * 1 cd /path/to/repo && python scripts/run_weekly_report.py`
