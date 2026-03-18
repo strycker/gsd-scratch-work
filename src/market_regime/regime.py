@@ -161,6 +161,71 @@ def build_transition_matrix(cluster_labels: pd.Series) -> pd.DataFrame:
     return matrix
 
 
+def build_forward_window_probabilities(
+    cluster_labels: pd.Series,
+    horizons: list[int],
+) -> pd.DataFrame:
+    """
+    Compute empirical P(reach regime j within N quarters | current regime i).
+
+    Legacy-style "reach within N" diagnostic: for each time t with current regime i,
+    look at labels[t+1 : t+N] (up to series end); any regime j that appears at least
+    once in that window counts as "reached". Probability is the fraction of times
+    (when current=i with a valid window) that j was reached.
+
+    Args:
+        cluster_labels — integer Series of regime IDs, time-ordered (NaNs dropped)
+        horizons      — list of positive ints (quarters), e.g. [1, 2, 4, 8]
+
+    Returns:
+        Long-format DataFrame with columns: from_regime, to_regime, horizon_quarters, prob.
+        All (i, j) pairs for all observed regimes, for each horizon, including prob=0.0.
+        Sorted by horizon_quarters, from_regime, to_regime.
+    """
+    labels = cluster_labels.dropna().astype(int)
+    vals = labels.values
+    n = len(vals)
+    regimes = sorted(labels.unique())
+
+    rows: list[dict[str, int | float]] = []
+    for horizon in horizons:
+        if horizon < 1:
+            continue
+        # Valid t: window [t+1, t+horizon] inclusive => t+horizon < n => t <= n-1-horizon
+        for from_r in regimes:
+            count_current = 0
+            reach_count: dict[int, int] = {j: 0 for j in regimes}
+            for t in range(n - horizon):
+                if vals[t] != from_r:
+                    continue
+                count_current += 1
+                window = vals[t + 1 : t + horizon + 1]
+                reached = set(window)
+                for j in regimes:
+                    if j in reached:
+                        reach_count[j] += 1
+            denom = count_current if count_current > 0 else 1
+            for to_r in regimes:
+                prob = reach_count[to_r] / denom if count_current > 0 else 0.0
+                rows.append({
+                    "from_regime": from_r,
+                    "to_regime": to_r,
+                    "horizon_quarters": horizon,
+                    "prob": float(prob),
+                })
+
+    out = pd.DataFrame(rows)
+    if out.empty:
+        out = pd.DataFrame(columns=["from_regime", "to_regime", "horizon_quarters", "prob"])
+    else:
+        out = out.sort_values(["horizon_quarters", "from_regime", "to_regime"]).reset_index(drop=True)
+    log.info(
+        "Forward-window probabilities: %d regimes, horizons %s → %d rows",
+        len(regimes), horizons, len(out),
+    )
+    return out
+
+
 def load_name_overrides(config_dir: Path) -> dict[int, str]:
     """
     Load manually pinned regime names from config/regime_labels.yaml.
