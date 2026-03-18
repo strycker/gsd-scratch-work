@@ -38,7 +38,7 @@ created: 2026-03-16
 
 | Task ID  | Plan | Wave | Requirement     | Test Type | Automated Command                                              | File Exists | Status  |
 |----------|------|------|-----------------|-----------|----------------------------------------------------------------|------------|---------|
-| 02-01-01 | 01   | 1    | REGIME-01       | unit      | `pytest tests/unit/test_clustering.py -q`                      | ✅ | ✅ green |
+| 02-01-01 | 01   | 1    | REGIME-01       | unit      | `pytest tests/unit/test_clustering.py -q`                      | ✅ | ✅ green (manifest/skip manual-only) |
 | 02-02-01 | 02   | 2    | REGIME-02, REGIME-03 | unit  | `pytest tests/unit/test_regime.py -q`                          | ✅ | ✅ green |
 | 02-03-01 | 03   | 3    | REGIME-02, REGIME-03 | unit  | `pytest tests/unit/test_forward_window_probabilities.py -q`     | ✅ | ✅ green |
 
@@ -59,6 +59,7 @@ created: 2026-03-16
 | Behavior                                      | Requirement | Why Manual                                     | Test Instructions |
 |-----------------------------------------------|------------|-----------------------------------------------|-------------------|
 | Visual inspection of regime profiles and clustering stability across reruns | REGIME-01, REGIME-02 | Requires notebook/plot-based inspection        | Run `python pipelines/03_cluster.py` and `python pipelines/04_regime_label.py`, then inspect relevant notebooks/plots. |
+| Clustering manifest + skip-on-unchanged policy (Plan 01 full spec) | REGIME-01 | `build_clustering_manifest` and pipeline `--force`/skip logic not implemented; Plan 01 SUMMARY reflected an earlier scope (tests only). | Implement `build_clustering_manifest()` in `clustering.py`, wire manifest read/compare and `--force` in `pipelines/03_cluster.py`, add unit tests for manifest determinism/sensitivity; then run `pytest tests/unit/test_clustering.py -q` and second-run skip. |
 
 ---
 
@@ -72,4 +73,16 @@ created: 2026-03-16
 - [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending
+
+---
+
+## Validation Audit 2026-03-18
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 1 |
+| Resolved | 0 |
+| Escalated to manual-only | 1 |
+
+**Gap:** Plan 01 full spec requires `build_clustering_manifest()` and pipeline skip-when-unchanged (with `--force`). Codebase has no manifest or skip logic; Plan 01 was previously executed with tests-only scope (see 02-regime-clustering-interpretation-01-SUMMARY.md). REGIME-01 clustering math and artifact shape are covered by `test_clustering.py`; manifest/skip coverage is missing until implementation exists. Escalated to Manual-Only with implementation instructions above.
 
