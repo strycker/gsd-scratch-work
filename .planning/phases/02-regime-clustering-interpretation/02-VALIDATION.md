@@ -2,8 +2,8 @@
 phase: 2
 slug: regime-clustering-interpretation
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-03-16
 ---
 
@@ -19,7 +19,7 @@ created: 2026-03-16
 |----------|-------|
 | **Framework** | pytest 7.x |
 | **Config file** | pyproject.toml |
-| **Quick run command** | `pytest tests/unit/test_clustering.py tests/unit/test_regime.py -q` |
+| **Quick run command** | `pytest tests/unit/test_clustering.py tests/unit/test_regime.py tests/unit/test_forward_window_probabilities.py -q` |
 | **Full suite command** | `pytest -q` |
 | **Estimated runtime** | ~60 seconds |
 
@@ -38,8 +38,9 @@ created: 2026-03-16
 
 | Task ID  | Plan | Wave | Requirement     | Test Type | Automated Command                                              | File Exists | Status  |
 |----------|------|------|-----------------|-----------|----------------------------------------------------------------|------------|---------|
-| 02-01-01 | 01   | 1    | REGIME-01       | unit      | `pytest tests/unit/test_clustering.py -q`                      | ⬜ (to add) | ⬜ pending |
-| 02-02-01 | 02   | 2    | REGIME-02, REGIME-03 | unit  | `pytest tests/unit/test_regime.py -q`                          | ⬜ (to add) | ⬜ pending |
+| 02-01-01 | 01   | 1    | REGIME-01       | unit      | `pytest tests/unit/test_clustering.py -q`                      | ✅ | ✅ green |
+| 02-02-01 | 02   | 2    | REGIME-02, REGIME-03 | unit  | `pytest tests/unit/test_regime.py -q`                          | ✅ | ✅ green |
+| 02-03-01 | 03   | 3    | REGIME-02, REGIME-03 | unit  | `pytest tests/unit/test_forward_window_probabilities.py -q`     | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -47,8 +48,9 @@ created: 2026-03-16
 
 ## Wave 0 Requirements
 
-- [ ] `tests/unit/test_clustering.py` — unit tests for PCA + KMeans clustering, artifact creation under `data/regimes/`.
-- [ ] `tests/unit/test_regime.py` — unit tests for regime profiles, naming, and transition matrices driven by `regime_labels.yaml`.
+- [x] `tests/unit/test_clustering.py` — unit tests for PCA + KMeans clustering, artifact creation under `data/regimes/`.
+- [x] `tests/unit/test_regime.py` — unit tests for regime profiles, naming, and transition matrices driven by `regime_labels.yaml`.
+- [x] `tests/unit/test_forward_window_probabilities.py` — unit tests for forward-window probability semantics and determinism.
 
 ---
 
@@ -67,7 +69,7 @@ created: 2026-03-16
 - [ ] Wave 0 covers all MISSING references
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 60s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending
 
