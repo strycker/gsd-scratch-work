@@ -5,6 +5,7 @@ Reads cluster_labels + raw features, computes per-cluster statistics,
 suggests human-readable names, and writes:
   data/regimes/profiles.parquet
   data/regimes/transition_matrix.parquet
+  data/regimes/forward_window_probabilities.parquet
   data/regimes/regime_names.yaml   — auto-suggested (edit manually)
 
 Run:
@@ -22,6 +23,7 @@ from market_regime.regime import (
     build_profiles,
     suggest_names,
     build_transition_matrix,
+    build_forward_window_probabilities,
     load_name_overrides,
 )
 
@@ -59,6 +61,25 @@ def main() -> None:
     # Transition matrix
     tm = build_transition_matrix(labels)
     tm.to_parquet(DATA_DIR / "regimes" / "transition_matrix.parquet")
+
+    # Forward-window empirical probabilities (same horizons as Phase 3 classifiers)
+    horizons = (
+        cfg.get("prediction", {}).get("forward_horizons_quarters")
+        or [1, 2, 4, 8]
+    )
+    forward_probs = build_forward_window_probabilities(labels, horizons)
+    fwp_path = DATA_DIR / "regimes" / "forward_window_probabilities.parquet"
+    forward_probs.to_parquet(fwp_path)
+    print(f"Forward-window probabilities → {fwp_path}")
+
+    # Diagnostic excerpt: horizon=1 and horizon=max
+    if not forward_probs.empty and len(horizons) > 0:
+        h1 = forward_probs[forward_probs["horizon_quarters"] == horizons[0]]
+        h_max = forward_probs[forward_probs["horizon_quarters"] == max(horizons)]
+        print("\nForward-window P(reach j | current i) — horizon=1 (excerpt):")
+        print(h1.head(12).round(3).to_string(index=False))
+        print("\nForward-window — horizon=max (excerpt):")
+        print(h_max.head(12).round(3).to_string(index=False))
 
     print("\nRegime summary:")
     for rid, name in sorted(regime_names.items()):
