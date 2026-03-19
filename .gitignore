@@ -12,6 +12,7 @@ __pycache__/
 dist/
 build/
 .eggs/
+.egg*
 
 # Jupyter
 .ipynb_checkpoints/
@@ -27,6 +28,7 @@ outputs/reports/
 # Secrets / API keys (always use .env instead)
 *.key
 config/secrets.yaml
+config/email.yaml
 config/email.local.yaml
 
 # OS

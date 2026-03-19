@@ -43,14 +43,18 @@ find "$REPO_ROOT" -type d -name "__pycache__" -prune -exec rm -rf {} +
 echo "[clean] Removing build artifacts…"
 rm -rf build dist *.egg-info
 
-
-echo "[clean] final cleansing..."
-rm -rf .pytest_cache;
-find . -type f -name "*.pyc" -delete;
-find . -type f -name "*__pycache__*" -delete;
+echo "[clean] final cleansing... removing remaining pycache files, checkpoints, egg-info stuff, etc."
+rm -rf .pytest_cache
+find . -type f -name "*.pyc" -delete
+find . -type f -name "*__pycache__*" -delete
 find . -type d -name "*__pycache__*" -delete
-find . -type f -name "*checkpoint.ipynb*" -delete;
-find . -type d -name "*.ipynb_checkpoints*" -delete;
+find . -type f -name "*checkpoint.ipynb*" -delete
+find . -type d -name "*.ipynb_checkpoints*" -delete
+find . -type f -name "*egg-info*" -delete
+find . -type d -name "*egg-info*" -delete
+find . -type f -name "*.egg-info*" -delete
+find . -type d -name "*.egg-info*" -delete
+find . -type d -name "*.egg-info*" -exec rm -rf {} \;
 
 echo "[clean] Done. Seed files directly under ./data were preserved."
 

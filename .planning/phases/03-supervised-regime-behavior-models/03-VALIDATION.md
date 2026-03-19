@@ -38,12 +38,12 @@ created: 2026-03-16
 
 | Task ID  | Plan | Wave | Requirement             | Test Type | Automated Command                                   | File Exists | Status  |
 |----------|------|------|-------------------------|-----------|-----------------------------------------------------|------------|---------|
-| 03-01-01 | 01   | 1    | MODEL-01, MODEL-02, MODEL-03, MODEL-04 | unit      | `pytest tests/unit/test_classifier.py::test_scaffolding -q` | ⬜ (to add) | ⬜ pending |
-| 03-02-01 | 02   | 2    | MODEL-01, MODEL-02      | unit      | `pytest tests/unit/test_classifier.py::test_current_and_forward_regime_models -q` | ⬜ (to add) | ⬜ pending |
-| 03-02-02 | 02   | 2    | MODEL-04                | unit      | `pytest tests/unit/test_classifier.py::test_model_metrics_and_reporting -q` | ⬜ (to add) | ⬜ pending |
-| 03-03-01 | 03   | 3    | MODEL-03, MODEL-04      | unit      | `pytest tests/unit/test_classifier.py::test_etf_and_portfolio_behavior_models -q` | ⬜ (to add) | ⬜ pending |
+| 03-01-01 | 01   | 1    | MODEL-01, MODEL-02        | unit      | `pytest tests/test_models_regime.py -q` | ✅ | ✅ green |
+| 03-02-01 | 02   | 2    | MODEL-03                  | unit      | `pytest tests/test_models_behavior.py -q` | ✅ | ✅ green |
+| 03-02-02 | 02   | 2    | MODEL-04 (metrics artifacts schema) | unit | `pytest tests/test_models_reporting.py::test_model_metrics_artifacts_schema_and_behavior_coverage -q` | ✅ | ✅ green |
+| 03-03-01 | 03   | 3    | Leakage guardrail gating | unit      | `pytest tests/test_models_regime.py::test_step5_feature_path_gating_prefers_supervised_by_default -q` | ✅ | ✅ green |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: ✅ green · ❌ red · ⚠️ flaky*
 
 ---
 

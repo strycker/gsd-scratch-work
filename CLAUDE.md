@@ -326,6 +326,8 @@ All tuneable parameters are in `config/settings.yaml`. Key sections:
 - **`clustering_features` list** — this is analytically determined. Changes here change
   the clustering geometry and invalidate any manually pinned `regime_labels.yaml`.
 - **`n_pca_components = 5`** — changing this changes which regimes you find. Benchmark first.
+- **Submodules are reference-only** — do not push commits into submodules; treat them as read-only sources for alignment checks.
+  You may `git pull`/update submodules locally, but any code changes must be made in the main repo unless we explicitly discuss otherwise.
 - **Saving to `.env` or committing API keys** — never. Use `.env.example` only.
 
 ---
@@ -494,6 +496,11 @@ ls data/checkpoints/
 
 # Run just the clustering step with plots
 python run_pipeline.py --steps 3 --plots --verbose
+
+# Smoke test step 5 after steps 1–4 (checks models + outputs/reports/model_metrics/*)
+bash scripts/smoke_step5.sh
+# Optional: run steps 1–5 in one invocation (needs data ingest prerequisites)
+# SMOKE_FULL_PIPELINE=1 bash scripts/smoke_step5.sh
 
 # Reload raw data from pickles (skip re-scraping) and recompute everything
 python run_pipeline.py --recompute --plots

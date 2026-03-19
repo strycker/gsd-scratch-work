@@ -63,6 +63,38 @@ bash scripts/run_tests.sh tests/unit/test_returns.py -q
 - Fails fast if `pytest` is not importable in that env.
 - Passes all extra arguments directly through to pytest.
 
+## smoke_step5.sh
+
+Quick **end-to-end smoke** for **step 5 (predict)** once steps **1–4** have produced the usual artifacts.
+
+**Usage:**
+
+```bash
+bash scripts/smoke_step5.sh
+bash scripts/smoke_step5.sh --verbose
+```
+
+**Prerequisites (default mode — step 5 only):**
+
+- `data/processed/features_supervised.parquet` (step 2)
+- `data/regimes/cluster_labels.parquet` (step 3)
+- `data/raw/macro_raw.parquet` **or** `data/raw/asset_prices.parquet` (returns for behavior models)
+
+If anything is missing, the script prints what to run (e.g. `python run_pipeline.py --steps 1,2,3,4`).
+
+**Full pipeline mode** (steps 1–5 in one go; step 1 may need `FRED_API_KEY` / network if raw data is not cached):
+
+```bash
+SMOKE_FULL_PIPELINE=1 bash scripts/smoke_step5.sh
+```
+
+**What it checks after step 5:**
+
+- `outputs/models/current_regime.pkl`, `decision_tree.pkl`, `forward_classifiers.pkl`, `behavior_models.pkl`
+- `outputs/reports/model_metrics/cv_summary.parquet`, `per_fold.jsonl`, `confusion_matrices.parquet`, `calibration.parquet`
+
+Uses `PYTHONPATH=src` and `python3` by default; override with `PYTHON=/path/to/python`.
+
 ## install_trading_crab.sh
 
 One-shot installer for Trading-Crab on a new machine.

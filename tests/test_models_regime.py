@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from market_regime.prediction.classifier import (
     FoldReport,
     train_current_regime,
     train_forward_classifiers,
 )
+from market_regime.prediction.feature_gating import select_step5_feature_path
 
 
 def _make_synthetic_data(n_samples: int = 40, n_features: int = 5, n_regimes: int = 3):
@@ -95,4 +97,34 @@ def test_forward_regime_horizon_one_shift_and_probabilities():
         proba = model.predict_proba(X_h)
         assert proba.shape[0] == len(X_h)
         np.testing.assert_allclose(proba.sum(axis=1), np.ones(len(X_h)), rtol=1e-6)
+
+
+def test_step5_feature_path_gating_prefers_supervised_by_default(tmp_path) -> None:
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True, exist_ok=True)
+
+    # Touch only the non-causal fallback file.
+    (processed / "features.parquet").write_bytes(b"")
+
+    supervised_path = processed / "features_supervised.parquet"
+
+    with pytest.raises(FileNotFoundError) as exc:
+        select_step5_feature_path(processed, allow_noncausal_features=False)
+    assert str(supervised_path) in str(exc.value)
+
+    chosen_path, feature_source, noncausal_used = select_step5_feature_path(
+        processed, allow_noncausal_features=True
+    )
+    assert chosen_path == processed / "features.parquet"
+    assert feature_source == "features"
+    assert noncausal_used is True
+
+    # If supervised exists, it should always win.
+    supervised_path.write_bytes(b"")
+    chosen_path2, feature_source2, noncausal_used2 = select_step5_feature_path(
+        processed, allow_noncausal_features=True
+    )
+    assert chosen_path2 == supervised_path
+    assert feature_source2 == "features_supervised"
+    assert noncausal_used2 is False
 

@@ -40,6 +40,11 @@ class RunConfig:
     # ── misc ──────────────────────────────────────────────────────────────
     use_constrained_kmeans: bool = True     # attempt k-means-constrained
 
+    # Step 5 leakage guardrail:
+    # - default: require features_supervised.parquet (causal features)
+    # - opt-in : allow fallback to features.parquet (non-causal), with a loud warning
+    allow_noncausal_features: bool = False
+
     # Drop trailing quarters with NaN features before training / predicting.
     # Mirrors config setting data.drop_incomplete_tail (CLI: --no-drop-tail).
     # The most-recent quarter typically has NaN in derivative columns because
@@ -73,6 +78,7 @@ class RunConfig:
             recompute_derived_datasets=getattr(args, "recompute", False),
             refresh_asset_prices=getattr(args, "refresh_assets", False),
             use_constrained_kmeans=not getattr(args, "no_constrained", False),
+            allow_noncausal_features=getattr(args, "allow_noncausal_features", False),
             market_code_source=getattr(args, "market_code", None),
             drop_incomplete_tail=not getattr(args, "no_drop_tail", False),
         )
@@ -96,6 +102,8 @@ class RunConfig:
             flags.append("recompute")
         if self.refresh_asset_prices:
             flags.append("refresh-assets")
+        if self.allow_noncausal_features:
+            flags.append("allow-noncausal-features")
         if self.market_code_source:
             flags.append(f"market_code={self.market_code_source}")
         return f"RunConfig({', '.join(flags) or 'defaults'})"

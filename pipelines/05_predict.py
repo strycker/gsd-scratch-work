@@ -19,6 +19,7 @@ Run:
     python pipelines/05_predict.py
 """
 
+import argparse
 import sys
 import pickle
 from pathlib import Path
@@ -33,25 +34,32 @@ from market_regime.config import load, setup_logging
 from market_regime.prediction.classifier import (
     train_current_regime,
     train_forward_classifiers,
+    train_forward_behavior_models,
 )
+from market_regime.prediction.feature_gating import select_step5_feature_path
+from market_regime.prediction.model_metrics_artifacts import write_model_metrics_artifacts
+from market_regime.asset_returns import compute_proxy_returns, compute_quarterly_returns
 from market_regime.transforms import trim_incomplete_tail
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Step 5 — supervised regime + behavior prediction")
+    parser.add_argument(
+        "--allow-noncausal-features",
+        action="store_true",
+        help="Allow falling back to data/processed/features.parquet when features_supervised.parquet is missing.",
+    )
+    args = parser.parse_args()
+
     setup_logging()
     cfg = load()
 
-    # Use causal features — no look-ahead bias for supervised learning.
-    # We now require features_supervised.parquet to exist; this avoids
-    # accidentally training on non-causal features.
-    sup_path = DATA_DIR / "processed" / "features_supervised.parquet"
-    if not sup_path.exists():
-        raise RuntimeError(
-            "features_supervised.parquet not found in data/processed.\n"
-            "Run step 2 (pipelines/02_features.py or run_pipeline.py --steps 2,3,4,5)"
-            " to generate causal features before running step 5."
-        )
-    features = pd.read_parquet(sup_path)
+    feature_path, feature_source, noncausal_used = select_step5_feature_path(
+        DATA_DIR / "processed",
+        allow_noncausal_features=args.allow_noncausal_features,
+    )
+
+    features = pd.read_parquet(feature_path)
     labels = pd.read_parquet(DATA_DIR / "regimes" / "cluster_labels.parquet")["balanced_cluster"]
 
     common = features.index.intersection(labels.index)
@@ -63,15 +71,14 @@ def main() -> None:
     X = trim_incomplete_tail(X_raw, enabled=drop_tail).dropna(axis=0, how="any")
     y = labels.loc[X.index]
 
-    # ── Current-regime classifiers (DT + RF bundle) ───────────────────────
     cv_splits = cfg.get("prediction", {}).get("cv_splits", 5)
     current_bundle = train_current_regime(X, y, cv_splits=cv_splits)
 
     models = current_bundle["models"]
-    labels = current_bundle["labels"]
 
     # Use the RandomForest as the primary production model.
     rf = models["rf"]
+    dt_model = models["dt"]
     latest_X = X.iloc[[-1]]
     proba = rf.predict_proba(latest_X)[0]
     classes = rf.classes_
@@ -84,18 +91,64 @@ def main() -> None:
     for r, p in sorted(prob_by_class.items(), key=lambda x: -x[1]):
         print(f"  Regime {r}: {p:.1%}")
 
-    # ── Forward regime classifiers ────────────────────────────────────────
     horizons = cfg.get("prediction", {}).get("forward_horizons_quarters", [1, 2, 4, 8])
     forward_models = train_forward_classifiers(X, y, horizons=horizons, cv_splits=cv_splits)
+
+    # ── Behavior models (per-asset up/flat/down) ─────────────────────────
+    behavior_horizons = cfg.get("prediction", {}).get("behavior_horizons_quarters", [1])
+
+    asset_prices_path = DATA_DIR / "raw" / "asset_prices.parquet"
+    macro_raw_path = DATA_DIR / "raw" / "macro_raw.parquet"
+
+    returns = None
+    if asset_prices_path.exists():
+        prices = pd.read_parquet(asset_prices_path)
+        if not prices.empty:
+            returns = compute_quarterly_returns(prices)
+
+    if returns is None or returns.empty:
+        if not macro_raw_path.exists():
+            raise FileNotFoundError(
+                "Step 5 behavior models require returns input.\n"
+                f"Neither {asset_prices_path} nor {macro_raw_path} was found."
+            )
+        macro_df = pd.read_parquet(macro_raw_path)
+        returns = compute_proxy_returns(macro_df)
+
+    common_ret = returns.index.intersection(X.index)
+    returns_aligned = returns.loc[common_ret]
+
+    behavior_bundle = train_forward_behavior_models(
+        X,
+        y,
+        returns_aligned,
+        horizons=behavior_horizons,
+        cv_splits=cv_splits,
+    )
 
     # ── Persist models ────────────────────────────────────────────────────
     model_dir = OUTPUT_DIR / "models"
     model_dir.mkdir(parents=True, exist_ok=True)
 
     with open(model_dir / "current_regime.pkl", "wb") as f:
-        pickle.dump(current_bundle, f)
+        pickle.dump(rf, f)
+    with open(model_dir / "decision_tree.pkl", "wb") as f:
+        pickle.dump(dt_model, f)
     with open(model_dir / "forward_classifiers.pkl", "wb") as f:
         pickle.dump(forward_models, f)
+    with open(model_dir / "behavior_models.pkl", "wb") as f:
+        pickle.dump(behavior_bundle, f)
+
+    # ── Metrics artifacts (MODEL-04) ─────────────────────────────────────
+    metrics_dir = OUTPUT_DIR / "reports" / "model_metrics"
+    write_model_metrics_artifacts(
+        output_dir=metrics_dir,
+        feature_source=feature_source,
+        noncausal_used=noncausal_used,
+        regime_current_bundle=current_bundle,
+        forward_models=forward_models,
+        behavior_bundle=behavior_bundle,
+    )
 
     print(f"\nModels saved to {model_dir}")
 

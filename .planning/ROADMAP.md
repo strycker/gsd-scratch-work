@@ -4,7 +4,7 @@
 
 - [ ] **Phase 1: Data & Constraints Foundations** - Establish ETF-only, non-intraday data universe with checkpointed, causal-aware feature pipeline.
 - [x] **Phase 2: Regime Clustering & Interpretation** - Derive stable, interpretable market regimes and descriptive profiles. (completed 2026-03-16)
-- [ ] **Phase 3: Supervised Regime & Behavior Models** - Train and evaluate models for current and forward regimes and ETF/portfolio behavior.
+- [x] **Phase 3: Supervised Regime & Behavior Models** - Train and evaluate models for current and forward regimes and ETF/portfolio behavior. (completed 2026-03-19)
 - [x] **Phase 4: Regime-Conditional ETF & Portfolio Behavior** - Quantify ETF and portfolio performance characteristics by regime. (completed 2026-03-17)
 - [x] **Phase 5: Recommendations & Machine-Readable Outputs** - Turn analysis into transparent ETF-level recommendations and structured artifacts. (completed 2026-03-17)
 - [x] **Phase 6: Weekly Report Pipeline** - Provide a one-button weekly report flow with email-ready summary. (completed 2026-03-17)
@@ -25,7 +25,12 @@
   2. Typical runs use parquet checkpoints and can skip full re-scrapes while still producing correct downstream artifacts (DATA-02).
   3. A documented feature set (including causal variants) is computed end-to-end with no look-ahead leakage into supervised training (DATA-03).
   4. All data ingestion, features, and models operate strictly on ETFs (including bitcoin via ETF) with no single stocks or direct crypto, and no intraday or auto-trading behavior is introduced (CONSTR-01, CONSTR-02).
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 03-supervised-regime-behavior-models-01-PLAN.md — bootstrap scaffolding (superseded by 03-04)
+- [x] 03-supervised-regime-behavior-models-02-PLAN.md — regime CV + forward transition models
+- [x] 03-supervised-regime-behavior-models-03-PLAN.md — behavior directional models
+- [x] 03-supervised-regime-behavior-models-04-PLAN.md — leakage hardening + behavior wiring + metrics artifacts
 
 ### Phase 2: Regime Clustering & Interpretation
 **Goal**: Produce a small, stable set of interpretable market regimes with reproducible profiles and names that downstream models and users can rely on.
@@ -135,7 +140,7 @@ Plans:
 |-------|-------------------------------------------|----------------|--------------|--------------|
 | 1     | Data & Constraints Foundations            | 2/3            | In Progress  | -            |
 | 2     | Regime Clustering & Interpretation        | 2/2            | Complete     | 2026-03-16   |
-| 3     | Supervised Regime & Behavior Models       | 1/3            | In Progress  | -            |
+| 3     | Supervised Regime & Behavior Models       | 4/4            | Complete     | 2026-03-19   |
 | 4     | Regime-Conditional ETF & Portfolio Behavior | 0/0          | Complete     | 2026-03-17   |
 | 5     | Recommendations & Machine-Readable Outputs | 0/0          | Complete     | 2026-03-17   |
 | 6     | Weekly Report Pipeline                    | 0/0            | Complete     | 2026-03-17   |

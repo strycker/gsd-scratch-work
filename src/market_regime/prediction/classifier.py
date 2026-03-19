@@ -22,6 +22,11 @@ class FoldReport:
     report: Dict[str, dict]
     train_indices: List[int]
     test_indices: List[int]
+    # Optional fields used for richer diagnostics (confusion matrix, calibration).
+    y_true_test: List[object] | None = None
+    y_pred_test: List[object] | None = None
+    proba_test: List[List[float]] | None = None
+    class_order: List[object] | None = None
 
 
 def _tscv_reports(
@@ -57,6 +62,12 @@ def _tscv_reports(
         clf = model_factory()
         clf.fit(X.iloc[train_idx], y.iloc[train_idx])
         y_pred = clf.predict(X.iloc[test_idx])
+        proba_test: List[List[float]] | None = None
+        class_order: List[object] | None = None
+        if hasattr(clf, "predict_proba"):
+            proba = clf.predict_proba(X.iloc[test_idx])
+            proba_test = proba.tolist()
+            class_order = clf.classes_.tolist()
 
         rep = classification_report(
             y.iloc[test_idx],
@@ -70,6 +81,10 @@ def _tscv_reports(
                 report=rep,
                 train_indices=train_idx.tolist(),
                 test_indices=test_idx.tolist(),
+                y_true_test=y.iloc[test_idx].tolist(),
+                y_pred_test=y_pred.tolist(),
+                proba_test=proba_test,
+                class_order=class_order,
             )
         )
 
@@ -124,6 +139,7 @@ def _unique_labels(labels: pd.Series | Iterable[Hashable]) -> List[Hashable]:
 def train_current_regime(
     features: pd.DataFrame,
     labels: pd.Series,
+    cfg: dict | None = None,
     cv_splits: int = 5,
 ) -> dict:
     """
@@ -145,10 +161,13 @@ def train_current_regime(
         raise ValueError("features and labels must have the same length")
 
     label_list = _unique_labels(labels)
-    rf_max_depth = 12
-    n_estimators = 100
-    dt_max_depth = 8
-    use_boosted = False
+    pcfg = (cfg or {}).get("prediction", {})
+    rf_max_depth = pcfg.get("rf_max_depth", 12)
+    n_estimators = pcfg.get("n_estimators", 100)
+    dt_max_depth = pcfg.get("dt_max_depth", 8)
+    use_boosted = bool(pcfg.get("use_boosted", False))
+    if cfg is not None:
+        cv_splits = int(pcfg.get("cv_splits", cv_splits))
 
     def make_dt() -> DecisionTreeClassifier:
         return DecisionTreeClassifier(max_depth=dt_max_depth, random_state=42)
@@ -205,6 +224,7 @@ def train_forward_classifiers(
     features: pd.DataFrame,
     regimes: pd.Series,
     horizons: List[int],
+    cfg: dict | None = None,
     cv_splits: int = 5,
 ) -> Dict[int, dict]:
     """
@@ -235,10 +255,13 @@ def train_forward_classifiers(
     if not horizons:
         raise ValueError("horizons must be a non-empty list of integers")
 
-    rf_max_depth = 12
-    n_estimators = 100
-    dt_max_depth = 8
-    use_boosted = False
+    pcfg = (cfg or {}).get("prediction", {})
+    rf_max_depth = pcfg.get("rf_max_depth", 12)
+    n_estimators = pcfg.get("n_estimators", 100)
+    dt_max_depth = pcfg.get("dt_max_depth", 8)
+    use_boosted = bool(pcfg.get("use_boosted", False))
+    if cfg is not None:
+        cv_splits = int(pcfg.get("cv_splits", cv_splits))
 
     results: Dict[int, dict] = {}
 
@@ -455,7 +478,8 @@ def train_forward_behavior_models(
     regimes: pd.Series,
     returns: pd.DataFrame,
     horizons: List[int],
-) -> Dict[str, Dict[int, RandomForestClassifier]]:
+    cv_splits: int = 3,
+) -> dict:
     """
     Train per-asset, per-horizon behavior classifiers using features + regimes.
 
@@ -477,9 +501,11 @@ def train_forward_behavior_models(
         raise ValueError("horizons must be a non-empty list of integers")
 
     models: Dict[str, Dict[int, RandomForestClassifier]] = {}
+    cv_scores: Dict[str, Dict[int, dict]] = {}
 
     for asset in returns.columns:
         asset_models: Dict[int, RandomForestClassifier] = {}
+        asset_cv: Dict[int, dict] = {}
         for h in horizons:
             if h <= 0:
                 raise ValueError(f"horizon must be positive, got {h}")
@@ -500,22 +526,36 @@ def train_forward_behavior_models(
             X_joint["regime"] = regimes.loc[idx_joint].astype(int)
             y_joint = labels.loc[idx_joint]
 
-            clf = RandomForestClassifier(
-                max_depth=8,
-                n_estimators=100,
-                random_state=42,
-                n_jobs=-1,
-                class_weight="balanced",
+            def _factory() -> RandomForestClassifier:
+                return RandomForestClassifier(
+                    max_depth=8,
+                    n_estimators=100,
+                    random_state=42,
+                    n_jobs=-1,
+                    class_weight="balanced",
+                )
+
+            fold_blob = _tscv_scores(
+                _factory,
+                X_joint,
+                y_joint,
+                n_splits=cv_splits,
+                label=f"behavior asset={asset} h={h}",
             )
+
+            clf = _factory()
             clf.fit(X_joint, y_joint)
             asset_models[h] = clf
+            asset_cv[h] = fold_blob
 
         if asset_models:
             models[asset] = asset_models
+            if asset_cv:
+                cv_scores[asset] = asset_cv
 
     return {
         "models": models,
-        "cv_scores": {},
+        "cv_scores": cv_scores,
     }
 
 

@@ -602,48 +602,63 @@ def step4_regime_label(cfg: dict, run_cfg: RunConfig) -> None:
 
 def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
     """Train supervised classifiers → outputs/models/"""
-    from market_regime.prediction import (
-        train_current_regime, train_decision_tree, train_forward_classifiers, predict_current,
+    from market_regime.asset_returns import compute_proxy_returns, compute_quarterly_returns
+    from market_regime.prediction.classifier import (
+        train_current_regime,
+        train_forward_classifiers,
+        train_forward_behavior_models,
+        train_interpretability_tree,
     )
-    from market_regime.prediction.classifier import train_interpretability_tree
+    from market_regime.prediction.feature_gating import select_step5_feature_path
+    from market_regime.prediction.model_metrics_artifacts import write_model_metrics_artifacts
     from market_regime import plotting
     from sklearn.tree import export_text
     import pandas as pd
     import pickle
 
-    # Step 5 uses causal (backward-window) features so no future data leaks into
-    # training.  Falls back to centered features.parquet if supervised file absent
-    # (e.g. after a partial run that pre-dates this change).
-    sup_path = DATA_DIR / "processed" / "features_supervised.parquet"
-    feat_path = sup_path if sup_path.exists() else DATA_DIR / "processed" / "features.parquet"
-    if not sup_path.exists():
-        log.warning(
-            "Step 5: features_supervised.parquet not found — falling back to features.parquet. "
-            "Re-run step 2 to generate causal features."
-        )
-    features = _load_parquet(feat_path, "features_supervised")
-    labels = _load_parquet(DATA_DIR / "regimes" / "cluster_labels.parquet", "cluster_labels")["balanced_cluster"]
+    feature_path, feature_source, noncausal_used = select_step5_feature_path(
+        DATA_DIR / "processed",
+        allow_noncausal_features=run_cfg.allow_noncausal_features,
+    )
+    features = _load_parquet(feature_path, feature_source)
+
+    labels = _load_parquet(
+        DATA_DIR / "regimes" / "cluster_labels.parquet", "cluster_labels"
+    )["balanced_cluster"]
 
     common = features.index.intersection(labels.index)
     X = features.loc[common].drop(columns=["market_code"], errors="ignore").dropna(axis=1, how="any")
     y = labels.loc[common]
 
-    current_rf = train_current_regime(X, y, cfg)
+    # Regime-model horizons / CV
+    cv_splits = int(cfg.get("prediction", {}).get("cv_splits", 5))
+    forward_horizons = cfg.get("prediction", {}).get("forward_horizons_quarters", [1, 2, 4, 8])
+    behavior_horizons = cfg.get("prediction", {}).get("behavior_horizons_quarters", [1])
 
-    latest = predict_current(current_rf, X)
-    log.info("Latest quarter → regime %d", latest["regime"])
-    for r, p in sorted(latest["probabilities"].items(), key=lambda x: -x[1]):
+    # ── Regime: current + forward CV bundles ────────────────────────────────
+    current_bundle = train_current_regime(X, y, cv_splits=cv_splits)
+    rf_model = current_bundle["models"]["rf"]
+    dt_model = current_bundle["models"]["dt"]
+
+    # Latest quarter prediction (rf_model gives proba)
+    latest_proba = rf_model.predict_proba(X.iloc[[-1]])[0]
+    classes = rf_model.classes_
+    prob_by_class = {int(c): float(p) for c, p in zip(classes, latest_proba)}
+    latest_regime = max(prob_by_class.items(), key=lambda kv: kv[1])[0]
+
+    log.info("Latest quarter → regime %d", latest_regime)
+    for r, p in sorted(prob_by_class.items(), key=lambda x: -x[1]):
         log.info("  Regime %d: %.1f%%", r, p * 100)
 
-    dt_model = train_decision_tree(X, y, cfg)
-
-    forward_models = train_forward_classifiers(X, y, cfg)
+    forward_models = train_forward_classifiers(
+        X, y, horizons=forward_horizons, cv_splits=cv_splits
+    )
 
     model_dir = OUTPUT_DIR / "models"
     model_dir.mkdir(parents=True, exist_ok=True)
 
     with open(model_dir / "current_regime.pkl", "wb") as f:
-        pickle.dump(current_rf, f)
+        pickle.dump(rf_model, f)
     with open(model_dir / "decision_tree.pkl", "wb") as f:
         pickle.dump(dt_model, f)
     with open(model_dir / "forward_classifiers.pkl", "wb") as f:
@@ -651,12 +666,57 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
 
     # Optionally save predicted labels as a market_code checkpoint
     predicted_labels = pd.Series(
-        current_rf.predict(X), index=X.index, name="market_code"
+        rf_model.predict(X), index=X.index, name="market_code"
     ).astype(int)
     _save_market_code(predicted_labels, "predicted")
     log.info(
         "Step 5: saved predicted regime labels as market_code_predicted checkpoint "
         "(use --market-code predicted on future runs)"
+    )
+
+    # ── Behavior: train per-asset up/flat/down models ─────────────────────
+    raw_dir = DATA_DIR / "raw"
+    asset_prices_path = raw_dir / "asset_prices.parquet"
+    macro_raw_path = raw_dir / "macro_raw.parquet"
+
+    returns: pd.DataFrame | None = None
+    if asset_prices_path.exists():
+        prices = pd.read_parquet(asset_prices_path)
+        if not prices.empty:
+            returns = compute_quarterly_returns(prices)
+
+    if returns is None or returns.empty:
+        if not macro_raw_path.exists():
+            raise FileNotFoundError(
+                "Step 5 behavior models require returns input.\n"
+                f"Neither {asset_prices_path} nor {macro_raw_path} was found."
+            )
+        macro_df = pd.read_parquet(macro_raw_path)
+        returns = compute_proxy_returns(macro_df)
+
+    common_ret = returns.index.intersection(X.index)
+    returns_aligned = returns.loc[common_ret]
+
+    behavior_bundle = train_forward_behavior_models(
+        X,
+        y,
+        returns_aligned,
+        horizons=behavior_horizons,
+        cv_splits=cv_splits,
+    )
+
+    with open(model_dir / "behavior_models.pkl", "wb") as f:
+        pickle.dump(behavior_bundle, f)
+
+    # ── Metrics artifacts (MODEL-04) ───────────────────────────────────────
+    metrics_dir = OUTPUT_DIR / "reports" / "model_metrics"
+    write_model_metrics_artifacts(
+        output_dir=metrics_dir,
+        feature_source=feature_source,
+        noncausal_used=noncausal_used,
+        regime_current_bundle=current_bundle,
+        forward_models=forward_models,
+        behavior_bundle=behavior_bundle,
     )
 
     if run_cfg.generate_plots:
@@ -668,15 +728,19 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
                 with open(regime_names_path) as f:
                     regime_names = yaml.safe_load(f) or {}
                 regime_names = {int(k): v for k, v in regime_names.items()}
-            plotting.plot_feature_importance(current_rf, X.columns.tolist(), run_cfg)
-            plotting.plot_forward_probabilities(latest, regime_names, run_cfg)
-            plotting.plot_predicted_vs_actual(X, y, current_rf, regime_names, run_cfg)
+            plotting.plot_feature_importance(rf_model, X.columns.tolist(), run_cfg)
+            plotting.plot_forward_probabilities(
+                {"regime": latest_regime, "probabilities": prob_by_class},
+                regime_names,
+                run_cfg,
+            )
+            plotting.plot_predicted_vs_actual(X, y, rf_model, regime_names, run_cfg)
         except Exception as exc:
             log.warning("Could not generate prediction plots: %s", exc)
 
     # ── Interpretability tree (Phase 9) ───────────────────────────────────────
     try:
-        tree_model, tree_features = train_interpretability_tree(current_rf, X, y, cfg)
+        tree_model, tree_features = train_interpretability_tree(rf_model, X, y, cfg)
         tree_txt = export_text(tree_model, feature_names=tree_features)
         report_dir = OUTPUT_DIR / "reports"
         report_dir.mkdir(parents=True, exist_ok=True)
@@ -1078,6 +1142,16 @@ def build_parser() -> argparse.ArgumentParser:
                        "By default the trailing row is dropped when it contains "
                        "NaN in any feature column (centered np.gradient edge effect)."
                    ))
+    p.add_argument(
+        "--allow-noncausal-features",
+        action="store_true",
+        help=(
+            "Allow step 5 to fall back to data/processed/features.parquet "
+            "when data/processed/features_supervised.parquet is missing. "
+            "This bypasses the causal-feature leakage guardrail, so it is "
+            "disabled by default and emits an unmissable warning."
+        ),
+    )
     p.add_argument("--market-code", type=str, default=None, metavar="NAME",
                    help=(
                        "Load market_code from this source. "
