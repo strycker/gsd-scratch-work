@@ -30,10 +30,11 @@ def test_current_regime_cv_respects_temporal_order():
     X, y = _make_synthetic_data()
     result = train_current_regime(X, y, cv_splits=4)
 
-    cv_reports = result["cv_reports"]
-    assert set(cv_reports.keys()) == {"dt", "rf"}
+    cv_scores = result["cv_scores"]
+    assert set(cv_scores.keys()) == {"dt", "rf"}
 
-    for model_name, folds in cv_reports.items():
+    for model_name, score_blob in cv_scores.items():
+        folds = score_blob["reports"]
         assert folds, f"no folds for model {model_name}"
         for fr in folds:
             assert isinstance(fr, FoldReport)
@@ -79,7 +80,8 @@ def test_forward_regime_horizon_one_shift_and_probabilities():
     assert len(y_future_manual) == len(regimes) - 1
 
     # CV reports should have temporally ordered folds
-    for model_name, folds in h1["cv_reports"].items():
+    for model_name, score_blob in h1["cv_scores"].items():
+        folds = score_blob["reports"]
         assert folds, f"no folds for model {model_name}"
         for fr in folds:
             assert isinstance(fr, FoldReport)

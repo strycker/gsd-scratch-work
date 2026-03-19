@@ -3,10 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from market_regime.prediction import (
-    make_behavior_labels,
-    train_forward_behavior_models,
-)
+from market_regime.prediction.classifier import make_behavior_labels, train_forward_behavior_models
 
 
 def test_make_behavior_labels_series_assigns_up_flat_down() -> None:
@@ -64,7 +61,7 @@ def test_train_forward_behavior_models_trains_per_asset_and_horizon() -> None:
     horizons = [1]
     results = train_forward_behavior_models(features, regimes, returns, horizons=horizons)
 
-    assert "models" in results and "cv_reports" in results
+    assert "models" in results and "cv_scores" in results
     assert set(results["models"].keys()) == {"ETF1", "ETF2"}
 
     for asset in ("ETF1", "ETF2"):
