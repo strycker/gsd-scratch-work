@@ -35,8 +35,16 @@ def main() -> None:
     setup_logging()
     cfg = load()
 
+    labels_path = DATA_DIR / "regimes" / "cluster_labels.parquet"
+    if not labels_path.exists():
+        raise FileNotFoundError(
+            f"{labels_path} not found. Run step 3 (cluster) first, e.g.:\n"
+            "  python run_pipeline.py --steps 3\n"
+            "or run the full pipeline so step 2 and 3 complete before step 4."
+        )
+
     features = pd.read_parquet(DATA_DIR / "processed" / "features.parquet")
-    labels = pd.read_parquet(DATA_DIR / "regimes" / "cluster_labels.parquet")["balanced_cluster"]
+    labels = pd.read_parquet(labels_path)["balanced_cluster"]
 
     # Align index (features may have more rows if gap-filled beyond label dates)
     common = features.index.intersection(labels.index)

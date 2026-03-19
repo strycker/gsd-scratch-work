@@ -1,0 +1,12 @@
+{
+  "name": "features_causal",
+  "created": "2026-03-18T20:33:29.692548",
+  "config_hash": "7428b6dc",
+  "rows": 4,
+  "columns": 1,
+  "col_names": [
+    "feature1"
+  ],
+  "index_start": "2000-03-31 00:00:00",
+  "index_end": "2000-12-31 00:00:00"
+}

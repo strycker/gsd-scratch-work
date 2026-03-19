@@ -26,12 +26,26 @@ log = logging.getLogger(__name__)
 
 # ── 1. Cross-asset ratios ──────────────────────────────────────────────────
 
+# Columns required by add_cross_ratios (must exist in raw/macro data)
+_CROSS_RATIO_REQUIRED = [
+    "dividend", "sp500", "gdp", "fred_gdp", "fred_gnp",
+    "div_yield", "fred_baa", "fred_aaa", "cpi", "fred_cpi", "sp500_adj",
+]
+
+
 def add_cross_ratios(df: pd.DataFrame) -> pd.DataFrame:
     """
     Compute the ten derived cross-asset ratio columns used throughout the
     pipeline.  These are defined analytically (not configurable) because
     each ratio has a specific financial interpretation.
     """
+    missing = [c for c in _CROSS_RATIO_REQUIRED if c not in df.columns]
+    if missing:
+        raise KeyError(
+            f"Missing required raw columns for cross-asset ratios: {missing}. "
+            "Run step 1 with --refresh to re-scrape macro data (e.g. python run_pipeline.py --refresh), "
+            "or check config/settings.yaml multpl.datasets and fred.series."
+        )
     df = df.copy()
     df["div_yield2"]      = df["dividend"]  / df["sp500"]
     df["price_div"]       = df["sp500"]     / df["dividend"]

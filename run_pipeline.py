@@ -1,7 +1,7 @@
 """
 run_pipeline.py — Master entry point for the Trading-Crab market regime pipeline.
 
-Runs all 7 pipeline steps in order, or any selected subset, with a consistent
+Runs all 9 pipeline steps in order, or any selected subset, with a consistent
 RunConfig passed through every module.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -14,6 +14,8 @@ RunConfig passed through every module.
   5  predict        Supervised classifiers (current + forward horizons)
   6  asset_returns  ETF returns by regime via yfinance
   7  dashboard      Print dashboard + save outputs/reports/dashboard.csv
+  8  diagnostics    Ratio + RRG diagnostics → outputs/reports/diagnostics/
+  9  tactics        Per-asset tactics signals → tactics_signals.parquet
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  ALL CLI FLAGS
@@ -41,7 +43,7 @@ RunConfig passed through every module.
 
   --steps 1,3,5        Run only the listed step numbers (comma-separated integers).
                        Example: --steps 3,4,5,6,7 skips ingestion and features.
-                       Valid values: 1 2 3 4 5 6 7
+                       Valid values: 1 2 3 4 5 6 7 8 9
 
   --no-constrained     Skip the k-means-constrained package even if installed.
                        Falls back to plain KMeans for balanced clustering.
@@ -463,10 +465,16 @@ def step4_regime_label(cfg: dict, run_cfg: RunConfig) -> None:
     import pandas as pd
     import yaml
 
+    labels_path = DATA_DIR / "regimes" / "cluster_labels.parquet"
     cm = CheckpointManager()
+    if not labels_path.exists() and not (cm.dir / "cluster_labels.parquet").exists():
+        raise FileNotFoundError(
+            "cluster_labels.parquet not found and no cluster_labels checkpoint. "
+            "Run step 3 first: python run_pipeline.py --steps 3"
+        )
 
     features = _load_parquet(DATA_DIR / "processed" / "features.parquet", "features")
-    labels = _load_parquet(DATA_DIR / "regimes" / "cluster_labels.parquet", "cluster_labels")["balanced_cluster"]
+    labels = _load_parquet(labels_path, "cluster_labels")["balanced_cluster"]
 
     common = features.index.intersection(labels.index)
     features = features.loc[common]
@@ -686,6 +694,7 @@ def step7_dashboard(cfg: dict, run_cfg: RunConfig) -> None:
     from market_regime.reporting import (
         asset_signals, print_dashboard, save_dashboard_csv,
         simple_regime_portfolio, blended_regime_portfolio, generate_recommendation,
+        write_weekly_report_md,
     )
     import pandas as pd
     import pickle
@@ -778,7 +787,91 @@ def step7_dashboard(cfg: dict, run_cfg: RunConfig) -> None:
                 report_dir / "trade_recommendations.csv",
             )
 
+            # Weekly markdown report (used by scripts/run_weekly_report.py archive/email step)
+            try:
+                weekly_out = report_dir / "weekly_report.md"
+                weekly_out.parent.mkdir(parents=True, exist_ok=True)
+                transition_row = (
+                    tm.loc[current_regime]
+                    if current_regime in tm.index
+                    else None
+                )
+                write_weekly_report_md(
+                    current_regime=current_regime,
+                    regime_name=regime_names.get(current_regime, "Unknown"),
+                    regime_probabilities=probs,
+                    rec_df=recommendations,
+                    transition_row=transition_row,
+                    output_path=weekly_out,
+                )
+                log.info("Weekly report saved to %s", weekly_out)
+            except Exception as exc:
+                log.warning("Could not write weekly_report.md: %s", exc)
+
     log.info("Step 7 done")
+
+
+# ── Step 8: Diagnostics ───────────────────────────────────────────────────────
+
+def step8_diagnostics(cfg: dict, run_cfg: RunConfig) -> None:
+    """Compute ratio and RRG diagnostics from ETF prices → outputs/reports/diagnostics/."""
+    from market_regime.diagnostics import (
+        percentile_rank,
+        rolling_zscore,
+        rrg_for_benchmark,
+    )
+    import pandas as pd
+
+    prices_path = DATA_DIR / "raw" / "asset_prices.parquet"
+    if not prices_path.exists():
+        log.warning("Step 8: ETF prices %s not found; skipping diagnostics.", prices_path)
+        return
+
+    prices = pd.read_parquet(prices_path)
+    tickers = cfg.get("assets", {}).get("etfs") or list(prices.columns)
+    cols = [t for t in tickers if t in prices.columns]
+    if not cols:
+        log.warning("Step 8: no configured ETF columns in prices; skipping diagnostics.")
+        return
+    prices = prices[cols]
+
+    diag_dir = OUTPUT_DIR / "reports" / "diagnostics"
+    diag_dir.mkdir(parents=True, exist_ok=True)
+
+    ratios_cfg = cfg.get("diagnostics", {}).get("ratios") or []
+    if ratios_cfg:
+        records = []
+        for item in ratios_cfg:
+            name = item.get("name")
+            num = item.get("numerator")
+            den = item.get("denominator")
+            if not name or not num or not den or num not in prices.columns or den not in prices.columns:
+                continue
+            ratio_series = prices[num] / prices[den]
+            z = rolling_zscore(ratio_series)
+            pct = percentile_rank(ratio_series)
+            latest = ratio_series.dropna().iloc[-1] if not ratio_series.dropna().empty else float("nan")
+            latest_z = z.dropna().iloc[-1] if not z.dropna().empty else float("nan")
+            records.append({
+                "name": name, "numerator": num, "denominator": den,
+                "latest_value": latest, "latest_zscore": latest_z, "percentile": pct,
+            })
+        if records:
+            pd.DataFrame.from_records(records).to_parquet(diag_dir / "ratios_current.parquet", index=False)
+            log.info("Step 8: wrote ratio diagnostics to %s", diag_dir / "ratios_current.parquet")
+
+    benchmarks = cfg.get("diagnostics", {}).get("rrg_benchmarks") or ["SPY"]
+    all_rrg = []
+    for bench in benchmarks:
+        df_b = rrg_for_benchmark(prices, bench)
+        if not df_b.empty:
+            all_rrg.append(df_b)
+    if all_rrg:
+        rrg_path = diag_dir / "rrg_current.parquet"
+        pd.concat(all_rrg, ignore_index=True).to_parquet(rrg_path, index=False)
+        log.info("Step 8: wrote RRG diagnostics to %s", rrg_path)
+
+    log.info("Step 8 done")
 
 
 # ── Step dispatch table ────────────────────────────────────────────────────────
@@ -821,6 +914,7 @@ STEPS: dict[int, tuple[str, callable]] = {
     5: ("Supervised prediction",        step5_predict),
     6: ("Asset returns",                step6_asset_returns),
     7: ("Dashboard",                    step7_dashboard),
+    8: ("Diagnostics (ratios + RRG)",    step8_diagnostics),
     9: ("Tactics signals",              step9_tactics),
 }
 
