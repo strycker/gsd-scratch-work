@@ -14,6 +14,7 @@ from market_regime.clustering import (
     evaluate_kmeans,
     pick_best_k,
     fit_clusters,
+    build_clustering_manifest,
 )
 
 
@@ -154,3 +155,84 @@ class TestFitClusters:
 
         assert "balanced_cluster uses plain KMeans" in "\n".join(caplog.messages)
         assert "balanced_cluster" in result.columns
+
+
+class TestClusteringManifest:
+    def _clust_cfg(self) -> dict:
+        return {
+            "n_pca_components": 5,
+            "n_clusters_search": 12,
+            "k_cap": 5,
+            "balanced_k": 5,
+            "random_state": 42,
+        }
+
+    def test_manifest_is_deterministic_for_same_input(self, feature_df):
+        features = feature_df.copy()
+        # Ensure market_code is ignored in the manifest feature schema.
+        features["market_code"] = 0
+
+        m1 = build_clustering_manifest(
+            features,
+            self._clust_cfg(),
+            use_constrained_requested=True,
+            constrained_available=False,
+        )
+        m2 = build_clustering_manifest(
+            features,
+            self._clust_cfg(),
+            use_constrained_requested=True,
+            constrained_available=False,
+        )
+
+        assert m1 == m2
+        assert m1["feature_columns"] == sorted([c for c in feature_df.columns])
+
+    def test_manifest_changes_when_feature_schema_changes(self, feature_df):
+        features = feature_df.copy()
+        features["market_code"] = 0
+
+        m1 = build_clustering_manifest(
+            features,
+            self._clust_cfg(),
+            use_constrained_requested=True,
+            constrained_available=False,
+        )
+
+        # Add a new feature column (no NaNs) — manifest feature_columns must change.
+        features2 = features.copy()
+        features2["extra_feature"] = 1.0
+        m2 = build_clustering_manifest(
+            features2,
+            self._clust_cfg(),
+            use_constrained_requested=True,
+            constrained_available=False,
+        )
+
+        assert m1 != m2
+        assert "extra_feature" in m2["feature_columns"]
+
+    def test_manifest_changes_when_clustering_config_changes(self, feature_df):
+        features = feature_df.copy()
+        features["market_code"] = 0
+
+        cfg1 = self._clust_cfg()
+        cfg2 = dict(cfg1)
+        cfg2["balanced_k"] = 4
+
+        m1 = build_clustering_manifest(
+            features,
+            cfg1,
+            use_constrained_requested=True,
+            constrained_available=False,
+        )
+        m2 = build_clustering_manifest(
+            features,
+            cfg2,
+            use_constrained_requested=True,
+            constrained_available=False,
+        )
+
+        assert m1 != m2
+        assert m1["clustering_config"]["balanced_k"] == 5
+        assert m2["clustering_config"]["balanced_k"] == 4
