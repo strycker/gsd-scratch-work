@@ -182,6 +182,8 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 
 ## Traceability
 
+> **Gap closure (v1.0 audit):** `$gsd-plan-milestone-gaps` added **Phases 12–14** (see `.planning/ROADMAP.md`). Until verification runs, **PORT** / **UX** / **REPORT** rows are tracked under **Phase 12** (formal `*-VERIFICATION.md` + evidence). Phases 7–11 roadmap requirements without IDs in this table are handled under **Phase 13** during verification work.
+
 | Requirement | Phase  | Status  |
 |------------|--------|---------|
 | DATA-01    | Phase 1 | Complete |
@@ -194,14 +196,14 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 | MODEL-02   | Phase 3 | Complete |
 | MODEL-03   | Phase 3 | Complete |
 | MODEL-04   | Phase 3 | Complete |
-| PORT-01    | Phase 4 | Pending |
-| PORT-02    | Phase 4 | Pending |
-| PORT-03    | Phase 4 | Pending |
-| UX-01      | Phase 5 | Pending |
-| UX-02      | Phase 5 | Pending |
-| UX-03      | Phase 5 | Pending |
-| REPORT-01  | Phase 6 | Pending |
-| REPORT-02  | Phase 6 | Pending |
+| PORT-01    | Phase 12 | Pending |
+| PORT-02    | Phase 12 | Pending |
+| PORT-03    | Phase 12 | Pending |
+| UX-01      | Phase 12 | Pending |
+| UX-02      | Phase 12 | Pending |
+| UX-03      | Phase 12 | Pending |
+| REPORT-01  | Phase 12 | Pending |
+| REPORT-02  | Phase 12 | Pending |
 | CONSTR-01  | Phase 1 | Complete |
 | CONSTR-02  | Phase 1 | Complete |
 

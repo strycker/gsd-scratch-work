@@ -13,6 +13,9 @@
 - [x] **Phase 9: Tactics & Diagnostics Integration** - Integrate diagnostics + tactics into the core pipeline and weekly report. (completed 2026-03-17)
 - [x] **Phase 10: Tactics Layer + Install & Env Automation** - Add tactics layer and one-shot installer/env health checks. (completed 2026-03-17)
 - [x] **Phase 11: Core Cleanup & Env Sanity** - Normalize directory layout, date handling, and style imports. (completed 2026-03-17)
+- [ ] **Phase 12: v1.0 Audit — Verify Phases 4–6 (PORT / UX / REPORT)** — Close `.planning/v1.0-MILESTONE-AUDIT.md` requirement gaps with formal `*-VERIFICATION.md` and traceability evidence.
+- [ ] **Phase 13: v1.0 Audit — Verify Phases 7–11** — Author missing phase `*-VERIFICATION.md` files and map roadmap success criteria to tests/artifacts.
+- [ ] **Phase 14: v1.0 Audit — Planning reconciliation** — Align ROADMAP vs REQUIREMENTS, refresh `STATE.md`, fix stale verification paths (`trading_crab_lib`), reconcile Phase 2 verification vs validation.
 
 ## Phase Details
 
@@ -134,6 +137,39 @@ Plans:
   3. Style imports (`from __future__ import annotations`, etc.) are consistent in key modules.
 **Plans**: TBD
 
+### Phase 12: v1.0 Audit — Verify Phases 4–6 (PORT / UX / REPORT)
+**Goal:** Close requirement gaps flagged in `.planning/v1.0-MILESTONE-AUDIT.md`: PORT-01..03, UX-01..03, REPORT-01..02 were **Pending** with no phase `*-VERIFICATION.md`. Prove implementation against requirements or file explicit gaps.
+**Depends on:** Phases 1–11 (code paths assumed present); audit artifact `v1.0-MILESTONE-AUDIT.md`.
+**Requirements:** PORT-01, PORT-02, PORT-03, UX-01, UX-02, UX-03, REPORT-01, REPORT-02  
+**Gap closure:** Milestone audit (`gaps.requirements` for phases 4–6 scope).
+**Success Criteria** (what must be TRUE):
+  1. `.planning/phases/04-regime-conditional-etf-portfolio-behavior/*-VERIFICATION.md` exists and ties PORT-* to tests + artifacts (e.g. step 6 outputs, `returns_by_regime`, portfolio templates).
+  2. `.planning/phases/05-recommendations-machine-readable-outputs/*-VERIFICATION.md` exists and ties UX-* to dashboard / trade recommendation / machine-readable outputs.
+  3. `.planning/phases/06-weekly-report-pipeline/*-VERIFICATION.md` exists and ties REPORT-* to weekly report scripts and `weekly_report.md` / email body paths.
+  4. `.planning/REQUIREMENTS.md` traceability rows for these eight IDs move to **Complete** only with cited evidence (tests, file paths, manual sign-off where noted).
+**Plans:** TBD (use `$gsd-plan-phase 12`)
+
+### Phase 13: v1.0 Audit — Verify Phases 7–11
+**Goal:** Author missing `*-VERIFICATION.md` for roadmap phases 7–11 so GSD milestone audits are evidence-based, not checkbox-only.
+**Depends on:** Phase 12 recommended first (ordering flexible).
+**Requirements:** Map from ROADMAP Phase 7–11 success criteria (PORT-04, REPORT-03, DATA-04, DIAG-01, DIAG-02, TACTICS-01, TACTICS-02, TACTICS-03, INSTALL-10, CORE-01, CORE-02 — extend `REQUIREMENTS.md` traceability during Phase 13 planning if IDs are missing from the table).
+**Gap closure:** Milestone audit (`nyquist.missing_phases` for directories 07–11).
+**Success Criteria** (what must be TRUE):
+  1. Each of `07`–`11` phase directories contains a `*-VERIFICATION.md` with status **passed** or **gaps_found** and explicit evidence.
+  2. Cross-phase links (email, diagnostics, tactics, installer) are traced to code entrypoints (`run_pipeline.py` steps, `pipelines/*.py`).
+**Plans:** TBD (use `$gsd-plan-phase 13`)
+
+### Phase 14: v1.0 Audit — Planning source reconciliation
+**Goal:** Remove planning contradictions and doc drift: ROADMAP vs REQUIREMENTS, stale `STATE.md`, `market_regime` vs `trading_crab_lib` in verification docs, Phase 2 VERIFICATION vs VALIDATION narrative.
+**Depends on:** None (can parallelize with 12–13).
+**Gap closure:** Milestone audit (`gaps.integration`, `tech_debt`).
+**Success Criteria** (what must be TRUE):
+  1. ROADMAP “complete” language matches REQUIREMENTS traceability (or REQUIREMENTS updated to match verified reality).
+  2. `.planning/STATE.md` reflects current phase focus and counts.
+  3. Phase 1 checklist / Phase 1 details block in ROADMAP corrected if still misplaced.
+  4. Stale package paths in `01`–`03` `*-VERIFICATION.md` bodies updated to `src/trading_crab_lib/`.
+**Plans:** TBD (use `$gsd-plan-phase 14`)
+
 ## Progress
 
 | Phase | Name                                      | Plans Complete | Status       | Completed    |
@@ -149,4 +185,7 @@ Plans:
 | 9     | Tactics & Diagnostics Integration         | 0/0            | Complete     | 2026-03-17   |
 | 10    | Tactics Layer + Install & Env Automation  | 0/0            | Complete     | 2026-03-17   |
 | 11    | Core Cleanup & Env Sanity                 | 0/0            | Complete     | 2026-03-17   |
+| 12    | v1.0 Audit — Verify Phases 4–6            | 0/1            | In Progress  | —            |
+| 13    | v1.0 Audit — Verify Phases 7–11         | 0/1            | In Progress  | —            |
+| 14    | v1.0 Audit — Planning reconciliation     | 0/1            | In Progress  | —            |
 
