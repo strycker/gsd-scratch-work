@@ -7,5 +7,6 @@
 1: "Growth Boom"
 2: "Deflationary Recession"
 3: "Low-Rate Expansion"
-4: "Rising Rate Slowdown"
+## 4 and other IDs are intentionally left unpinned (auto-suggestions from
+## `data/regimes/regime_names_suggested.yaml`) to preserve hybrid governance.
 5: "Crisis / Deleveraging"

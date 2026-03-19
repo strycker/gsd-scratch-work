@@ -15,7 +15,10 @@ Exploration / investigation functions (used by notebooks/03_clustering.ipynb):
 
 from __future__ import annotations
 
+import hashlib
 import logging
+import json
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -27,6 +30,8 @@ from sklearn.metrics import (
     silhouette_score,
 )
 from sklearn.preprocessing import StandardScaler
+
+from market_regime import CONFIG_DIR
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +46,82 @@ def _load_constrained_kmeans():
             "Run: pip install k-means-constrained"
         )
         return None
+
+
+def is_constrained_kmeans_available() -> bool:
+    """Return True when `k-means-constrained` import succeeds."""
+    return _load_constrained_kmeans() is not None
+
+
+def _settings_hash_8() -> str:
+    """8-char MD5 hash of settings.yaml content (used for artifact fingerprinting)."""
+    path = CONFIG_DIR / "settings.yaml"
+    if not path.exists():
+        return "no-config"
+    return hashlib.md5(path.read_bytes()).hexdigest()[:8]
+
+
+def build_clustering_manifest(
+    features: pd.DataFrame,
+    clust_cfg: dict,
+    *,
+    use_constrained_requested: bool,
+    constrained_available: bool,
+) -> dict:
+    """
+    Build a deterministic manifest for clustering inputs + config.
+
+    This is used to enforce the Phase 2 policy: *recluster only on intentional change*
+    (i.e., changes in feature schema/date window or clustering hyperparameters),
+    rather than recomputing every run.
+    """
+    # Clustering never depends on market_code; exclude it from schema fingerprint.
+    X = features.drop(columns=["market_code"], errors="ignore")
+    X = X.dropna(how="any")
+
+    feature_columns = sorted([c for c in X.columns if c != "market_code"])
+    index_start = str(X.index[0]) if len(X) else None
+    index_end = str(X.index[-1]) if len(X) else None
+
+    return {
+        "feature_columns": feature_columns,
+        "index_start": index_start,
+        "index_end": index_end,
+        "row_count": int(len(X)),
+        "clustering_config": {
+            "n_pca_components": int(clust_cfg["n_pca_components"]),
+            "n_clusters_search": int(clust_cfg["n_clusters_search"]),
+            "k_cap": int(clust_cfg["k_cap"]),
+            "balanced_k": int(clust_cfg["balanced_k"]),
+            "random_state": int(clust_cfg["random_state"]),
+        },
+        "balanced_kmeans": {
+            "use_constrained_requested": bool(use_constrained_requested),
+            "constrained_available": bool(constrained_available),
+        },
+        "settings_hash_8": _settings_hash_8(),
+        "artifact_schema_version": 1,
+    }
+
+
+def clustering_manifest_matches(manifest_path: Path, new_manifest: dict) -> bool:
+    """Return True when the existing manifest JSON equals the new manifest dict."""
+    if not manifest_path.exists():
+        return False
+    try:
+        existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return False
+    return existing == new_manifest
+
+
+def write_clustering_manifest(manifest_path: Path, manifest: dict) -> None:
+    """Write clustering manifest deterministically (stable key ordering)."""
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
 
 
 # ── 1. PCA ─────────────────────────────────────────────────────────────────

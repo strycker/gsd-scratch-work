@@ -13,11 +13,15 @@ Writes:
   data/regimes/kmeans_scores.parquet    — k-sweep evaluation table
 
 Run:
-    python pipelines/03_cluster.py
+    python pipelines/03_cluster.py [--force]
 """
+
+from __future__ import annotations
 
 import sys
 from pathlib import Path
+import argparse
+import logging
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
@@ -28,19 +32,61 @@ from market_regime.clustering import (
     evaluate_kmeans,
     pick_best_k,
     fit_clusters,
+    build_clustering_manifest,
+    clustering_manifest_matches,
+    write_clustering_manifest,
+    is_constrained_kmeans_available,
 )
 
 import pandas as pd
 
+log = logging.getLogger(__name__)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(description="Run clustering step 3.")
+    p.add_argument(
+        "--force",
+        action="store_true",
+        help="Recompute clustering even when clustering_manifest.json matches.",
+    )
+    return p
+
 
 def main() -> None:
     setup_logging()
+    args = build_parser().parse_args()
     cfg = load()
     clust_cfg = cfg["clustering"]
 
     features = pd.read_parquet(DATA_DIR / "processed" / "features.parquet")
     X = features.drop(columns=["market_code"], errors="ignore")
     print(f"\nLoaded features: {X.shape}")
+
+    out_dir = DATA_DIR / "regimes"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    labels_path = out_dir / "cluster_labels.parquet"
+    pca_path = out_dir / "pca_components.parquet"
+    scores_path = out_dir / "kmeans_scores.parquet"
+    manifest_path = out_dir / "clustering_manifest.json"
+
+    constrained_available = is_constrained_kmeans_available()
+    new_manifest = build_clustering_manifest(
+        features,
+        clust_cfg,
+        use_constrained_requested=True,
+        constrained_available=constrained_available,
+    )
+
+    if (
+        not args.force
+        and labels_path.exists()
+        and pca_path.exists()
+        and scores_path.exists()
+        and clustering_manifest_matches(manifest_path, new_manifest)
+    ):
+        log.info("Step 3: inputs/config unchanged — skipping reclustering (use --force to override).")
+        return
 
     # ── 1. PCA ─────────────────────────────────────────────────────────────
     # Library logs: "Running PCA... done." + variance ratios
@@ -76,8 +122,6 @@ def main() -> None:
         clustered["market_code"] = features["market_code"]
 
     # ── Persist ─────────────────────────────────────────────────────────────
-    out_dir = DATA_DIR / "regimes"
-    out_dir.mkdir(parents=True, exist_ok=True)
 
     label_cols = ["cluster", "balanced_cluster"] + (
         ["market_code"] if "market_code" in clustered.columns else []
@@ -85,6 +129,9 @@ def main() -> None:
     clustered[label_cols].to_parquet(out_dir / "cluster_labels.parquet")
     clustered.drop(columns=label_cols, errors="ignore").to_parquet(out_dir / "pca_components.parquet")
     scores.to_parquet(out_dir / "kmeans_scores.parquet", index=False)
+
+    # Write/refresh manifest after successful clustering.
+    write_clustering_manifest(manifest_path, new_manifest)
 
     print(f"\nStandard clusters (k={best_k}):")
     print(clustered["cluster"].value_counts().sort_index().to_string())

@@ -371,7 +371,14 @@ def step3_cluster(cfg: dict, run_cfg: RunConfig, save_market_code: bool = False)
     """PCA + KMeans clustering → data/regimes/cluster_labels.parquet.
     When save_market_code=True, also checkpoints balanced_cluster as market_code_clustered."""
     from market_regime.clustering import (
-        reduce_pca, evaluate_kmeans, pick_best_k, fit_clusters,
+        reduce_pca,
+        evaluate_kmeans,
+        pick_best_k,
+        fit_clusters,
+        build_clustering_manifest,
+        clustering_manifest_matches,
+        write_clustering_manifest,
+        is_constrained_kmeans_available,
     )
     from market_regime.checkpoints import CheckpointManager
     from market_regime import plotting
@@ -380,11 +387,6 @@ def step3_cluster(cfg: dict, run_cfg: RunConfig, save_market_code: bool = False)
 
     cm = CheckpointManager()
     clust_cfg = cfg["clustering"]
-
-    if (not run_cfg.recompute_derived_datasets
-            and cm.is_fresh("cluster_labels", max_age_days=7)):
-        log.info("Step 3: using cached cluster_labels checkpoint")
-        return
 
     features = _load_parquet(DATA_DIR / "processed" / "features.parquet", "features")
     X = features.drop(columns=["market_code"], errors="ignore").dropna()
@@ -395,6 +397,54 @@ def step3_cluster(cfg: dict, run_cfg: RunConfig, save_market_code: bool = False)
             "(expected when market_code source doesn't cover all dates)",
             n_dropped,
         )
+
+    out_dir = DATA_DIR / "regimes"
+    manifest_path = out_dir / "clustering_manifest.json"
+    labels_path = out_dir / "cluster_labels.parquet"
+    pca_path = out_dir / "pca_components.parquet"
+    scores_path = out_dir / "kmeans_scores.parquet"
+
+    constrained_available = is_constrained_kmeans_available()
+    new_manifest = build_clustering_manifest(
+        features,
+        clust_cfg,
+        use_constrained_requested=run_cfg.use_constrained_kmeans,
+        constrained_available=constrained_available,
+    )
+
+    # Enforce "recluster only on intentional change" via manifest match.
+    if (
+        not run_cfg.recompute_derived_datasets
+        and manifest_path.exists()
+        and clustering_manifest_matches(manifest_path, new_manifest)
+        and labels_path.exists()
+        and pca_path.exists()
+        and scores_path.exists()
+    ):
+        log.info("Step 3: inputs/config unchanged — skipping reclustering (use --recompute to override).")
+
+        # Ensure checkpoints exist for downstream step runners.
+        if labels_path.exists():
+            df_labels = pd.read_parquet(labels_path)
+            label_cols = [c for c in ["cluster", "balanced_cluster", "market_code"] if c in df_labels.columns]
+            cm.save(df_labels[label_cols], "cluster_labels")
+        if pca_path.exists():
+            cm.save(pd.read_parquet(pca_path), "pca_components")
+
+        if save_market_code and labels_path.exists():
+            df_labels = pd.read_parquet(labels_path)
+            if "balanced_cluster" in df_labels.columns:
+                _save_market_code(df_labels["balanced_cluster"], "clustered")
+
+        return
+
+    # Backfill fallback caching (age-based) when manifest doesn't exist (older runs).
+    if (
+        not run_cfg.recompute_derived_datasets
+        and cm.is_fresh("cluster_labels", max_age_days=7, require_config_match=True)
+    ):
+        log.info("Step 3: using cached cluster_labels checkpoint (age/config ok)")
+        return
 
     pca_df, pca_model, scaler = reduce_pca(
         X,
@@ -437,6 +487,9 @@ def step3_cluster(cfg: dict, run_cfg: RunConfig, save_market_code: bool = False)
 
     cm.save(clustered[label_cols], "cluster_labels")
     cm.save(pca_df, "pca_components")
+
+    # Write/refresh clustering manifest after successful clustering.
+    write_clustering_manifest(manifest_path, new_manifest)
 
     # Optionally save balanced_cluster as a market_code checkpoint
     if save_market_code:
@@ -729,18 +782,25 @@ def step7_dashboard(cfg: dict, run_cfg: RunConfig) -> None:
 
     tm = _load_parquet(DATA_DIR / "regimes" / "transition_matrix.parquet", "transition_matrix")
 
-    # Load regime names (pinned overrides take precedence over auto-suggested)
-    override_path = CONFIG_DIR / "regime_labels.yaml"
+    # Hybrid naming governance:
+    # - Start from step-4 auto-suggestions
+    # - Overlay any pinned IDs from config/regime_labels.yaml
     suggested_path = DATA_DIR / "regimes" / "regime_names_suggested.yaml"
-    regime_names: dict[int, str] = {}
-    for path in [override_path, suggested_path]:
-        if path.exists():
-            with open(path) as f:
-                raw = yaml.safe_load(f) or {}
-            names = {int(k): v for k, v in raw.items() if not str(k).startswith("#")}
-            if names:
-                regime_names = names
-                break
+    overrides_path = CONFIG_DIR / "regime_labels.yaml"
+
+    suggested_names: dict[int, str] = {}
+    if suggested_path.exists():
+        with open(suggested_path) as f:
+            raw = yaml.safe_load(f) or {}
+        suggested_names = {int(k): v for k, v in raw.items() if not str(k).startswith("#")}
+
+    overrides: dict[int, str] = {}
+    if overrides_path.exists():
+        with open(overrides_path) as f:
+            raw = yaml.safe_load(f) or {}
+        overrides = {int(k): v for k, v in raw.items() if not str(k).startswith("#")}
+
+    regime_names = {**suggested_names, **overrides}
 
     # Load signal thresholds from config
     thresholds = cfg.get("dashboard", {}).get("signal_thresholds", None)

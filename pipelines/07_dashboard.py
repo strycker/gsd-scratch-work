@@ -50,18 +50,30 @@ import yaml
 
 
 def load_regime_names() -> dict[int, str]:
-    # Prefer manually edited config/regime_labels.yaml, fall back to auto-suggestions
-    override_path = CONFIG_DIR / "regime_labels.yaml"
-    suggested_path = DATA_DIR / "regimes" / "regime_names_suggested.yaml"
+    """
+    Hybrid naming governance:
+    - Start from auto-suggested names written by step 4
+    - Overlay any pinned IDs from config/regime_labels.yaml
 
-    for path in [override_path, suggested_path]:
-        if path.exists():
-            with open(path) as f:
-                raw = yaml.safe_load(f) or {}
-            names = {int(k): v for k, v in raw.items() if not str(k).startswith("#")}
-            if names:
-                return names
-    return {}
+    This ensures that IDs intentionally left unpinned still get human-readable
+    names instead of falling back to `Unknown`.
+    """
+    suggested_path = DATA_DIR / "regimes" / "regime_names_suggested.yaml"
+    overrides_path = CONFIG_DIR / "regime_labels.yaml"
+
+    suggested: dict[int, str] = {}
+    if suggested_path.exists():
+        with open(suggested_path) as f:
+            raw = yaml.safe_load(f) or {}
+        suggested = {int(k): v for k, v in raw.items() if not str(k).startswith("#")}
+
+    overrides: dict[int, str] = {}
+    if overrides_path.exists():
+        with open(overrides_path) as f:
+            raw = yaml.safe_load(f) or {}
+        overrides = {int(k): v for k, v in raw.items() if not str(k).startswith("#")}
+
+    return {**suggested, **overrides}
 
 
 def main() -> None:
