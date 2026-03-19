@@ -261,22 +261,56 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
     import pandas as pd
 
     cm = CheckpointManager()
+    required_for_step2 = {
+        # Needed by transforms.add_cross_ratios() (cross-asset ratios)
+        "dividend",
+        "sp500",
+        "gdp",
+        "fred_gdp",
+        "fred_gnp",
+        "div_yield",
+        "fred_baa",
+        "fred_aaa",
+        "cpi",
+        "fred_cpi",
+        "sp500_adj",
+    }
 
-    if not run_cfg.refresh_source_datasets and cm.is_fresh("macro_raw", max_age_days=7):
-        log.info("Step 1: using cached macro_raw checkpoint")
-        # Still need to re-attach market_code if source changed
-        if run_cfg.market_code_source:
-            raw_path = DATA_DIR / "raw" / "macro_raw.parquet"
-            if raw_path.exists():
-                combined = pd.read_parquet(raw_path)
-                mc = _load_market_code(run_cfg.market_code_source, cfg)
-                if mc is not None:
-                    combined["market_code"] = mc.reindex(combined.index)
-                    combined.to_parquet(raw_path)
-                    cm.save(combined, "macro_raw")
-                    log.info("Step 1: refreshed market_code=%s in cached macro_raw",
-                             run_cfg.market_code_source)
-        return
+    if (
+        not run_cfg.refresh_source_datasets
+        and cm.is_fresh("macro_raw", max_age_days=7, require_config_match=True)
+    ):
+        raw_path = DATA_DIR / "raw" / "macro_raw.parquet"
+        if raw_path.exists():
+            combined = pd.read_parquet(raw_path)
+
+            # Guardrail: some environments can end up with an incomplete cached macro_raw
+            # (e.g., interrupted scrape, earlier experimental checkpoint, etc.). If the
+            # required raw columns are missing, treat the cache as invalid and re-fetch.
+            missing = sorted(required_for_step2 - set(combined.columns))
+            if missing:
+                log.warning(
+                    "Step 1: cached macro_raw is missing required columns (%d). "
+                    "Re-fetching macro data even without --refresh. Missing: %s",
+                    len(missing),
+                    missing,
+                )
+            else:
+                log.info("Step 1: using cached macro_raw checkpoint")
+                # Still need to re-attach market_code if source changed
+                if run_cfg.market_code_source:
+                    mc = _load_market_code(run_cfg.market_code_source, cfg)
+                    if mc is not None:
+                        combined["market_code"] = mc.reindex(combined.index)
+                        combined.to_parquet(raw_path)
+                        cm.save(combined, "macro_raw")
+                        log.info(
+                            "Step 1: refreshed market_code=%s in cached macro_raw",
+                            run_cfg.market_code_source,
+                        )
+                return
+        else:
+            log.info("Step 1: macro_raw.parquet missing — recomputing ingestion")
 
     log.info("Step 1: fetching FRED data …")
     fred_df = fred_module.fetch_all(cfg)
