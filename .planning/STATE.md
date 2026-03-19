@@ -2,13 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
+current_phase: 03
+current_plan: 2
 status: unknown
-last_updated: "2026-03-18T23:25:54.886Z"
+stopped_at: Completed 03-supervised-regime-behavior-models-01-PLAN.md
+last_updated: "2026-03-19T03:20:31.939Z"
 progress:
   total_phases: 11
   completed_phases: 2
-  total_plans: 11
-  completed_plans: 8
+  total_plans: 12
+  completed_plans: 9
 ---
 
 ## Project State — Trading-Crab (v1.3)
@@ -20,6 +23,10 @@ progress:
 - **Scope (v1)**: ETF-only universe, weekly/quarterly cadence, recommendation-focused (no auto-trading, no single stocks or direct crypto).
 
 ## Current Position
+
+- **Current Phase:** 03
+- **Current Plan:** 2
+- **Total Plans in Phase:** 04
 
 - **Current milestone**: v1.3 — Multi-horizon diagnostics & UX
 - **Current phase**: 11 phases (1–11) complete; next up are phases 12–15 for v1.3.
@@ -58,4 +65,20 @@ progress:
 
 - Use `ROADMAP.md` as the source of truth for phase goals, dependencies, and success criteria (now including phases 1–11 as complete).
 - Use `REQUIREMENTS.md` to keep requirement IDs and traceability aligned as implementation proceeds, and extend it for v1.3 features (multi-horizon smoothing, visuals, dashboard/email plots).
+
+## Decisions
+
+- Standardized supervised training bundles on `cv_scores` (with fold indices) to enforce TimeSeriesSplit leakage guards in tests.
+- [Phase 03]: Standardized supervised training bundles on cv_scores (with fold indices) to enforce TimeSeriesSplit leakage guards in tests.
+
+## Performance Metrics
+
+| Phase | Plan | Duration | Tasks | Files | Completed (UTC) |
+|------:|-----:|----------|------:|------:|-----------------|
+| 03    | 01   | 35m      | 3     | 4     | 2026-03-19T03:01:12Z |
+
+## Session
+
+- **Last session:** 2026-03-19T03:20:31.933Z
+- **Stopped at:** Completed 03-supervised-regime-behavior-models-01-PLAN.md
 

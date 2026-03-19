@@ -190,10 +190,10 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 | REGIME-01  | Phase 2 | Complete |
 | REGIME-02  | Phase 2 | Complete |
 | REGIME-03  | Phase 2 | Complete |
-| MODEL-01   | Phase 3 | Pending |
-| MODEL-02   | Phase 3 | Pending |
-| MODEL-03   | Phase 3 | Pending |
-| MODEL-04   | Phase 3 | Pending |
+| MODEL-01   | Phase 3 | Complete |
+| MODEL-02   | Phase 3 | Complete |
+| MODEL-03   | Phase 3 | Complete |
+| MODEL-04   | Phase 3 | Complete |
 | PORT-01    | Phase 4 | Pending |
 | PORT-02    | Phase 4 | Pending |
 | PORT-03    | Phase 4 | Pending |
