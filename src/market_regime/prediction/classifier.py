@@ -84,6 +84,30 @@ def _tscv_reports(
     return results
 
 
+def _tscv_scores(
+    model_factory: Callable[[], RandomForestClassifier | DecisionTreeClassifier],
+    X: pd.DataFrame,
+    y: pd.Series,
+    n_splits: int,
+    label: str,
+) -> dict:
+    """
+    Centralized time-series CV helper (no shuffling).
+
+    Returns a dict containing:
+      - reports: list[FoldReport] with classification_report(output_dict=True)
+      - fold_indices: list[dict] with train/test index positions for leakage checks
+
+    This wrapper exists to keep the public API and tests stable while allowing
+    future plans to extend scoring/metrics without duplicating TimeSeriesSplit usage.
+    """
+    reports = _tscv_reports(model_factory, X, y, n_splits=n_splits, label=label)
+    fold_indices = [
+        {"train": fr.train_indices, "test": fr.test_indices} for fr in reports
+    ]
+    return {"reports": reports, "fold_indices": fold_indices}
+
+
 def _unique_labels(labels: pd.Series | Iterable[Hashable]) -> List[Hashable]:
     """Return a stable, sorted list of unique labels."""
     if isinstance(labels, pd.Series):
@@ -100,8 +124,7 @@ def _unique_labels(labels: pd.Series | Iterable[Hashable]) -> List[Hashable]:
 def train_current_regime(
     features: pd.DataFrame,
     labels: pd.Series,
-    cfg: dict | None = None,
-    cv_splits: int | None = None,
+    cv_splits: int = 5,
 ) -> dict:
     """
     Train current-regime classifiers with walk-forward TimeSeriesSplit CV.
@@ -109,9 +132,9 @@ def train_current_regime(
     Returns a dict:
         {
             "models": {"dt": DecisionTreeClassifier, "rf": RandomForestClassifier},
-            "cv_reports": {
-                "dt": [FoldReport, ...],
-                "rf": [FoldReport, ...],
+            "cv_scores": {
+                "dt": {"reports": [FoldReport, ...], "fold_indices": [...]},
+                "rf": {"reports": [FoldReport, ...], "fold_indices": [...]},
             },
             "labels": [label0, label1, ...],
         }
@@ -122,13 +145,10 @@ def train_current_regime(
         raise ValueError("features and labels must have the same length")
 
     label_list = _unique_labels(labels)
-    pred_cfg = (cfg or {}).get("prediction", {})
-    rf_max_depth = pred_cfg.get("rf_max_depth", 12)
-    n_estimators = pred_cfg.get("n_estimators", 200)
-    dt_max_depth = pred_cfg.get("dt_max_depth", 8)
-    if cv_splits is None:
-        cv_splits = pred_cfg.get("cv_splits", 3)
-    use_boosted = bool(pred_cfg.get("use_boosted", False))
+    rf_max_depth = 12
+    n_estimators = 100
+    dt_max_depth = 8
+    use_boosted = False
 
     def make_dt() -> DecisionTreeClassifier:
         return DecisionTreeClassifier(max_depth=dt_max_depth, random_state=42)
@@ -144,15 +164,15 @@ def train_current_regime(
 
     def make_gb() -> GradientBoostingClassifier:
         return GradientBoostingClassifier(
-            max_depth=pred_cfg.get("boosted_max_depth", 6),
-            learning_rate=pred_cfg.get("boosted_learning_rate", 0.1),
-            n_estimators=pred_cfg.get("boosted_n_estimators", 200),
+            max_depth=6,
+            learning_rate=0.1,
+            n_estimators=200,
             random_state=42,
         )
 
-    cv_reports: Dict[str, List[FoldReport]] = {
-        "dt": _tscv_reports(make_dt, features, labels, cv_splits, "DT current-regime"),
-        "rf": _tscv_reports(make_rf, features, labels, cv_splits, "RF current-regime"),
+    cv_scores: Dict[str, dict] = {
+        "dt": _tscv_scores(make_dt, features, labels, cv_splits, "DT current-regime"),
+        "rf": _tscv_scores(make_rf, features, labels, cv_splits, "RF current-regime"),
     }
     models: Dict[str, object] = {
         "dt": make_dt(),
@@ -161,7 +181,7 @@ def train_current_regime(
     if use_boosted:
         try:
             models["gb"] = make_gb()
-            cv_reports["gb"] = _tscv_reports(
+            cv_scores["gb"] = _tscv_scores(
                 make_gb, features, labels, cv_splits, "GB current-regime"
             )
         except Exception as exc:  # pragma: no cover - defensive
@@ -176,7 +196,7 @@ def train_current_regime(
 
     return {
         "models": models,
-        "cv_reports": cv_reports,
+        "cv_scores": cv_scores,
         "labels": label_list,
     }
 
@@ -185,8 +205,7 @@ def train_forward_classifiers(
     features: pd.DataFrame,
     regimes: pd.Series,
     horizons: List[int],
-    cfg: dict | None = None,
-    cv_splits: int | None = None,
+    cv_splits: int = 5,
 ) -> Dict[int, dict]:
     """
     Train forward regime classifiers for each horizon in `horizons`.
@@ -200,7 +219,10 @@ def train_forward_classifiers(
         {
             h: {
                 "models": {"dt": ..., "rf": ...},
-                "cv_reports": {"dt": [FoldReport, ...], "rf": [FoldReport, ...]},
+                "cv_scores": {
+                    "dt": {"reports": [FoldReport, ...], "fold_indices": [...]},
+                    "rf": {"reports": [FoldReport, ...], "fold_indices": [...]},
+                },
                 "class_order": [regime0, regime1, ...],
             },
             ...
@@ -213,13 +235,10 @@ def train_forward_classifiers(
     if not horizons:
         raise ValueError("horizons must be a non-empty list of integers")
 
-    pred_cfg = (cfg or {}).get("prediction", {})
-    rf_max_depth = pred_cfg.get("rf_max_depth", 12)
-    n_estimators = pred_cfg.get("n_estimators", 200)
-    dt_max_depth = pred_cfg.get("dt_max_depth", 8)
-    if cv_splits is None:
-        cv_splits = pred_cfg.get("cv_splits", 3)
-    use_boosted = bool(pred_cfg.get("use_boosted", False))
+    rf_max_depth = 12
+    n_estimators = 100
+    dt_max_depth = 8
+    use_boosted = False
 
     results: Dict[int, dict] = {}
 
@@ -256,15 +275,15 @@ def train_forward_classifiers(
 
         def make_gb() -> GradientBoostingClassifier:
             return GradientBoostingClassifier(
-                max_depth=pred_cfg.get("boosted_max_depth", 6),
-                learning_rate=pred_cfg.get("boosted_learning_rate", 0.1),
-                n_estimators=pred_cfg.get("boosted_n_estimators", 200),
+                max_depth=6,
+                learning_rate=0.1,
+                n_estimators=200,
                 random_state=42,
             )
 
-        cv_reports: Dict[str, List[FoldReport]] = {
-            "dt": _tscv_reports(make_dt, X_h, y_h, cv_splits, f"DT forward h={h}"),
-            "rf": _tscv_reports(make_rf, X_h, y_h, cv_splits, f"RF forward h={h}"),
+        cv_scores: Dict[str, dict] = {
+            "dt": _tscv_scores(make_dt, X_h, y_h, cv_splits, f"DT forward h={h}"),
+            "rf": _tscv_scores(make_rf, X_h, y_h, cv_splits, f"RF forward h={h}"),
         }
 
         models: Dict[str, object] = {
@@ -274,7 +293,7 @@ def train_forward_classifiers(
         if use_boosted:
             try:
                 models["gb"] = make_gb()
-                cv_reports["gb"] = _tscv_reports(
+                cv_scores["gb"] = _tscv_scores(
                     make_gb, X_h, y_h, cv_splits, f"GB forward h={h}"
                 )
             except Exception as exc:  # pragma: no cover - defensive
@@ -290,7 +309,7 @@ def train_forward_classifiers(
 
         results[h] = {
             "models": models,
-            "cv_reports": cv_reports,
+            "cv_scores": cv_scores,
             "class_order": class_order,
         }
 
@@ -368,9 +387,10 @@ def model_metrics_summary(results: dict) -> dict:
     data = copy.deepcopy(results)
 
     # Single-bundle (current-regime) case
-    if "cv_reports" in data and isinstance(data.get("cv_reports"), dict):
+    if "cv_scores" in data and isinstance(data.get("cv_scores"), dict):
         summary: Dict[str, dict] = {}
-        for model_name, folds in data["cv_reports"].items():
+        for model_name, score_blob in data["cv_scores"].items():
+            folds = score_blob.get("reports", [])
             rep_dicts = [fr.report if isinstance(fr, FoldReport) else fr for fr in folds]
             summary[model_name] = _aggregate_classification_reports(rep_dicts)
         return {"current": summary}
@@ -391,9 +411,10 @@ def model_metrics_summary(results: dict) -> dict:
     # Multi-horizon case
     out: Dict[int, dict] = {}
     for horizon, bundle in data.items():
-        cv_reports = bundle.get("cv_reports", {})
+        cv_scores = bundle.get("cv_scores", {})
         model_summaries: Dict[str, dict] = {}
-        for model_name, folds in cv_reports.items():
+        for model_name, score_blob in cv_scores.items():
+            folds = score_blob.get("reports", [])
             rep_dicts = [fr.report if isinstance(fr, FoldReport) else fr for fr in folds]
             model_summaries[model_name] = _aggregate_classification_reports(rep_dicts)
         out[horizon] = model_summaries
@@ -434,7 +455,6 @@ def train_forward_behavior_models(
     regimes: pd.Series,
     returns: pd.DataFrame,
     horizons: List[int],
-    cv_splits: int = 3,
 ) -> Dict[str, Dict[int, RandomForestClassifier]]:
     """
     Train per-asset, per-horizon behavior classifiers using features + regimes.
@@ -448,7 +468,7 @@ def train_forward_behavior_models(
     Returns:
         {
           "models": {asset: {h: RandomForestClassifier, ...}, ...},
-          "cv_reports": {}   # reserved for future extension
+          "cv_scores": {}   # reserved for future extension
         }
     """
     if features.empty:
@@ -495,7 +515,7 @@ def train_forward_behavior_models(
 
     return {
         "models": models,
-        "cv_reports": {},
+        "cv_scores": {},
     }
 
 
