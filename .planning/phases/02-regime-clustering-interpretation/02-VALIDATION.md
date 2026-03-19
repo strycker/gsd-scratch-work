@@ -2,7 +2,7 @@
 phase: 2
 slug: regime-clustering-interpretation
 status: draft
-nyquist_compliant: true
+nyquist_compliant: false
 wave_0_complete: true
 created: 2026-03-16
 ---
@@ -70,7 +70,7 @@ created: 2026-03-16
 - [ ] Wave 0 covers all MISSING references
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 60s
-- [x] `nyquist_compliant: true` set in frontmatter
+- [ ] `nyquist_compliant: false` set in frontmatter
 
 **Approval:** pending
 
@@ -80,9 +80,11 @@ created: 2026-03-16
 
 | Metric | Count |
 |--------|-------|
-| Gaps found | 1 |
+| Gaps found | 2 |
 | Resolved | 0 |
-| Escalated to manual-only | 1 |
+| Escalated to manual-only | 2 |
+
+:**Gap (REGIME-03 Hybrid Pinning):** Phase 2 Plan 02 requires hybrid naming governance (at least one regime intentionally left unpinned so auto-suggestions remain visible). Current `config/regime_labels.yaml` pins all balanced-cluster IDs implied by `config/settings.yaml` (`balanced_k: 5` => IDs 0..4), so there may be no unpinned regime IDs remaining for human review via auto-suggestions. This is a configuration/governance gap (detectable via tests, but not resolvable without editing the override map).
 
 **Gap:** Plan 01 full spec requires `build_clustering_manifest()` and pipeline skip-when-unchanged (with `--force`). Codebase has no manifest or skip logic; Plan 01 was previously executed with tests-only scope (see 02-regime-clustering-interpretation-01-SUMMARY.md). REGIME-01 clustering math and artifact shape are covered by `test_clustering.py`; manifest/skip coverage is missing until implementation exists. Escalated to Manual-Only with implementation instructions above.
 
