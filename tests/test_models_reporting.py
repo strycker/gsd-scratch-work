@@ -38,15 +38,19 @@ def _fake_report(accuracy: float, cls0_support: int, cls1_support: int):
 def test_model_metrics_summary_current_bundle():
     fake_results = {
         "models": {"dt": object(), "rf": object()},
-        "cv_reports": {
-            "dt": [
-                _fake_report(0.8, 10, 12),
-                _fake_report(0.9, 8, 9),
-            ],
-            "rf": [
-                _fake_report(0.85, 11, 11),
-                _fake_report(0.88, 9, 10),
-            ],
+        "cv_scores": {
+            "dt": {
+                "reports": [
+                    _fake_report(0.8, 10, 12),
+                    _fake_report(0.9, 8, 9),
+                ]
+            },
+            "rf": {
+                "reports": [
+                    _fake_report(0.85, 11, 11),
+                    _fake_report(0.88, 9, 10),
+                ]
+            },
         },
     }
     summary = model_metrics_summary(fake_results)
@@ -72,19 +76,23 @@ def test_model_metrics_summary_current_bundle():
 def test_model_metrics_summary_forward_horizons():
     fake_forward = {
         1: {
-            "cv_reports": {
-                "rf": [
-                    _fake_report(0.7, 5, 7),
-                    _fake_report(0.75, 6, 8),
-                ]
+            "cv_scores": {
+                "rf": {
+                    "reports": [
+                        _fake_report(0.7, 5, 7),
+                        _fake_report(0.75, 6, 8),
+                    ]
+                }
             }
         },
         2: {
-            "cv_reports": {
-                "rf": [
-                    _fake_report(0.65, 4, 6),
-                    _fake_report(0.68, 5, 7),
-                ]
+            "cv_scores": {
+                "rf": {
+                    "reports": [
+                        _fake_report(0.65, 4, 6),
+                        _fake_report(0.68, 5, 7),
+                    ]
+                }
             }
         },
     }
