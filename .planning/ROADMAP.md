@@ -159,7 +159,9 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Each of `07`–`11` phase directories contains a `*-VERIFICATION.md` with status **passed** or **gaps_found** and explicit evidence.
   2. Cross-phase links (email, diagnostics, tactics, installer) are traced to code entrypoints (`run_pipeline.py` steps, `pipelines/*.py`).
-**Plans:** TBD (use `$gsd-plan-phase 13`)
+**Plans:** 1 plan
+Plans:
+- [ ] 13-v1-audit-verify-phases-7-11-01-PLAN.md — VERIFICATION.md for phases 07–11 + REQUIREMENTS traceability extension + 13-VALIDATION.md
 
 ### Phase 14: v1.0 Audit — Planning source reconciliation
 **Goal:** Remove planning contradictions and doc drift: ROADMAP vs REQUIREMENTS, stale `STATE.md`, `market_regime` vs `trading_crab_lib` in verification docs, Phase 2 VERIFICATION vs VALIDATION narrative.
