@@ -147,7 +147,9 @@ Plans:
   2. `.planning/phases/05-recommendations-machine-readable-outputs/*-VERIFICATION.md` exists and ties UX-* to dashboard / trade recommendation / machine-readable outputs.
   3. `.planning/phases/06-weekly-report-pipeline/*-VERIFICATION.md` exists and ties REPORT-* to weekly report scripts and `weekly_report.md` / email body paths.
   4. `.planning/REQUIREMENTS.md` traceability rows for these eight IDs move to **Complete** only with cited evidence (tests, file paths, manual sign-off where noted).
-**Plans:** TBD (use `$gsd-plan-phase 12`)
+**Plans:** 1 plan
+Plans:
+- [ ] 12-v1-audit-verify-phases-4-6-01-PLAN.md — verification docs for phases 04–06 + traceability closure (PORT / UX / REPORT)
 
 ### Phase 13: v1.0 Audit — Verify Phases 7–11
 **Goal:** Author missing `*-VERIFICATION.md` for roadmap phases 7–11 so GSD milestone audits are evidence-based, not checkbox-only.
