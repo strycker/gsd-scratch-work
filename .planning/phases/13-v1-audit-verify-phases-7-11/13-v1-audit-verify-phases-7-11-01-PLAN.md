@@ -34,6 +34,7 @@ must_haves:
     - "Every VERIFICATION ties ROADMAP success criteria to run_pipeline.py steps, pipelines/*.py, src/trading_crab_lib modules, config paths, and known tests or smoke commands."
     - ".planning/REQUIREMENTS.md gains a traceability block extension for PORT-04, REPORT-03, DATA-04, DIAG-01, DIAG-02, TACTICS-01..03, INSTALL-10, CORE-01, CORE-02 (or documents gaps_found per row) — IDs must exist in the requirements narrative or be added with short definitions consistent with ROADMAP Phase 7–11."
     - "13-VALIDATION.md lists Wave 0 + quick pytest commands that cover email, tactics, diagnostics, and env scripts where tests already exist."
+    - "Phase 13 executed 2026-03-19: five VERIFICATION.md files, REQUIREMENTS §8 + table, 13-VALIDATION.md; CORE-02 remains Pending until end_date unit test."
   artifacts:
     - path: ".planning/phases/07-portfolio-and-email-integration/07-portfolio-and-email-integration-VERIFICATION.md"
       provides: "PORT-04, REPORT-03 evidence"

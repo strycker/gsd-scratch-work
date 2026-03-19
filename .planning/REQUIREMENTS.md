@@ -171,6 +171,54 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
     - Outputs are recommendations and reports, not broker orders.
   - **Rationale**: Focus v1 on robust research and guidance, not execution infrastructure.
 
+### 8. Portfolio, email, expanded macro & ops (Phases 7–11 — audit IDs)
+
+These IDs tie **ROADMAP** Phases 7–11 to the same requirement vocabulary used in milestone audits. They complement (and do not replace) the v1.2 aspirational backlog later in this file.
+
+- **PORT-04 — User portfolio in config**
+  - **Description**: A YAML portfolio file supplies ETF weights for the weekly / dashboard path.
+  - **Details**: Consumed via `trading_crab_lib.config.load_portfolio`; outputs include portfolio-aware recommendation bundles.
+
+- **REPORT-03 — SMTP delivery path**
+  - **Description**: Optional sending of the weekly report using a local, untracked email config.
+  - **Details**: `trading_crab_lib.email` + `--send-email` on `run_pipeline.py` / `scripts/run_weekly_report.py`.
+
+- **DATA-04 — Expanded FRED macro series**
+  - **Description**: Additional FRED series in `config/settings.yaml` are fetched when step 1 runs with API access.
+  - **Details**: e.g. VIX, unemployment, M2, yield-curve spreads — see `fred.series` for authoritative list.
+
+- **DIAG-01 — Diagnostic ratio artifacts**
+  - **Description**: Config-driven ETF ratios (Oil:Gold, Oil:Bonds, etc.) written as parquet diagnostics.
+  - **Details**: `diagnostics.ratios` in `settings.yaml`; step 8 / `pipelines/08_diagnostics.py`.
+
+- **DIAG-02 — RRG-style diagnostics**
+  - **Description**: RS-ratio / RS-momentum style table vs configured benchmark(s).
+  - **Details**: `diagnostics.rrg_benchmarks`; `outputs/reports/diagnostics/rrg_current.parquet`.
+
+- **TACTICS-01 — Tactics artifact**
+  - **Description**: Step 9 writes per-ETF tactics labels to a stable parquet file.
+  - **Details**: `outputs/reports/tactics_signals.parquet`.
+
+- **TACTICS-02 — Weekly report tactics section**
+  - **Description**: Weekly markdown may include a tactics section when the artifact exists.
+  - **Details**: `trading_crab_lib.reporting.write_weekly_report_md` optional block.
+
+- **TACTICS-03 — Config + tests for tactics**
+  - **Description**: Tactics parameters live in `settings.yaml` and are covered by unit tests.
+  - **Details**: `tests/test_tactics.py`.
+
+- **INSTALL-10 — Setup / env automation**
+  - **Description**: Scripts and docs seed `.env` / email templates, scaffold dirs, and run smoke checks without committing secrets.
+  - **Details**: `scripts/setup.sh`, `install_trading_crab.sh`, `check_env.sh`, `run_tests.sh`, `scripts/README.md`.
+
+- **CORE-01 — Runtime directory layout**
+  - **Description**: Expected `data/` and `outputs/` subtrees exist after setup or pipeline runs.
+  - **Details**: `setup.sh` + `mkdir` calls in pipeline steps.
+
+- **CORE-02 — Null end_date handling**
+  - **Description**: `data.end_date: null` in YAML resolves to “today” for ingestion windows.
+  - **Details**: `trading_crab_lib.ingestion.fred` and `ingestion.assets`; **unit test coverage still pending** (see Phase 11 verification).
+
 ---
 
 ## Traceability Notes
@@ -182,7 +230,7 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 
 ## Traceability
 
-> **Gap closure (v1.0 audit):** `$gsd-plan-milestone-gaps` added **Phases 12–14** (see `.planning/ROADMAP.md`). Until verification runs, **PORT** / **UX** / **REPORT** rows are tracked under **Phase 12** (formal `*-VERIFICATION.md` + evidence). Phases 7–11 roadmap requirements without IDs in this table are handled under **Phase 13** during verification work.
+> **Gap closure (v1.0 audit):** `$gsd-plan-milestone-gaps` added **Phases 12–14** (see `.planning/ROADMAP.md`). **Phase 12** closed PORT/UX/REPORT (`04`–`06` verification). **Phase 13** (2026-03-19) added §8 narrative + traceability for Phase 7–11 IDs; **CORE-02** stays **Pending** until a unit test covers `end_date: null` → today (see `11-core-cleanup-VERIFICATION.md`).
 
 | Requirement | Phase  | Status  |
 |------------|--------|---------|
@@ -206,6 +254,17 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 | REPORT-02  | Phase 12 | Complete |
 | CONSTR-01  | Phase 1 | Complete |
 | CONSTR-02  | Phase 1 | Complete |
+| PORT-04    | Phase 13 | Complete |
+| REPORT-03  | Phase 13 | Complete |
+| DATA-04    | Phase 13 | Complete |
+| DIAG-01    | Phase 13 | Complete |
+| DIAG-02    | Phase 13 | Complete |
+| TACTICS-01 | Phase 13 | Complete |
+| TACTICS-02 | Phase 13 | Complete |
+| TACTICS-03 | Phase 13 | Complete |
+| INSTALL-10 | Phase 13 | Complete |
+| CORE-01    | Phase 13 | Complete |
+| CORE-02    | Phase 13 | Pending |
 
 ---
 

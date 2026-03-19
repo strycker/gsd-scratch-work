@@ -14,7 +14,7 @@
 - [x] **Phase 10: Tactics Layer + Install & Env Automation** - Add tactics layer and one-shot installer/env health checks. (completed 2026-03-17)
 - [x] **Phase 11: Core Cleanup & Env Sanity** - Normalize directory layout, date handling, and style imports. (completed 2026-03-17)
 - [x] **Phase 12: v1.0 Audit — Verify Phases 4–6 (PORT / UX / REPORT)** — Close `.planning/v1.0-MILESTONE-AUDIT.md` requirement gaps with formal `*-VERIFICATION.md` and traceability evidence. (completed 2026-03-19)
-- [ ] **Phase 13: v1.0 Audit — Verify Phases 7–11** — Author missing phase `*-VERIFICATION.md` files and map roadmap success criteria to tests/artifacts.
+- [x] **Phase 13: v1.0 Audit — Verify Phases 7–11** — Author missing phase `*-VERIFICATION.md` files and map roadmap success criteria to tests/artifacts. (completed 2026-03-19)
 - [ ] **Phase 14: v1.0 Audit — Planning reconciliation** — Align ROADMAP vs REQUIREMENTS, refresh `STATE.md`, fix stale verification paths (`trading_crab_lib`), reconcile Phase 2 verification vs validation.
 
 ## Phase Details
@@ -161,7 +161,7 @@ Plans:
   2. Cross-phase links (email, diagnostics, tactics, installer) are traced to code entrypoints (`run_pipeline.py` steps, `pipelines/*.py`).
 **Plans:** 1 plan
 Plans:
-- [ ] 13-v1-audit-verify-phases-7-11-01-PLAN.md — VERIFICATION.md for phases 07–11 + REQUIREMENTS traceability extension + 13-VALIDATION.md
+- [x] 13-v1-audit-verify-phases-7-11-01-PLAN.md — VERIFICATION.md for phases 07–11 + REQUIREMENTS traceability extension + 13-VALIDATION.md
 
 ### Phase 14: v1.0 Audit — Planning source reconciliation
 **Goal:** Remove planning contradictions and doc drift: ROADMAP vs REQUIREMENTS, stale `STATE.md`, `market_regime` vs `trading_crab_lib` in verification docs, Phase 2 VERIFICATION vs VALIDATION narrative.
@@ -190,6 +190,6 @@ Plans:
 | 10    | Tactics Layer + Install & Env Automation  | 0/0            | Complete     | 2026-03-17   |
 | 11    | Core Cleanup & Env Sanity                 | 0/0            | Complete     | 2026-03-17   |
 | 12    | v1.0 Audit — Verify Phases 4–6            | 1/1            | Complete     | 2026-03-19   |
-| 13    | v1.0 Audit — Verify Phases 7–11         | 0/1            | In Progress  | —            |
+| 13    | v1.0 Audit — Verify Phases 7–11         | 1/1            | Complete     | 2026-03-19   |
 | 14    | v1.0 Audit — Planning reconciliation     | 0/1            | In Progress  | —            |
 
