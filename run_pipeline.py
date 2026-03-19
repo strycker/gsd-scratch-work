@@ -157,6 +157,7 @@ DATA_DIR = crab.DATA_DIR
 OUTPUT_DIR = crab.OUTPUT_DIR
 CONFIG_DIR = crab.CONFIG_DIR
 load = crab.load
+load_portfolio = crab.load_portfolio
 setup_logging = crab.setup_logging
 RunConfig = crab.RunConfig
 
@@ -763,8 +764,12 @@ def step6_asset_returns(cfg: dict, run_cfg: RunConfig) -> None:
     Falls back to macro-data proxy returns when yfinance is unavailable."""
     from trading_crab_lib.ingestion.assets import fetch_all as fetch_prices
     from trading_crab_lib.asset_returns import (
-        compute_quarterly_returns, compute_proxy_returns,
-        returns_by_regime, rank_assets_by_regime,
+        behavior_tables,
+        compute_quarterly_returns,
+        compute_proxy_returns,
+        compute_template_returns,
+        returns_by_regime,
+        rank_assets_by_regime,
     )
     from trading_crab_lib.checkpoints import CheckpointManager
     from trading_crab_lib import plotting
@@ -817,13 +822,36 @@ def step6_asset_returns(cfg: dict, run_cfg: RunConfig) -> None:
             return
 
     common = returns.index.intersection(labels.index)
+    returns_aligned = returns.loc[common]
+    labels_aligned = labels.loc[common]
 
     # profile: regime × ticker DataFrame of median returns
-    profile = returns_by_regime(returns.loc[common], labels.loc[common])
+    profile = returns_by_regime(returns_aligned, labels_aligned)
 
     out_dir = DATA_DIR / "regimes"
     out_dir.mkdir(parents=True, exist_ok=True)
     profile.to_parquet(out_dir / "asset_return_profile.parquet")
+
+    # Parity with pipelines/06_asset_returns.py: ETF behavior + optional template portfolios
+    behavior_thresholds = cfg.get("dashboard", {}).get("behavior_thresholds") or {}
+    etf_behavior = behavior_tables(returns_aligned, labels_aligned, thresholds=behavior_thresholds)
+    etf_behavior.to_parquet(out_dir / "etf_behavior_by_regime.parquet", index=False)
+    log.info("Step 6: wrote ETF behavior by regime → %s", out_dir / "etf_behavior_by_regime.parquet")
+
+    templates = cfg.get("assets", {}).get("portfolio_templates") or []
+    if templates:
+        template_returns = compute_template_returns(returns_aligned, templates)
+        if not template_returns.empty:
+            template_behavior = behavior_tables(
+                template_returns, labels_aligned, thresholds=behavior_thresholds
+            )
+            template_behavior.to_parquet(
+                out_dir / "template_behavior_by_regime.parquet", index=False
+            )
+            log.info(
+                "Step 6: wrote template behavior by regime → %s",
+                out_dir / "template_behavior_by_regime.parquet",
+            )
 
     if run_cfg.generate_plots:
         try:
@@ -848,8 +876,14 @@ def step7_dashboard(cfg: dict, run_cfg: RunConfig) -> None:
     from trading_crab_lib.prediction import predict_current
     from trading_crab_lib.asset_returns import rank_assets_by_regime
     from trading_crab_lib.reporting import (
-        asset_signals, print_dashboard, save_dashboard_csv,
-        simple_regime_portfolio, blended_regime_portfolio, generate_recommendation,
+        asset_signals,
+        blended_regime_portfolio,
+        build_recommendation_digest,
+        generate_recommendation,
+        print_dashboard,
+        save_dashboard_csv,
+        save_recommendation_bundle,
+        simple_regime_portfolio,
         write_weekly_report_md,
     )
     import pandas as pd
@@ -933,8 +967,16 @@ def step7_dashboard(cfg: dict, run_cfg: RunConfig) -> None:
         log.info("── Blended portfolio (probability-weighted) ──")
         blended_weights = blended_regime_portfolio(profile, probs, top_n=3)
 
-        log.info("── Trade recommendations (blended target vs all-cash) ──")
-        recommendations = generate_recommendation(blended_weights)
+        rec_threshold = cfg.get("dashboard", {}).get("recommendation_threshold", 0.03)
+        portfolio_weights = load_portfolio()
+        current_weights = pd.Series(portfolio_weights) if portfolio_weights else None
+        log.info(
+            "── Trade recommendations (blended vs portfolio, %.0f%% threshold) ──",
+            rec_threshold * 100,
+        )
+        recommendations = generate_recommendation(
+            blended_weights, current_weights=current_weights, threshold=rec_threshold
+        )
 
         report_dir = OUTPUT_DIR / "reports"
         report_dir.mkdir(parents=True, exist_ok=True)
@@ -950,7 +992,28 @@ def step7_dashboard(cfg: dict, run_cfg: RunConfig) -> None:
                 report_dir / "trade_recommendations.csv",
             )
 
-            # Weekly markdown report (used by scripts/run_weekly_report.py archive/email step)
+        # Machine-readable bundle (parity with pipelines/07_dashboard.py)
+        behavior_path = DATA_DIR / "regimes" / "etf_behavior_by_regime.parquet"
+        if behavior_path.exists() and not recommendations.empty:
+            behavior_df = pd.read_parquet(behavior_path)
+            digest = build_recommendation_digest(
+                behavior_df,
+                current_regime,
+                current_weights,  # None => all-cash baseline (same as pipelines/07_dashboard.py)
+                blended_weights,
+                recommendations,
+                top_n=5,
+            )
+            if not digest.empty:
+                save_recommendation_bundle(
+                    digest,
+                    current_regime,
+                    regime_names.get(current_regime, "Unknown"),
+                    probs,
+                    report_dir / "recommendation_bundle.parquet",
+                )
+
+        if not recommendations.empty:
             try:
                 weekly_out = report_dir / "weekly_report.md"
                 weekly_out.parent.mkdir(parents=True, exist_ok=True)

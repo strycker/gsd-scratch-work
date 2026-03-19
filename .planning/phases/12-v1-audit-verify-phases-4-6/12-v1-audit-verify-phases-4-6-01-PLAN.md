@@ -5,12 +5,14 @@ type: execute
 wave: 1
 depends_on: []
 files_modified:
+  - run_pipeline.py
   - .planning/phases/04-regime-conditional-etf-portfolio-behavior/04-regime-conditional-etf-portfolio-behavior-VERIFICATION.md
   - .planning/phases/05-recommendations-machine-readable-outputs/05-recommendations-machine-readable-outputs-VERIFICATION.md
   - .planning/phases/06-weekly-report-pipeline/06-weekly-report-pipeline-VERIFICATION.md
   - .planning/REQUIREMENTS.md
   - .planning/ROADMAP.md
   - .planning/phases/12-v1-audit-verify-phases-4-6/12-VALIDATION.md
+  - .planning/phases/12-v1-audit-verify-phases-4-6/12-SUMMARY.md
 autonomous: true
 requirements:
   - PORT-01

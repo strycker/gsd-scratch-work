@@ -196,14 +196,14 @@ Each requirement has a stable ID for traceability from roadmap → plans → tes
 | MODEL-02   | Phase 3 | Complete |
 | MODEL-03   | Phase 3 | Complete |
 | MODEL-04   | Phase 3 | Complete |
-| PORT-01    | Phase 12 | Pending |
-| PORT-02    | Phase 12 | Pending |
-| PORT-03    | Phase 12 | Pending |
-| UX-01      | Phase 12 | Pending |
-| UX-02      | Phase 12 | Pending |
-| UX-03      | Phase 12 | Pending |
-| REPORT-01  | Phase 12 | Pending |
-| REPORT-02  | Phase 12 | Pending |
+| PORT-01    | Phase 12 | Complete |
+| PORT-02    | Phase 12 | Complete |
+| PORT-03    | Phase 12 | Complete |
+| UX-01      | Phase 12 | Complete |
+| UX-02      | Phase 12 | Complete |
+| UX-03      | Phase 12 | Complete |
+| REPORT-01  | Phase 12 | Complete |
+| REPORT-02  | Phase 12 | Complete |
 | CONSTR-01  | Phase 1 | Complete |
 | CONSTR-02  | Phase 1 | Complete |
 

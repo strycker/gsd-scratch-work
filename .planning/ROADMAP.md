@@ -13,7 +13,7 @@
 - [x] **Phase 9: Tactics & Diagnostics Integration** - Integrate diagnostics + tactics into the core pipeline and weekly report. (completed 2026-03-17)
 - [x] **Phase 10: Tactics Layer + Install & Env Automation** - Add tactics layer and one-shot installer/env health checks. (completed 2026-03-17)
 - [x] **Phase 11: Core Cleanup & Env Sanity** - Normalize directory layout, date handling, and style imports. (completed 2026-03-17)
-- [ ] **Phase 12: v1.0 Audit — Verify Phases 4–6 (PORT / UX / REPORT)** — Close `.planning/v1.0-MILESTONE-AUDIT.md` requirement gaps with formal `*-VERIFICATION.md` and traceability evidence.
+- [x] **Phase 12: v1.0 Audit — Verify Phases 4–6 (PORT / UX / REPORT)** — Close `.planning/v1.0-MILESTONE-AUDIT.md` requirement gaps with formal `*-VERIFICATION.md` and traceability evidence. (completed 2026-03-19)
 - [ ] **Phase 13: v1.0 Audit — Verify Phases 7–11** — Author missing phase `*-VERIFICATION.md` files and map roadmap success criteria to tests/artifacts.
 - [ ] **Phase 14: v1.0 Audit — Planning reconciliation** — Align ROADMAP vs REQUIREMENTS, refresh `STATE.md`, fix stale verification paths (`trading_crab_lib`), reconcile Phase 2 verification vs validation.
 
@@ -149,7 +149,7 @@ Plans:
   4. `.planning/REQUIREMENTS.md` traceability rows for these eight IDs move to **Complete** only with cited evidence (tests, file paths, manual sign-off where noted).
 **Plans:** 1 plan
 Plans:
-- [ ] 12-v1-audit-verify-phases-4-6-01-PLAN.md — verification docs for phases 04–06 + traceability closure (PORT / UX / REPORT)
+- [x] 12-v1-audit-verify-phases-4-6-01-PLAN.md — verification docs for phases 04–06 + traceability closure (PORT / UX / REPORT) <done> <automated>
 
 ### Phase 13: v1.0 Audit — Verify Phases 7–11
 **Goal:** Author missing `*-VERIFICATION.md` for roadmap phases 7–11 so GSD milestone audits are evidence-based, not checkbox-only.
@@ -187,7 +187,7 @@ Plans:
 | 9     | Tactics & Diagnostics Integration         | 0/0            | Complete     | 2026-03-17   |
 | 10    | Tactics Layer + Install & Env Automation  | 0/0            | Complete     | 2026-03-17   |
 | 11    | Core Cleanup & Env Sanity                 | 0/0            | Complete     | 2026-03-17   |
-| 12    | v1.0 Audit — Verify Phases 4–6            | 0/1            | In Progress  | —            |
+| 12    | v1.0 Audit — Verify Phases 4–6            | 1/1            | Complete     | 2026-03-19   |
 | 13    | v1.0 Audit — Verify Phases 7–11         | 0/1            | In Progress  | —            |
 | 14    | v1.0 Audit — Planning reconciliation     | 0/1            | In Progress  | —            |
 
