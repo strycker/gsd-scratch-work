@@ -3,8 +3,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from market_regime.config import load
-from market_regime.prediction.classifier import train_current_regime, train_forward_classifiers
+from trading_crab_lib.config import load
+from trading_crab_lib.prediction.classifier import train_current_regime, train_forward_classifiers
 
 
 def _make_synthetic_data(n_samples: int = 40, n_features: int = 5, n_regimes: int = 3):

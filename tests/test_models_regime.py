@@ -4,12 +4,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from market_regime.prediction.classifier import (
+from trading_crab_lib.prediction.classifier import (
     FoldReport,
     train_current_regime,
     train_forward_classifiers,
 )
-from market_regime.prediction.feature_gating import select_step5_feature_path
+from trading_crab_lib.prediction.feature_gating import select_step5_feature_path
 
 
 def _make_synthetic_data(n_samples: int = 40, n_features: int = 5, n_regimes: int = 3):

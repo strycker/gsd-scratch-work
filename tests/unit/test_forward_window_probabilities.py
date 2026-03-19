@@ -10,7 +10,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from market_regime.regime import build_forward_window_probabilities
+from trading_crab_lib.regime import build_forward_window_probabilities
 
 
 def test_forward_window_probabilities_columns_and_shape():

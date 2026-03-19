@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from market_regime.prediction.classifier import make_behavior_labels, train_forward_behavior_models
+from trading_crab_lib.prediction.classifier import make_behavior_labels, train_forward_behavior_models
 
 
 def test_make_behavior_labels_series_assigns_up_flat_down() -> None:

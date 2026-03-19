@@ -17,9 +17,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from market_regime import DATA_DIR, CONFIG_DIR
-from market_regime.config import load, setup_logging
-from market_regime.regime import (
+import trading_crab_lib as crab
+
+DATA_DIR = crab.DATA_DIR
+CONFIG_DIR = crab.CONFIG_DIR
+load = crab.load
+setup_logging = crab.setup_logging
+
+from trading_crab_lib.regime import (
     build_profiles,
     suggest_names,
     build_transition_matrix,

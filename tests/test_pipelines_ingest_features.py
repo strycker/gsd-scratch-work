@@ -7,9 +7,9 @@ import types
 import pandas as pd
 import pytest
 
-from market_regime import DATA_DIR
-from market_regime.checkpoints import CheckpointManager
-from market_regime.config import load
+from trading_crab_lib import DATA_DIR
+from trading_crab_lib.checkpoints import CheckpointManager
+from trading_crab_lib.config import load
 
 
 def _load_step_module(script_name: str) -> types.ModuleType:
@@ -57,8 +57,8 @@ def test_step01_ingest_writes_macro_raw_without_network(monkeypatch, tmp_path, c
     The step should write macro_raw.parquet under DATA_DIR/raw without raising.
     """
 
-    from market_regime.ingestion import fred as fred_module
-    from market_regime.ingestion import multpl as multpl_module
+    from trading_crab_lib.ingestion import fred as fred_module
+    from trading_crab_lib.ingestion import multpl as multpl_module
 
     synthetic = _make_synthetic_macro()
 
@@ -93,7 +93,7 @@ def test_step02_features_writes_feature_artifacts_without_network(monkeypatch, c
     We patch engineer_all to avoid heavy computation and external dependencies.
     """
 
-    from market_regime import transforms as transforms_module
+    from trading_crab_lib import transforms as transforms_module
 
     # Create a minimal macro_raw if missing
     raw_dir = DATA_DIR / "raw"

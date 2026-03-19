@@ -52,7 +52,7 @@ def test_step3_pipeline_skips_when_manifest_matches(tmp_path, monkeypatch):
     - When clustering artifacts exist AND clustering_manifest.json matches, step 3 should skip
       unless --force is provided.
     """
-    from market_regime import clustering as clustering_mod
+    from trading_crab_lib import clustering as clustering_mod
 
     repo_root = Path(__file__).resolve().parents[2]
     step3_path = repo_root / "pipelines" / "03_cluster.py"
@@ -121,7 +121,7 @@ def test_step3_pipeline_skips_when_manifest_matches(tmp_path, monkeypatch):
 
 @pytest.mark.filterwarnings("ignore::UserWarning")
 def test_step3_pipeline_force_reclusters_even_when_manifest_matches(tmp_path, monkeypatch):
-    from market_regime import clustering as clustering_mod
+    from trading_crab_lib import clustering as clustering_mod
 
     repo_root = Path(__file__).resolve().parents[2]
     step3_path = repo_root / "pipelines" / "03_cluster.py"

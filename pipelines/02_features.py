@@ -13,8 +13,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from market_regime.config import load, setup_logging
-from market_regime.runtime import RunConfig
+import trading_crab_lib as crab
+
+load = crab.load
+setup_logging = crab.setup_logging
+RunConfig = crab.RunConfig
 
 from run_pipeline import step2_features
 

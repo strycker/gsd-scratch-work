@@ -20,8 +20,11 @@ from pathlib import Path
 # Allow running from repo root without installing the package
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from market_regime.config import load, setup_logging
-from market_regime.runtime import RunConfig
+import trading_crab_lib as crab
+
+setup_logging = crab.setup_logging
+RunConfig = crab.RunConfig
+load = crab.load
 from run_pipeline import step1_ingest  # reuse the canonical step implementation
 
 

@@ -25,9 +25,12 @@ import logging
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from market_regime import DATA_DIR
-from market_regime.config import load, setup_logging
-from market_regime.clustering import (
+import trading_crab_lib as crab
+
+DATA_DIR = crab.DATA_DIR
+load = crab.load
+setup_logging = crab.setup_logging
+from trading_crab_lib.clustering import (
     reduce_pca,
     evaluate_kmeans,
     pick_best_k,

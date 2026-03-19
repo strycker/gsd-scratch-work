@@ -3,8 +3,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from market_regime.config import load
-from market_regime.tactics import compute_tactics_metrics, classify_tactics
+from trading_crab_lib.config import load
+from trading_crab_lib.tactics import compute_tactics_metrics, classify_tactics
 
 
 def test_tactics_classification_basic() -> None:

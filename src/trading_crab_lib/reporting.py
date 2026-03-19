@@ -420,7 +420,7 @@ def write_weekly_report_md(
     lines.append("")
 
     # Optional tactics section (Phase 10A)
-    from market_regime import OUTPUT_DIR  # local import to avoid circulars
+    from trading_crab_lib import OUTPUT_DIR  # local import to avoid circulars
 
     tactics_path = OUTPUT_DIR / "reports" / "tactics_signals.parquet"
     if tactics_path.exists():

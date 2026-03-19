@@ -1,4 +1,4 @@
-"""Tests for market_regime.email helpers (Phase 7)."""
+"""Tests for trading_crab_lib.email helpers (Phase 7)."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ from datetime import date
 from pathlib import Path
 from unittest.mock import MagicMock, patch, ANY
 
-from market_regime import OUTPUT_DIR
-from market_regime.email import (
+from trading_crab_lib import OUTPUT_DIR
+from trading_crab_lib.email import (
     build_weekly_email_body,
     load_email_config,
     send_weekly_email,
@@ -86,7 +86,7 @@ class TestSendWeeklyEmail:
             "to_address": "to@test",
         }
         smtp_mock = MagicMock()
-        monkeypatch.setattr("market_regime.email.smtplib.SMTP", smtp_mock)
+        monkeypatch.setattr("trading_crab_lib.email.smtplib.SMTP", smtp_mock)
 
         ok = send_weekly_email(cfg, "subj", "body")
         assert ok is True
@@ -108,7 +108,7 @@ class TestSendWeeklyEmail:
             "to_address": "to@test",
         }
         smtp_ssl_mock = MagicMock()
-        monkeypatch.setattr("market_regime.email.smtplib.SMTP_SSL", smtp_ssl_mock)
+        monkeypatch.setattr("trading_crab_lib.email.smtplib.SMTP_SSL", smtp_ssl_mock)
 
         ok = send_weekly_email(cfg, "subj", "body")
         assert ok is True

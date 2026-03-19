@@ -31,7 +31,7 @@ from sklearn.metrics import (
 )
 from sklearn.preprocessing import StandardScaler
 
-from market_regime import CONFIG_DIR
+from trading_crab_lib import CONFIG_DIR
 
 log = logging.getLogger(__name__)
 

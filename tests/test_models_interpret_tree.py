@@ -3,8 +3,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from market_regime.config import load
-from market_regime.prediction.classifier import (
+from trading_crab_lib.config import load
+from trading_crab_lib.prediction.classifier import (
     extract_top_features,
     train_current_regime,
     train_interpretability_tree,

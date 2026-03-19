@@ -6,13 +6,13 @@ import json
 import numpy as np
 import pandas as pd
 
-from market_regime.prediction.classifier import (
+from trading_crab_lib.prediction.classifier import (
     model_metrics_summary,
     train_current_regime,
     train_forward_classifiers,
     train_forward_behavior_models,
 )
-from market_regime.prediction.model_metrics_artifacts import write_model_metrics_artifacts
+from trading_crab_lib.prediction.model_metrics_artifacts import write_model_metrics_artifacts
 
 
 def _fake_report(accuracy: float, cls0_support: int, cls1_support: int):

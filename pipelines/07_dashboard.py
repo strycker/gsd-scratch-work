@@ -29,11 +29,18 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from market_regime import DATA_DIR, CONFIG_DIR, OUTPUT_DIR
-from market_regime.config import load, load_portfolio, setup_logging
-from market_regime.prediction import predict_current
-from market_regime.asset_returns import rank_assets_by_regime
-from market_regime.reporting import (
+import trading_crab_lib as crab
+
+DATA_DIR = crab.DATA_DIR
+CONFIG_DIR = crab.CONFIG_DIR
+OUTPUT_DIR = crab.OUTPUT_DIR
+load = crab.load
+load_portfolio = crab.load_portfolio
+setup_logging = crab.setup_logging
+
+from trading_crab_lib.prediction import predict_current
+from trading_crab_lib.asset_returns import rank_assets_by_regime
+from trading_crab_lib.reporting import (
     asset_signals,
     print_dashboard,
     save_dashboard_csv,

@@ -29,17 +29,22 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 import numpy as np
 import pandas as pd
 
-from market_regime import DATA_DIR, OUTPUT_DIR
-from market_regime.config import load, setup_logging
-from market_regime.prediction.classifier import (
+import trading_crab_lib as crab
+
+DATA_DIR = crab.DATA_DIR
+OUTPUT_DIR = crab.OUTPUT_DIR
+load = crab.load
+setup_logging = crab.setup_logging
+
+from trading_crab_lib.prediction.classifier import (
     train_current_regime,
     train_forward_classifiers,
     train_forward_behavior_models,
 )
-from market_regime.prediction.feature_gating import select_step5_feature_path
-from market_regime.prediction.model_metrics_artifacts import write_model_metrics_artifacts
-from market_regime.asset_returns import compute_proxy_returns, compute_quarterly_returns
-from market_regime.transforms import trim_incomplete_tail
+from trading_crab_lib.prediction.feature_gating import select_step5_feature_path
+from trading_crab_lib.prediction.model_metrics_artifacts import write_model_metrics_artifacts
+from trading_crab_lib.asset_returns import compute_proxy_returns, compute_quarterly_returns
+from trading_crab_lib.transforms import trim_incomplete_tail
 
 
 def main() -> None:

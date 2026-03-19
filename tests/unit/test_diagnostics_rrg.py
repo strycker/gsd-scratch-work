@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from market_regime.diagnostics import (
+from trading_crab_lib.diagnostics import (
     normalize_100,
     percentile_rank,
     rolling_zscore,

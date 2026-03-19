@@ -17,7 +17,7 @@ from datetime import date
 
 import yaml
 
-from market_regime import CONFIG_DIR, OUTPUT_DIR
+from trading_crab_lib import CONFIG_DIR, OUTPUT_DIR
 
 log = logging.getLogger(__name__)
 
