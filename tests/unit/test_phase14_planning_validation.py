@@ -18,6 +18,17 @@ def _roadmap_phase1_block(text: str) -> str:
     return text[start:end]
 
 
+def _roadmap_phase1_block_resolved() -> str:
+    """Phase 1 detail lives in root ROADMAP or in `milestones/v1.0-ROADMAP.md` after v1.0 archive."""
+    main = ROOT / ".planning" / "ROADMAP.md"
+    text = main.read_text(encoding="utf-8")
+    if "### Phase 1:" in text:
+        return _roadmap_phase1_block(text)
+    archived = ROOT / ".planning" / "milestones" / "v1.0-ROADMAP.md"
+    assert archived.is_file(), "Collapsed ROADMAP must keep .planning/milestones/v1.0-ROADMAP.md"
+    return _roadmap_phase1_block(archived.read_text(encoding="utf-8"))
+
+
 def _traceability_table_chunk(text: str) -> str:
     i = text.find("## Traceability")
     assert i >= 0, "REQUIREMENTS.md missing ## Traceability"
@@ -27,16 +38,23 @@ def _traceability_table_chunk(text: str) -> str:
 
 
 def test_roadmap_phase1_lists_01_null_plans_not_phase3() -> None:
-    md = (ROOT / ".planning" / "ROADMAP.md").read_text(encoding="utf-8")
-    block = _roadmap_phase1_block(md)
+    block = _roadmap_phase1_block_resolved()
     assert "03-supervised-regime-behavior-models" not in block
     assert "01-null-01-PLAN.md" in block
 
 
 def test_state_points_at_phase14_not_stale_phase3() -> None:
     md = (ROOT / ".planning" / "STATE.md").read_text(encoding="utf-8")
-    assert "current_phase: 14" in md or 'current_phase: "14"' in md
     assert "Current Phase: 03" not in md
+    # Mid–v1.0 audit: 14–16; after `$gsd-complete-milestone v1.0`: v1.2 + current_phase null.
+    acceptable = (
+        "current_phase: 14" in md
+        or 'current_phase: "14"' in md
+        or "current_phase: 15" in md
+        or "current_phase: 16" in md
+        or "current_phase: null" in md
+    )
+    assert acceptable, "STATE.md should not be stuck on early phases; expected 14–16 or null (post v1.0)"
 
 
 def test_early_verification_bodies_use_trading_crab_lib_paths() -> None:
