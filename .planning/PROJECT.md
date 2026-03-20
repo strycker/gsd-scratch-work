@@ -142,7 +142,17 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 ---
 
-## Current Milestone: v1.2 — Tactics, Triggers & Expanded Signals
+## Milestone model (aligned with GSD)
+
+### v1.0 — Core pipeline + planning evidence (audit target)
+
+**Status:** **Evidence closure complete** in `.planning/` (Phases **1–16**; gap closure **15–16** for REGIME-02/03 + **`RUNBOOK.md`** integration contract). See **`.planning/v1.0-MILESTONE-AUDIT.md`** — latest audit **`tech_debt`** (no requirement blockers; operational notes only) as of **2026-03-21**.
+
+**Your next step:** **`$gsd-complete-milestone v1.0`** when ready to archive — or revisit operational **tech_debt** items in the audit YAML first.
+
+### v1.2 — Tactics, Triggers & Expanded Signals (**next** milestone)
+
+**Status:** **Not yet** broken into new `.planning/ROADMAP.md` phases (15+). This is the **product direction** after v1.0 sign-off.
 
 **Goal:** Deepen Trading-Crab from regime-aware strategy into actionable tactics by expanding data sources, adding richer signals (ratios, correlations, differential-equation-style views), upgrading models, and wiring the weekly report all the way to email delivery.
 
@@ -161,5 +171,5 @@ At each step of the pipeline, v1.2 should encourage answers to:
 
 ---
 
-*Last updated: 2026-03-17 after v1.2 milestone initialization*
+*Last updated: 2026-03-20 — separated v1.0 audit target vs v1.2 next milestone*
 

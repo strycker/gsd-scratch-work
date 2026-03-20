@@ -4,9 +4,9 @@ milestone: v1.0
 milestone_name: v1.0-evidence-closure
 current_phase: 16
 current_plan: 1
-status: audit_ready
-stopped_at: "$gsd-execute-phase 16 complete — RUNBOOK.md + ARCHITECTURE pointer; re-run $gsd-audit-milestone"
-last_updated: "2026-03-21T01:00:00.000Z"
+status: milestone_ready_to_archive
+stopped_at: "$gsd-audit-milestone v1.0 refreshed 2026-03-21 — tech_debt (no REQ blockers)"
+last_updated: "2026-03-21T18:00:00.000Z"
 progress:
   total_phases: 16
   completed_phases: 16
@@ -25,8 +25,8 @@ next_milestone: v1.2
 ## Current position
 
 - **Milestone (audit target):** **v1.0** — Original **14** phases **complete**; **2** gap-closure phases **15–16** added **`$gsd-plan-milestone-gaps`** (REGIME-02/03 + integration runbook).
-- **STATE:** **Phase 16 executed** — **[RUNBOOK.md](RUNBOOK.md)** closes audit **integration** evidence; roadmap **16/16** phases complete. **`$gsd-audit-milestone`** should be re-run to refresh YAML (`integration`, stale REGIME snapshot if any).
-- **Last completed phase work:** Phase **16** (`16-SUMMARY.md`); next: **`$gsd-audit-milestone`** then **`$gsd-complete-milestone v1.0`** if clean.
+- **STATE:** **`v1.0-MILESTONE-AUDIT.md` refreshed** — **30/30** reqs, **16/16** phases, integration **passed**; milestone status **`tech_debt`** (operational notes only). Next: **`$gsd-complete-milestone v1.0`**.
+- **Last completed phase work:** Phase **16**; formal milestone audit **2026-03-21**.
 
 ## Milestone alignment
 
