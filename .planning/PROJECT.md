@@ -140,7 +140,7 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 **Goal:** Deepen regime-aware analysis into **actionable tactics**—more macro and cross-asset signals, stronger models (boosted + interpretable trees), richer diagnostics, optional email delivery, and safer optional data providers.
 
-**Target features:** See **`.planning/REQUIREMENTS.md`** (REQ-IDs **DATA-10/11**, **SIGNAL-10/11**, **MODEL-10/11**, **TACTICS-10**, **EMAIL-10**, **INSTALL-20**). Roadmap phases **17–22** in **`.planning/ROADMAP.md`**.
+**Target features:** See **`.planning/REQUIREMENTS.md`** — product: **DATA-10/11**, **SIGNAL-10/11**, **MODEL-10/11**, **TACTICS-10**, **EMAIL-10**, **INSTALL-20**; v1.0 GSD closure: **CLOSURE-01..03** (phases **23–25**). Roadmap phases **17–25** in **`.planning/ROADMAP.md`**.
 
 **Next step:** **`$gsd-discuss-phase 17`** or **`$gsd-plan-phase 17`**.
 
@@ -156,5 +156,5 @@ Product questions v1.2 keeps answering: *Is now a good time to invest (vs cash)?
 
 ---
 
-*Last updated: 2026-03-21 — `$gsd-new-milestone`: v1.2 requirements + roadmap (phases 17–22)*
+*Last updated: 2026-03-21 — v1.2 roadmap extended to phases **17–25** (CLOSURE-01..03 for v1.0 GSD parity)*
 

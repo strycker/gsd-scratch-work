@@ -46,6 +46,21 @@ Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md
 - [ ] **INSTALL-20** — Setup helper for new secrets & env  
   Scripts/docs to scaffold `.env`, email config templates, smoke checks (extends v1 installer story without duplicating v1 **INSTALL-10** scope).
 
+### 6. v1.0 planning evidence closure (GSD hygiene for phases 1–16)
+
+These requirements make **`gsd-tools stats` / `validate health` / plan–summary parity** align with **shipped v1.0 product work**. They do not re-open the v1.0 **code** scope unless explicitly noted (**CLOSURE-03**).
+
+- [ ] **CLOSURE-01** — Per-plan `*-SUMMARY.md` for every remaining `*-PLAN.md`  
+  Add a summary file whose basename matches each plan (same rule as `validate health` I001). **Known gaps (2026-03-21):**  
+  `06-weekly-report-pipeline-01-PLAN.md`, `08-data-signals-diagnostics-01-PLAN.md`, `12-v1-audit-verify-phases-4-6-01-PLAN.md`, `13-v1-audit-verify-phases-7-11-01-PLAN.md`, `15-v1-gap-regime-profiles-names-01-PLAN.md`, `16-v1-gap-e2e-integration-runbook-01-PLAN.md`.  
+  Summaries may point to existing phase-level `NN-SUMMARY.md` where that file is the canonical narrative.
+
+- [ ] **CLOSURE-02** — Brownfield phase directories **04–11** (no historical `*-PLAN.md`)  
+  Add a short **`README.md`** in each of: `04-regime-conditional-etf-portfolio-behavior`, `05-recommendations-machine-readable-outputs`, `07-portfolio-and-email-integration`, `09-tactics-and-diagnostics`, `10-tactics-install`, `11-core-cleanup` (and **`06`**, **`08`** if not fully covered by **CLOSURE-01**) stating: work was delivered under v1.0; primary evidence is `*-VERIFICATION.md` / `*-VALIDATION.md` + `RUNBOOK.md` / pipeline entrypoints.
+
+- [ ] **CLOSURE-03** — Phase **3** plan **04** (`03-supervised-regime-behavior-models-04-PLAN.md`)  
+  Reconcile plan `must_haves` against the repo (`trading_crab_lib`, `pipelines/05_predict.py`, `outputs/reports/model_metrics/*`, tests). **Either:** implement/polish remaining gaps and update **VERIFICATION**/**VALIDATION**, **or** document a **signed waiver** (deferred items, rationale, optional follow-up REQ) in a new **`03-supervised-regime-behavior-models-04-SUMMARY.md`** plus a short note in **VERIFICATION**.
+
 ---
 
 ## Deferred (not v1.2 unless pulled in)
@@ -71,3 +86,6 @@ Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md
 | TACTICS-10 | Phase 20 | Not started |
 | EMAIL-10, INSTALL-20 | Phase 21 | Not started |
 | DATA-11 | Phase 22 | Not started |
+| CLOSURE-01 | Phase 23 | Not started |
+| CLOSURE-02 | Phase 24 | Not started |
+| CLOSURE-03 | Phase 25 | Not started |
