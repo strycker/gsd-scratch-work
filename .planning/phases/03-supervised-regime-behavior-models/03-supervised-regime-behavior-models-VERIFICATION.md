@@ -15,7 +15,7 @@ gaps:
       - path: "tests/test_models_behavior.py"
         issue: "Implements behavior-model tests that are not wired into the current validation matrix."
       - path: "tests/test_models_reporting.py"
-        issue: "Covers regime metrics aggregation only; behavior metrics summarisation is implemented separately in `market_regime.prediction` but not yet under test."
+        issue: "Covers regime metrics aggregation only; behavior metrics summarisation is implemented separately in `trading_crab_lib.prediction` but not yet under test."
     missing:
       - "(none) — docs/test wiring reconciled"
   - truth: "Supervised model training never uses non-time-series-aware validation or forward-looking features."
@@ -24,9 +24,9 @@ gaps:
     artifacts:
       - path: "pipelines/05_predict.py"
         issue: "Prefers `features_supervised.parquet` (causal) but falls back silently—with only a warning—to `features.parquet` if the supervised file is missing, which may reintroduce leakage depending on how `features.parquet` was produced."
-      - path: "src/market_regime/prediction/classifier.py"
+      - path: "src/trading_crab_lib/prediction/classifier.py"
         issue: "All CV helpers use `TimeSeriesSplit` with no shuffling and construct forward targets via `regimes.shift(-h)`, which is correct; there is no assertion that the features passed in are from the causal checkpoint."
-      - path: "src/market_regime/prediction.py"
+      - path: "src/trading_crab_lib/prediction.py"
         issue: "Behavior-model helpers also use TimeSeriesSplit and shifted returns, but similarly assume the caller has supplied causal features."
     missing:
       - "(none) — leakage guardrails now gated + unit-tested"
@@ -49,7 +49,7 @@ human_verification:
 
 | # | Truth                                                                                                      | Status        | Evidence |
 |---|------------------------------------------------------------------------------------------------------------|--------------|----------|
-| 1 | There is a clear, centralized API for training current-regime, forward-regime, and behavior models using causal features and Phase 2 regime labels. | ✓ VERIFIED    | `src/market_regime/prediction/classifier.py` exposes `train_current_regime`, `train_forward_classifiers`, `train_forward_behavior_models`, and `model_metrics_summary`; `src/market_regime/prediction.py` exposes behavior helpers; `pipelines/05_predict.py` wires the current and forward regime helpers into step 5. |
+| 1 | There is a clear, centralized API for training current-regime, forward-regime, and behavior models using causal features and Phase 2 regime labels. | ✓ VERIFIED    | `src/trading_crab_lib/prediction/classifier.py` exposes `train_current_regime`, `train_forward_classifiers`, `train_forward_behavior_models`, and `model_metrics_summary`; `src/trading_crab_lib/prediction.py` exposes behavior helpers; `pipelines/05_predict.py` wires the current and forward regime helpers into step 5. |
 | 2 | Model-related tests exist and can be run in isolation for Phase 3 behaviors.                              | ✓ VERIFIED    | `tests/test_models_regime.py`, `tests/test_models_behavior.py`, and `tests/test_models_reporting.py` provide synthetic, network-free tests, and `03-VALIDATION.md` now references the correct files with Wave 0 mapped to them. |
 | 3 | Supervised model training never uses non-time-series-aware validation or forward-looking features.        | ✓ VERIFIED    | Step 5 now enforces `features_supervised.parquet` by default via `select_step5_feature_path`, and only falls back to `features.parquet` with explicit `--allow-noncausal-features` (unit-tested). |
 | 4 | Forward regime and behavior models are wired into the prediction layer in a way that later phases can consume. | ✓ VERIFIED    | `pipelines/05_predict.py` and `run_pipeline.py` step 5 now train/persist behavior models and write metrics artifacts; metrics + gating schema are covered in `tests/test_models_reporting.py` and `tests/test_models_regime.py`. |
@@ -60,8 +60,8 @@ human_verification:
 
 | Artifact                                | Expected                                                                                  | Status     | Details |
 |-----------------------------------------|------------------------------------------------------------------------------------------|-----------|---------|
-| `src/market_regime/prediction/classifier.py` | Centralized supervised regime and (classifier-based) behavior model helpers with TimeSeriesSplit CV and metric aggregation. | ✓ VERIFIED | File exists (~400+ lines); defines `_tscv_reports`, `FoldReport`, `train_current_regime`, `train_forward_classifiers`, `make_behavior_labels`, `train_forward_behavior_models`, and `model_metrics_summary`, all using walk-forward CV and shifted targets. |
-| `src/market_regime/prediction.py`      | Higher-level supervised helpers, including behavior models and a generic metrics flattener. | ✓ VERIFIED | File exists and provides `make_behavior_labels`, `train_forward_behavior_models`, and a row-oriented `model_metrics_summary` used by behavior-focused tests. |
+| `src/trading_crab_lib/prediction/classifier.py` | Centralized supervised regime and (classifier-based) behavior model helpers with TimeSeriesSplit CV and metric aggregation. | ✓ VERIFIED | File exists (~400+ lines); defines `_tscv_reports`, `FoldReport`, `train_current_regime`, `train_forward_classifiers`, `make_behavior_labels`, `train_forward_behavior_models`, and `model_metrics_summary`, all using walk-forward CV and shifted targets. |
+| `src/trading_crab_lib/prediction.py`      | Higher-level supervised helpers, including behavior models and a generic metrics flattener. | ✓ VERIFIED | File exists and provides `make_behavior_labels`, `train_forward_behavior_models`, and a row-oriented `model_metrics_summary` used by behavior-focused tests. |
 | `tests/test_models_regime.py`          | Tests for current and forward regime classifiers, including leakage/CV ordering checks and probability sanity checks. | ✓ VERIFIED | Synthetic tests assert TimeSeriesSplit ordering (train indices < test indices), presence of `FoldReport`, and well-formed probability outputs for current and forward regime bundles. |
 | `tests/test_models_behavior.py`        | Tests for ETF/portfolio behavior label construction and directional behavior models.      | ✓ VERIFIED | Synthetic tests cover up/flat/down labelling semantics, dropping of trailing periods, and per-asset behavior models with probability-normalisation checks. |
 | `tests/test_models_reporting.py`       | Tests for model metrics and reporting helpers.                                            | ✓ VERIFIED | Exercises `classifier.model_metrics_summary` for current and forward regime bundles and now validates metrics-artifact schema + behavior coverage. |
@@ -70,10 +70,10 @@ human_verification:
 
 | From                            | To                                         | Via / Pattern                                                       | Status   | Details |
 |---------------------------------|--------------------------------------------|---------------------------------------------------------------------|----------|---------|
-| `pipelines/05_predict.py`       | `src/market_regime/prediction/classifier.py` | `from market_regime.prediction.classifier import train_current_regime, train_forward_classifiers` | ✓ WIRED  | Step 5 uses the centralized helpers on causal features (when available) and persists model bundles to `outputs/models/`. |
-| `tests/test_models_regime.py`   | `src/market_regime/prediction/classifier.py` | `from market_regime.prediction.classifier import FoldReport, train_current_regime, train_forward_classifiers` | ✓ WIRED  | Regime tests import and exercise the supervised helpers directly on synthetic data. |
-| `tests/test_models_behavior.py` | `src/market_regime/prediction.py`          | `from market_regime.prediction import make_behavior_labels, train_forward_behavior_models` | ✓ WIRED  | Behavior tests exercise the behavior helpers exposed from the prediction module. |
-| `tests/test_models_reporting.py`| `src/market_regime/prediction/classifier.py` | `from market_regime.prediction.classifier import model_metrics_summary` | ✓ WIRED  | Reporting tests cover regime metrics aggregation; behavior metrics flattener lives in `prediction.py` and is not yet under test. |
+| `pipelines/05_predict.py`       | `src/trading_crab_lib/prediction/classifier.py` | `from trading_crab_lib.prediction.classifier import train_current_regime, train_forward_classifiers` | ✓ WIRED  | Step 5 uses the centralized helpers on causal features (when available) and persists model bundles to `outputs/models/`. |
+| `tests/test_models_regime.py`   | `src/trading_crab_lib/prediction/classifier.py` | `from trading_crab_lib.prediction.classifier import FoldReport, train_current_regime, train_forward_classifiers` | ✓ WIRED  | Regime tests import and exercise the supervised helpers directly on synthetic data. |
+| `tests/test_models_behavior.py` | `src/trading_crab_lib/prediction.py`          | `from trading_crab_lib.prediction import make_behavior_labels, train_forward_behavior_models` | ✓ WIRED  | Behavior tests exercise the behavior helpers exposed from the prediction module. |
+| `tests/test_models_reporting.py`| `src/trading_crab_lib/prediction/classifier.py` | `from trading_crab_lib.prediction.classifier import model_metrics_summary` | ✓ WIRED  | Reporting tests cover regime metrics aggregation; behavior metrics flattener lives in `prediction.py` and is not yet under test. |
 
 ### Requirements Coverage (MODEL-01 – MODEL-04)
 

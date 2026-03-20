@@ -9,7 +9,8 @@ created: 2026-03-16
 
 # Phase 2 — Validation Strategy
 
-> Per-phase validation contract for clustering, profiling, and naming behavior.
+> Per-phase validation contract for clustering, profiling, and naming behavior.  
+> **Requirement-level status and product gaps** live in `02-regime-clustering-interpretation-VERIFICATION.md` (`status: gaps_found` is about deliverables, not this test matrix).
 
 ---
 

@@ -51,6 +51,13 @@ human_verification:
     why_human: "Requires subjective assessment of plot outputs and narrative fit of regime names; cannot be evaluated via unit tests or static analysis."
 ---
 
+## Notes: VERIFICATION vs VALIDATION
+
+- **`02-regime-clustering-interpretation-VERIFICATION.md` (this file)** records roadmap-level **truth tables** and **product evidence** against REGIME-*. Frontmatter `status: gaps_found` means some success-criteria truths are still partial (e.g. ETF rows in `profiles.parquet`, pinned names in `regime_labels.yaml`) or human-only — not that tests are missing.
+- **`02-VALIDATION.md`** is the **Nyquist-style automated test contract** (Wave map, pytest commands). Its frontmatter `nyquist_compliant: true` means the sampling plan and unit-test wiring described there are current; it does **not** override partial product gaps listed above.
+- **How to read both:** Use this VERIFICATION file for requirement status and evidence links; use VALIDATION for what to run locally after Phase 2 code changes (`pytest` commands in that file).
+- **If frontmatter looks contradictory:** It is not — *gaps_found* here is about *deliverables*; *nyquist_compliant* there is about *test-process compliance*.
+
 # Phase 2: Regime Clustering & Interpretation Verification Report
 
 **Phase Goal:** Produce a small, stable set of interpretable market regimes with reproducible profiles and names that downstream models and users can rely on.
@@ -67,9 +74,9 @@ human_verification:
 | 1 | Historical quarters are assigned to a manageable number of regimes (target ~4–7) using the Phase 1 feature set and PCA + clustering. | ✓ VERIFIED | `pipelines/03_cluster.py` drives PCA and KMeans via `config.settings["clustering"]`, with `k_cap` and `balanced_k` both set to 5, so the pipeline always produces a small number of regimes; `tests/unit/test_clustering.py` asserts correct cluster counts and label canonicalization. |
 | 2 | Re-running the clustering step with the same configuration and input features produces identical regime labels for all quarters. | ✓ VERIFIED | `reduce_pca`, `evaluate_kmeans`, and `fit_clusters` all use a fixed `random_state` from config and canonicalize labels based on mean PC1; tests cover deterministic, contiguous label ordering, making label assignments stable given fixed inputs. |
 | 3 | The clustering step writes regime artifacts under `data/regimes/` that downstream steps and notebooks can reload without ad-hoc logic. | ✓ VERIFIED | `pipelines/03_cluster.py` writes `cluster_labels.parquet`, `pca_components.parquet`, and `kmeans_scores.parquet` with stable schemas, and these paths are referenced by downstream profiling code; artifacts are runtime outputs and correctly gitignored. |
-| 4 | Each regime has a reproducible profile over key macro features and ETF returns that supports a human-readable description. | ⚠️ PARTIAL | `pipelines/04_regime_label.py` and `market_regime.regime.build_profiles` produce deterministic macro-feature profiles to `profiles.parquet` and are covered by `tests/unit/test_regime.py`, but ETF-return statistics by regime are not yet integrated into this artifact. |
+| 4 | Each regime has a reproducible profile over key macro features and ETF returns that supports a human-readable description. | ⚠️ PARTIAL | `pipelines/04_regime_label.py` and `trading_crab_lib.regime.build_profiles` produce deterministic macro-feature profiles to `profiles.parquet` and are covered by `tests/unit/test_regime.py`, but ETF-return statistics by regime are not yet integrated into this artifact. |
 | 5 | There is a stable, version-controlled mapping from canonicalized cluster IDs to human-readable regime names, applied consistently across runs. | ⚠️ PARTIAL | `suggest_names` + `load_name_overrides` implement deterministic auto-naming and config-driven overrides, and `regime_labels.yaml` exists under version control, but it currently contains only commented examples, so no concrete ID→name mapping has been pinned yet. |
-| 6 | Downstream supervised models and reporting code can load regime profiles, transition matrices, and label mappings from disk without re-running notebooks. | ✓ VERIFIED | `pipelines/04_regime_label.py` writes `profiles.parquet`, `transition_matrix.parquet`, and `regime_names_suggested.yaml`, and all profiling, naming, and transition logic lives in `market_regime.regime` with unit tests in `tests/unit/test_regime.py`, making these artifacts reproducible and notebook-independent. |
+| 6 | Downstream supervised models and reporting code can load regime profiles, transition matrices, and label mappings from disk without re-running notebooks. | ✓ VERIFIED | `pipelines/04_regime_label.py` writes `profiles.parquet`, `transition_matrix.parquet`, and `regime_names_suggested.yaml`, and all profiling, naming, and transition logic lives in `trading_crab_lib.regime` with unit tests in `tests/unit/test_regime.py`, making these artifacts reproducible and notebook-independent. |
 
 **Score:** 5/6 truths verified
 
@@ -91,12 +98,12 @@ human_verification:
 
 | From | To | Via | Status | Details |
 | ---- | -- | --- | ------ | ------- |
-| `pipelines/03_cluster.py` | `src/market_regime/clustering.py` | `reduce_pca, evaluate_kmeans, pick_best_k, fit_clusters` | ✓ VERIFIED | Imports from `market_regime.clustering` and uses all four core functions to implement the clustering pipeline. |
+| `pipelines/03_cluster.py` | `src/trading_crab_lib/clustering.py` | `reduce_pca, evaluate_kmeans, pick_best_k, fit_clusters` | ✓ VERIFIED | Imports from `trading_crab_lib.clustering` and uses all four core functions to implement the clustering pipeline. |
 | `pipelines/03_cluster.py` | `config/settings.yaml` | `clustering.* configuration` | ✓ VERIFIED | Loads config via `load()` and reads `cfg["clustering"]` for `n_pca_components`, `n_clusters_search`, `k_cap`, `balanced_k`, and `random_state`; no clustering constants are hardcoded. |
-| `tests/unit/test_clustering.py` | `src/market_regime/clustering.py` | Direct imports of clustering helpers | ✓ VERIFIED | Imports and exercises `reduce_pca`, `evaluate_kmeans`, `pick_best_k`, and `fit_clusters` with synthetic data, including canonicalization behavior. |
-| `pipelines/04_regime_label.py` | `src/market_regime/regime.py` | `build_profiles, suggest_names, build_transition_matrix, load_name_overrides` | ✓ VERIFIED | Imports all four utilities and uses them to produce profiles, suggested names, overrides, and the transition matrix. |
+| `tests/unit/test_clustering.py` | `src/trading_crab_lib/clustering.py` | Direct imports of clustering helpers | ✓ VERIFIED | Imports and exercises `reduce_pca`, `evaluate_kmeans`, `pick_best_k`, and `fit_clusters` with synthetic data, including canonicalization behavior. |
+| `pipelines/04_regime_label.py` | `src/trading_crab_lib/regime.py` | `build_profiles, suggest_names, build_transition_matrix, load_name_overrides` | ✓ VERIFIED | Imports all four utilities and uses them to produce profiles, suggested names, overrides, and the transition matrix. |
 | `pipelines/04_regime_label.py` | `config/regime_labels.yaml` | Manual name overrides layered on auto-suggestions | ✓ VERIFIED | Calls `load_name_overrides(CONFIG_DIR)` and merges overrides into `regime_names_suggested.yaml`. |
-| `tests/unit/test_regime.py` | `src/market_regime/regime.py` | Direct imports and synthetic fixtures | ✓ VERIFIED | Imports regime utilities and validates their behavior on synthetic data, matching the validation strategy. |
+| `tests/unit/test_regime.py` | `src/trading_crab_lib/regime.py` | Direct imports and synthetic fixtures | ✓ VERIFIED | Imports regime utilities and validates their behavior on synthetic data, matching the validation strategy. |
 
 ### Requirements Coverage
 
@@ -111,7 +118,7 @@ human_verification:
 | File | Line | Pattern | Severity | Impact |
 | ---- | ---- | ------- | -------- | ------ |
 | `config/regime_labels.yaml` | n/a | Only commented example names; no active mappings. | ⚠️ Warning | Leaves regime naming at the mercy of auto-suggestions; stability over time depends on not changing heuristics or feature schema. |
-| `.planning/phases/02-regime-clustering-interpretation/02-VALIDATION.md` | 2–7, 48–52 | nyquist_compliant: false and unchecked Wave 0 items despite tests being present. | ⚠️ Warning | Validation metadata understates current automated coverage; could mislead future maintainers about missing tests. |
+| `.planning/phases/02-regime-clustering-interpretation/02-VALIDATION.md` | frontmatter | Prior versions claimed `nyquist_compliant: false` while tests existed; **current** `02-VALIDATION.md` is updated (`nyquist_compliant: true`). | ⚠️ Historical | Older verification snapshots may still mention stale validation metadata; trust the live VALIDATION file. |
 
 ### Human Verification Required
 

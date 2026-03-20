@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 03
-current_plan: 2
-status: unknown
-stopped_at: Completed 03-supervised-regime-behavior-models-01-PLAN.md
-last_updated: "2026-03-19T03:20:31.939Z"
+current_phase: 14
+current_plan: 1
+status: completed
+stopped_at: Completed 14-v1-audit-planning-reconciliation-01-PLAN.md
+last_updated: "2026-03-20T12:00:00.000Z"
 progress:
-  total_phases: 11
-  completed_phases: 2
-  total_plans: 12
-  completed_plans: 9
+  total_phases: 14
+  completed_phases: 13
+  total_plans: 1
+  completed_plans: 1
 ---
 
-## Project State — Trading-Crab (v1.3)
+## Project State — Trading-Crab (planning)
 
 ## Project Reference
 
@@ -24,61 +24,42 @@ progress:
 
 ## Current Position
 
-- **Current Phase:** 03
-- **Current Plan:** 2
-- **Total Plans in Phase:** 04
+- **Current Phase:** 14 (complete)
+- **Current Plan:** 1 of 1 in phase 14
+- **Total Plans in Phase:** 1
 
-- **Current milestone**: v1.3 — Multi-horizon diagnostics & UX
-- **Current phase**: 11 phases (1–11) complete; next up are phases 12–15 for v1.3.
-- **Overall status**: Core pipeline, recommendations, tactics, and env cleanup are shipped through Phase 11; planning next wave.
+- **Current milestone**: v1.0 — Audit / verification closure / planning reconciliation
+- **Roadmap**: Phases 2–14 marked complete in `.planning/ROADMAP.md` except Phase 1 checklist (open until `01-null-03` GSD closure — see ROADMAP note); requirement traceability for Phase 1 data constraints is **Complete** in `REQUIREMENTS.md`.
+- **Overall status**: Phase 14 planning reconciliation executed — ROADMAP, STATE, and early `*-VERIFICATION.md` paths aligned to `trading_crab_lib`.
 
-### Phase Progress
+### Phase Progress (high level)
 
-| Phase range | Name / theme                                      | Status     | Notes                          |
-|-------------|---------------------------------------------------|------------|--------------------------------|
-| 1–3         | Foundations, Clustering, Supervised Models        | Completed  | Shipped in v1.0                |
-| 4–6         | ETF Behavior, Recommendations, Weekly Pipeline    | Completed  | Shipped in v1.1                |
-| 7–10        | Portfolio+Email, Diagnostics, Tactics, Installer | Completed  | Shipped in v1.2                |
-| 11          | Core Cleanup & Env Sanity                         | Completed  | First phase of v1.3 complete   |
-| 12–15       | Multi-horizon smoothing, visuals, dashboard UX   | Planned    | To be detailed in v1.3 roadmap |
+| Phase range | Theme | Status (ROADMAP) |
+|-------------|--------|------------------|
+| 1 | Data & constraints | Requirements complete; one GSD plan still open (2/3) |
+| 2–11 | Core pipeline through env cleanup | Complete |
+| 12–13 | v1.0 audit verification (phases 4–11) | Complete |
+| 14 | Planning source reconciliation | Complete (2026-03-20) |
 
 ## Performance & Health
 
-- **Pipeline health**: Unknown (v1 implementation not yet executed end-to-end).
-- **Data freshness**: Unknown (to be tracked once ingestion/checkpoints are live).
-- **Model performance**: Not yet measured (pending Phases 2–3).
+- **Pipeline health**: Not re-measured in this phase (docs-only).
+- Use `pytest` and `run_pipeline.py` per `CLAUDE.md` for fresh checks.
 
 ## Accumulated Context
 
 ### Key Decisions (from PROJECT.md)
 
-- Focus on ETF-level portfolios only; no single stocks or direct crypto in v1.
-- Allow bitcoin exposure only via ETF wrappers.
-- Weekly report cadence; regime focus is quarterly.
-
-### Open Questions / Risks
-
-- How stable are regime labels over time as new data arrives?
-- How robust are supervised models and portfolio templates to regime changes outside historical experience?
+- ETF-level portfolios only; bitcoin via ETF wrappers only.
+- Weekly report cadence; regime labels quarterly.
 
 ### Working Notes
 
-- Use `ROADMAP.md` as the source of truth for phase goals, dependencies, and success criteria (now including phases 1–11 as complete).
-- Use `REQUIREMENTS.md` to keep requirement IDs and traceability aligned as implementation proceeds, and extend it for v1.3 features (multi-horizon smoothing, visuals, dashboard/email plots).
-
-## Decisions
-
-- Standardized supervised training bundles on `cv_scores` (with fold indices) to enforce TimeSeriesSplit leakage guards in tests.
-- [Phase 03]: Standardized supervised training bundles on cv_scores (with fold indices) to enforce TimeSeriesSplit leakage guards in tests.
-
-## Performance Metrics
-
-| Phase | Plan | Duration | Tasks | Files | Completed (UTC) |
-|------:|-----:|----------|------:|------:|-----------------|
-| 03    | 01   | 35m      | 3     | 4     | 2026-03-19T03:01:12Z |
+- **ROADMAP** — phase goals and success criteria.
+- **REQUIREMENTS.md** — ID traceability; must stay consistent with roadmap “complete” language.
+- **Phase 14** — `01`–`03` verification bodies use `src/trading_crab_lib/`; Phase 2 VERIFICATION vs VALIDATION explained in `02-regime-clustering-interpretation-VERIFICATION.md`.
 
 ## Session
 
-- **Last session:** 2026-03-19T03:20:31.933Z
-- **Stopped at:** Completed 03-supervised-regime-behavior-models-01-PLAN.md
-
+- **Last session:** 2026-03-20
+- **Stopped at:** Completed `14-v1-audit-planning-reconciliation-01-PLAN.md` (documentation reconciliation)

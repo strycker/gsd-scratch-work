@@ -15,7 +15,7 @@
 - [x] **Phase 11: Core Cleanup & Env Sanity** - Normalize directory layout, date handling, and style imports. (completed 2026-03-17)
 - [x] **Phase 12: v1.0 Audit — Verify Phases 4–6 (PORT / UX / REPORT)** — Close `.planning/v1.0-MILESTONE-AUDIT.md` requirement gaps with formal `*-VERIFICATION.md` and traceability evidence. (completed 2026-03-19)
 - [x] **Phase 13: v1.0 Audit — Verify Phases 7–11** — Author missing phase `*-VERIFICATION.md` files and map roadmap success criteria to tests/artifacts. (completed 2026-03-19)
-- [ ] **Phase 14: v1.0 Audit — Planning reconciliation** — Align ROADMAP vs REQUIREMENTS, refresh `STATE.md`, fix stale verification paths (`trading_crab_lib`), reconcile Phase 2 verification vs validation.
+- [x] **Phase 14: v1.0 Audit — Planning reconciliation** — Align ROADMAP vs REQUIREMENTS, refresh `STATE.md`, fix stale verification paths (`trading_crab_lib`), reconcile Phase 2 verification vs validation. (completed 2026-03-20)
 
 ## Phase Details
 
@@ -28,12 +28,14 @@
   2. Typical runs use parquet checkpoints and can skip full re-scrapes while still producing correct downstream artifacts (DATA-02).
   3. A documented feature set (including causal variants) is computed end-to-end with no look-ahead leakage into supervised training (DATA-03).
   4. All data ingestion, features, and models operate strictly on ETFs (including bitcoin via ETF) with no single stocks or direct crypto, and no intraday or auto-trading behavior is introduced (CONSTR-01, CONSTR-02).
-**Plans**: 4 plans
+**Plans**: 3 plans
+
+> **Note:** `REQUIREMENTS.md` marks DATA-01..DATA-03 and CONSTR-01..CONSTR-02 **Complete** with evidence in `01-null-VERIFICATION.md`. This roadmap line stays `[ ]` and Progress shows **2/3** until `01-null-03-PLAN.md` is formally closed in GSD tracking, even though requirement traceability is already satisfied.
+
 Plans:
-- [ ] 03-supervised-regime-behavior-models-01-PLAN.md — bootstrap scaffolding (superseded by 03-04)
-- [x] 03-supervised-regime-behavior-models-02-PLAN.md — regime CV + forward transition models
-- [x] 03-supervised-regime-behavior-models-03-PLAN.md — behavior directional models
-- [x] 03-supervised-regime-behavior-models-04-PLAN.md — leakage hardening + behavior wiring + metrics artifacts
+- [x] `.planning/phases/01-null/01-null-01-PLAN.md` — ingestion, checkpoints, macro + ETF wiring
+- [x] `.planning/phases/01-null/01-null-02-PLAN.md` — dual causal / non-causal feature artifacts
+- [ ] `.planning/phases/01-null/01-null-03-PLAN.md` — constraint + pipeline smoke tests (open in GSD inventory)
 
 ### Phase 2: Regime Clustering & Interpretation
 **Goal**: Produce a small, stable set of interpretable market regimes with reproducible profiles and names that downstream models and users can rely on.
@@ -172,7 +174,9 @@ Plans:
   2. `.planning/STATE.md` reflects current phase focus and counts.
   3. Phase 1 checklist / Phase 1 details block in ROADMAP corrected if still misplaced.
   4. Stale package paths in `01`–`03` `*-VERIFICATION.md` bodies updated to `src/trading_crab_lib/`.
-**Plans:** TBD (use `$gsd-plan-phase 14`)
+**Plans:** 1 plan
+Plans:
+- [x] `14-v1-audit-planning-reconciliation-01-PLAN.md` — documentation reconciliation (ROADMAP / REQUIREMENTS / STATE + VERIFICATION path refresh) <done>
 
 ## Progress
 
@@ -191,5 +195,5 @@ Plans:
 | 11    | Core Cleanup & Env Sanity                 | 0/0            | Complete     | 2026-03-17   |
 | 12    | v1.0 Audit — Verify Phases 4–6            | 1/1            | Complete     | 2026-03-19   |
 | 13    | v1.0 Audit — Verify Phases 7–11         | 1/1            | Complete     | 2026-03-19   |
-| 14    | v1.0 Audit — Planning reconciliation     | 0/1            | In Progress  | —            |
+| 14    | v1.0 Audit — Planning reconciliation     | 1/1            | Complete     | 2026-03-20   |
 
