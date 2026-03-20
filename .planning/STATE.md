@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: v1.0-evidence-closure
 current_phase: 16
-current_plan: 0
+current_plan: 1
 status: gap_closure_in_progress
-stopped_at: "$gsd-execute-phase 15 complete — REGIME-02/03 Complete; Phase 16 (E2E runbook) next"
-last_updated: "2026-03-20T23:30:00.000Z"
+stopped_at: "$gsd-plan-phase 16 — PLAN + VALIDATION + ROADMAP; ready for $gsd-execute-phase 16"
+last_updated: "2026-03-21T00:00:00.000Z"
 progress:
   total_phases: 16
   completed_phases: 15
