@@ -106,24 +106,16 @@ These are **hypotheses** to be validated as the pipeline solidifies. They will b
 
 These constitute the **baseline capabilities** that v1 will refine and productize.
 
-#### Active (to validate in v1)
+#### Active (to validate in v1.2+)
 
-- [ ] The pipeline can be run end-to-end via a clear CLI to:
-      - Ingest/refresh data.
-      - Recompute features, clustering, and supervised models.
-      - Generate dashboard artifacts and plots.
-- [ ] Regime labels are interpretable and stable enough to support ETF-level decisions.
-- [ ] For a given date/quarter, the system can:
-      - Report the most likely current regime.
-      - Show historical ETF performance for similar regimes.
-      - Estimate expected return for the current ETF portfolio.
-- [ ] Models can produce at least one-step-ahead (next quarter) predictions for:
-      - Regime transitions.
-      - Directional ETF and candidate-portfolio behavior.
-- [ ] The system can generate a machine-readable summary (e.g. CSV/JSON + text) that can be turned into a weekly email with:
-      - Current regime and confidence.
-      - Notable regime-transition risks.
-      - ETF-level buy/hold/sell suggestions rooted in the regime analysis.
+- [ ] Deeper tactics classification, richer cross-asset signals, and optional first-class email automation (see **v1.2** milestone).
+
+#### Validated (shipped — v1.0)
+
+- ✓ End-to-end CLI pipeline with checkpoints (`run_pipeline.py`, steps 1–9) — **v1.0**
+- ✓ Interpretable regimes with pinned labels and reproducible macro + ETF-by-regime artifacts — **v1.0**
+- ✓ Current regime, transitions, portfolio-aware recommendations, weekly report — **v1.0**
+- ✓ Machine-readable outputs and operational **`RUNBOOK.md`** — **v1.0**
 
 #### Out of Scope
 
@@ -144,15 +136,13 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 ## Milestone model (aligned with GSD)
 
-### v1.0 — Core pipeline + planning evidence (audit target)
+### v1.0 — Core pipeline + planning evidence (**shipped**)
 
-**Status:** **Evidence closure complete** in `.planning/` (Phases **1–16**; gap closure **15–16** for REGIME-02/03 + **`RUNBOOK.md`** integration contract). See **`.planning/v1.0-MILESTONE-AUDIT.md`** — latest audit **`tech_debt`** (no requirement blockers; operational notes only) as of **2026-03-21**.
+**Status:** ✅ **Complete** — **2026-03-20** (git tag **`v1.0`**). Full roadmap, requirements, and audit: **`.planning/milestones/v1.0-ROADMAP.md`**, **`v1.0-REQUIREMENTS.md`**, **`v1.0-MILESTONE-AUDIT.md`**. Ledger: **`.planning/MILESTONES.md`**.
 
-**Your next step:** **`$gsd-complete-milestone v1.0`** when ready to archive — or revisit operational **tech_debt** items in the audit YAML first.
+### v1.2 — Tactics, Triggers & Expanded Signals (**current** milestone)
 
-### v1.2 — Tactics, Triggers & Expanded Signals (**next** milestone)
-
-**Status:** **Not yet** broken into new `.planning/ROADMAP.md` phases (15+). This is the **product direction** after v1.0 sign-off.
+**Status:** **Not yet** split into new phases on **`.planning/ROADMAP.md`**. Start with **`$gsd-new-milestone`** (phase numbering continues from **17**).
 
 **Goal:** Deepen Trading-Crab from regime-aware strategy into actionable tactics by expanding data sources, adding richer signals (ratios, correlations, differential-equation-style views), upgrading models, and wiring the weekly report all the way to email delivery.
 
@@ -171,5 +161,5 @@ At each step of the pipeline, v1.2 should encourage answers to:
 
 ---
 
-*Last updated: 2026-03-20 — separated v1.0 audit target vs v1.2 next milestone*
+*Last updated: 2026-03-21 — v1.0 shipped and archived; v1.2 is next planning cycle*
 
