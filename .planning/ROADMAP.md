@@ -187,7 +187,9 @@ Plans:
   1. ETF return (or return-summary) statistics by regime are reproducible and cited from a **single agreed artifact** (`profiles.parquet` extension and/or e.g. `etf_behavior_by_regime.parquet` cross-linked in VERIFICATION).
   2. `config/regime_labels.yaml` contains **pinned** cluster-ID → name mappings for the current production clustering config (not comments only).
   3. `02-regime-clustering-interpretation-VERIFICATION.md` updated; human visual regime check documented (notebook/plot refs) if still required.
-**Plans:** 0 plans (use `$gsd-plan-phase 15`)
+**Plans:** 1 plan
+Plans:
+- [ ] `15-v1-gap-regime-profiles-names-01-PLAN.md` — REGIME-02/03 closure (artifact docs, test, yaml pins, Phase 2 VERIFICATION)
 
 ### Phase 16: v1.0 Gap Closure — E2E runbook & integration contract
 **Goal:** Close **integration** gaps from the same audit without re-opening unrelated requirement rows: one **golden-path** doc, **market_code** / checkpoint discipline, and clarity on **steps 1–7 vs 8–9**.
@@ -217,6 +219,6 @@ Plans:
 | 12    | v1.0 Audit — Verify Phases 4–6            | 1/1            | Complete     | 2026-03-19   |
 | 13    | v1.0 Audit — Verify Phases 7–11         | 1/1            | Complete     | 2026-03-19   |
 | 14    | v1.0 Audit — Planning reconciliation     | 1/1            | Complete     | 2026-03-20   |
-| 15    | v1.0 Gap Closure — Regime ETF profiles & pinned names | 0/? | **Active**   | —            |
+| 15    | v1.0 Gap Closure — Regime ETF profiles & pinned names | 0/1 | **Active**   | —            |
 | 16    | v1.0 Gap Closure — E2E runbook & integration contract | 0/? | **Planned**  | —            |
 

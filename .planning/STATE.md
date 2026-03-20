@@ -24,8 +24,8 @@ next_milestone: v1.2
 
 ## Current position
 
-- **Milestone (audit target):** **v1.0** — All **14** `.planning/ROADMAP.md` phases **complete** (Phase **1** → **3/3** plans, **2026-03-20**).
-- **STATE:** **`$gsd-audit-milestone`** executed **2026-03-20** → milestone YAML **`status: gaps_found`** (Phase **2** REGIME-02/03 partial). Full report: **`.planning/v1.0-MILESTONE-AUDIT.md`**. Next: close gaps or **`$gsd-complete-milestone v1.0`** with accepted debt.
+- **Milestone (audit target):** **v1.0** — Original **14** phases **complete**; **2** gap-closure phases **15–16** added **`$gsd-plan-milestone-gaps`** (REGIME-02/03 + integration runbook).
+- **STATE:** **`$gsd-audit-milestone`** → **`gaps_found`** (see **`.planning/v1.0-MILESTONE-AUDIT.md`**). **REGIME-02/REGIME-03** reset to **Phase 15 | Pending** in **REQUIREMENTS.md**. Next: **`$gsd-plan-phase 15`** then **`$gsd-execute-phase`** (or plan **16** after / in parallel per dependency comfort).
 - **Last completed phase work:** Phase **14** (planning reconciliation); closing item was Phase **1** `01-null-03` (constraint + pipeline smoke tests — `pytest` green).
 
 ## Milestone alignment
