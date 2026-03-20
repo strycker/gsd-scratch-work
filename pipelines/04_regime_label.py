@@ -6,7 +6,8 @@ suggests human-readable names, and writes:
   data/regimes/profiles.parquet
   data/regimes/transition_matrix.parquet
   data/regimes/forward_window_probabilities.parquet
-  data/regimes/regime_names.yaml   — auto-suggested (edit manually)
+  data/regimes/regime_names_suggested.yaml   — auto-suggested (edit manually)
+  (ETF/proxy return statistics by regime → data/regimes/etf_behavior_by_regime.parquet from step 6.)
 
 Run:
     python pipelines/04_regime_label.py

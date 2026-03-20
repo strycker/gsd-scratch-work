@@ -6,6 +6,12 @@ Three main outputs:
   suggest_names()           → heuristic human-readable labels
   build_transition_matrix() → empirical quarter-to-quarter transition probabilities
 
+Regime artifacts (macro vs ETF)
+---------------------------------
+- `data/regimes/profiles.parquet` — per-cluster mean/median/std over **feature columns** (step 4 / `build_profiles`).
+- `data/regimes/etf_behavior_by_regime.parquet` — per-regime **ETF or proxy return** behavior metrics from `behavior_tables()` (step 6).
+- `data/regimes/asset_return_profile.parquet` — intermediate wide profile from `returns_by_regime()` (step 6); optional for diagnostics.
+
 Naming heuristics use ACTUAL column names from the feature schema
 (clustering_features in settings.yaml). A missing column silently skips that
 heuristic rather than crashing.

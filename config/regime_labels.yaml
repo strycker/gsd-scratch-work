@@ -3,10 +3,9 @@
 # These entries pin specific cluster IDs to names once clusters stabilize.
 # Format:  cluster_id: "Name"
 
+# Pinned for balanced_cluster IDs 0..4 (clustering.balanced_k=5 in config/settings.yaml).
 0: "Stagflation"
 1: "Growth Boom"
 2: "Deflationary Recession"
 3: "Low-Rate Expansion"
-## 4 and other IDs are intentionally left unpinned (auto-suggestions from
-## `data/regimes/regime_names_suggested.yaml`) to preserve hybrid governance.
-5: "Crisis / Deleveraging"
+4: "Crisis / Deleveraging"

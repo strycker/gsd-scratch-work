@@ -240,8 +240,8 @@ These IDs tie **ROADMAP** Phases 7–11 to the same requirement vocabulary used 
 | DATA-02    | Phase 1 | Complete |
 | DATA-03    | Phase 1 | Complete |
 | REGIME-01  | Phase 2 | Complete |
-| REGIME-02  | Phase 15 | Pending |
-| REGIME-03  | Phase 15 | Pending |
+| REGIME-02  | Phase 15 | Complete |
+| REGIME-03  | Phase 15 | Complete |
 | MODEL-01   | Phase 3 | Complete |
 | MODEL-02   | Phase 3 | Complete |
 | MODEL-03   | Phase 3 | Complete |
