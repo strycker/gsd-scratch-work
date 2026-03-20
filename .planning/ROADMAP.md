@@ -199,7 +199,9 @@ Plans:
 **Success criteria:**
   1. New or updated doc under `.planning/` or repo root (e.g. `RUNBOOK.md` or `ARCHITECTURE.md` section) describes a **repeatable** full run (flags, `--market-code`, when to `--recompute` / `--refresh`, post–re-cluster YAML checklist).
   2. Audit integration bullets mapped to explicit doc subsections (semantic drift, checkpoint freshness, extended pipeline).
-**Plans:** 0 plans (use `$gsd-plan-phase 16`)
+**Plans:** 1 plan
+Plans:
+- [ ] `16-v1-gap-e2e-integration-runbook-01-PLAN.md` — RUNBOOK.md + ARCHITECTURE pointer + 16-SUMMARY
 
 ## Progress
 
@@ -220,5 +222,5 @@ Plans:
 | 13    | v1.0 Audit — Verify Phases 7–11         | 1/1            | Complete     | 2026-03-19   |
 | 14    | v1.0 Audit — Planning reconciliation     | 1/1            | Complete     | 2026-03-20   |
 | 15    | v1.0 Gap Closure — Regime ETF profiles & pinned names | 1/1 | Complete     | 2026-03-20   |
-| 16    | v1.0 Gap Closure — E2E runbook & integration contract | 0/? | **Planned**  | —            |
+| 16    | v1.0 Gap Closure — E2E runbook & integration contract | 0/1 | **Active**   | —            |
 
