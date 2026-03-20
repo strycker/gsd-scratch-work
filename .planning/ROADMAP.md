@@ -17,7 +17,7 @@
 - [x] **Phase 13: v1.0 Audit — Verify Phases 7–11** — Author missing phase `*-VERIFICATION.md` files and map roadmap success criteria to tests/artifacts. (completed 2026-03-19)
 - [x] **Phase 14: v1.0 Audit — Planning reconciliation** — Align ROADMAP vs REQUIREMENTS, refresh `STATE.md`, fix stale verification paths (`trading_crab_lib`), reconcile Phase 2 verification vs validation. (completed 2026-03-20)
 - [x] **Phase 15: v1.0 Gap Closure — Regime ETF profiles & pinned names** — Close `$gsd-audit-milestone` **REGIME-02** / **REGIME-03** (ETF statistics in or alongside `profiles.parquet`; pin `config/regime_labels.yaml`; refresh Phase 2 `*-VERIFICATION.md` toward `passed`). (completed 2026-03-20)
-- [ ] **Phase 16: v1.0 Gap Closure — E2E runbook & integration contract** — Address audit **integration** findings: documented golden-path pipeline recipe, `--market-code` / checkpoint consistency guidance, when steps **8–9** are required for DIAG/TACTICS/report excerpts (refs **CORE-01**, **MODEL-*** , **PORT-01**, **DIAG-*** , **TACTICS-*** , **REPORT-01/02**).
+- [x] **Phase 16: v1.0 Gap Closure — E2E runbook & integration contract** — Address audit **integration** findings: documented golden-path pipeline recipe, `--market-code` / checkpoint consistency guidance, when steps **8–9** are required for DIAG/TACTICS/report excerpts (refs **CORE-01**, **MODEL-*** , **PORT-01**, **DIAG-*** , **TACTICS-*** , **REPORT-01/02**). (completed 2026-03-21)
 
 ## Phase Details
 
@@ -201,7 +201,7 @@ Plans:
   2. Audit integration bullets mapped to explicit doc subsections (semantic drift, checkpoint freshness, extended pipeline).
 **Plans:** 1 plan
 Plans:
-- [ ] `16-v1-gap-e2e-integration-runbook-01-PLAN.md` — RUNBOOK.md + ARCHITECTURE pointer + 16-SUMMARY
+- [x] `16-v1-gap-e2e-integration-runbook-01-PLAN.md` — RUNBOOK.md + ARCHITECTURE pointer + 16-SUMMARY <done>
 
 ## Progress
 
@@ -222,5 +222,5 @@ Plans:
 | 13    | v1.0 Audit — Verify Phases 7–11         | 1/1            | Complete     | 2026-03-19   |
 | 14    | v1.0 Audit — Planning reconciliation     | 1/1            | Complete     | 2026-03-20   |
 | 15    | v1.0 Gap Closure — Regime ETF profiles & pinned names | 1/1 | Complete     | 2026-03-20   |
-| 16    | v1.0 Gap Closure — E2E runbook & integration contract | 0/1 | **Active**   | —            |
+| 16    | v1.0 Gap Closure — E2E runbook & integration contract | 1/1 | Complete     | 2026-03-21   |
 

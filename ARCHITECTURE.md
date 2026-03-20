@@ -5,6 +5,8 @@ don't accidentally break invariants that look arbitrary.
 
 ---
 
+**Operational runs:** Golden-path commands, checkpoint hygiene, and **`market_code`** discipline live in **[RUNBOOK.md](RUNBOOK.md)**.
+
 ## 1. Two Feature Files: `features.parquet` and `features_supervised.parquet`
 
 **Decision:** Step 2 produces two separate parquet files from the same raw data.
