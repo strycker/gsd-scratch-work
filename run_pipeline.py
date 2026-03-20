@@ -197,6 +197,32 @@ def _load_parquet(canonical_path: Path, checkpoint_name: str) -> "pd.DataFrame":
     return df
 
 
+def _repair_macro_raw_missing_columns(
+    combined: "pd.DataFrame",
+    required: set[str],
+    cm: "CheckpointManager",
+) -> tuple["pd.DataFrame", list[str]]:
+    """
+    When data/raw/macro_raw.parquet is missing columns (e.g. stale file vs checkpoint),
+    copy any available series from the ``macro_raw`` checkpoint so step 2 can run
+    without forcing a full --refresh ingest.
+    """
+    missing = sorted(required - set(combined.columns))
+    if not missing:
+        return combined, []
+    try:
+        ck = cm.load("macro_raw")
+    except FileNotFoundError:
+        return combined, []
+    out = combined.copy()
+    added: list[str] = []
+    for col in missing:
+        if col in ck.columns:
+            out[col] = ck[col].reindex(out.index)
+            added.append(col)
+    return out, added
+
+
 # ── market_code helpers ───────────────────────────────────────────────────────
 
 def _load_market_code(
@@ -291,10 +317,21 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
         if raw_path.exists():
             combined = pd.read_parquet(raw_path)
 
-            # Guardrail: some environments can end up with an incomplete cached macro_raw
-            # (e.g., interrupted scrape, earlier experimental checkpoint, etc.). If the
-            # required raw columns are missing, treat the cache as invalid and re-fetch.
+            # Guardrail: incomplete raw/macro_raw.parquet vs a fuller checkpoint snapshot.
+            # Prefer repairing from data/checkpoints/macro_raw.parquet before forcing network.
             missing = sorted(required_for_step2 - set(combined.columns))
+            repaired_cols: list[str] = []
+            if missing:
+                combined, repaired_cols = _repair_macro_raw_missing_columns(
+                    combined, required_for_step2, cm
+                )
+                if repaired_cols:
+                    log.info(
+                        "Step 1: restored %d macro_raw column(s) from checkpoint: %s",
+                        len(repaired_cols),
+                        repaired_cols,
+                    )
+                missing = sorted(required_for_step2 - set(combined.columns))
             if missing:
                 log.warning(
                     "Step 1: cached macro_raw is missing required columns (%d). "
@@ -304,6 +341,13 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
                 )
             else:
                 log.info("Step 1: using cached macro_raw checkpoint")
+                if repaired_cols:
+                    combined.to_parquet(raw_path)
+                    cm.save(combined, "macro_raw")
+                    log.info(
+                        "Step 1: wrote repaired macro_raw → %s (+ checkpoint refresh)",
+                        raw_path,
+                    )
                 # Still need to re-attach market_code if source changed
                 if run_cfg.market_code_source:
                     mc = _load_market_code(run_cfg.market_code_source, cfg)
@@ -367,10 +411,32 @@ def step2_features(cfg: dict, run_cfg: RunConfig) -> None:
     import pandas as pd
 
     cm = CheckpointManager()
+    feats_path = DATA_DIR / "processed" / "features.parquet"
+    sup_path = DATA_DIR / "processed" / "features_supervised.parquet"
 
-    if not run_cfg.recompute_derived_datasets and cm.is_fresh("features", max_age_days=7):
-        log.info("Step 2: using cached features checkpoint")
-        return
+    if not run_cfg.recompute_derived_datasets and cm.is_fresh(
+        "features", max_age_days=7, require_config_match=True
+    ):
+        have_files = feats_path.exists() and sup_path.exists()
+        if not have_files:
+            try:
+                f_df = cm.load("features")
+                fs_df = cm.load("features_supervised")
+            except FileNotFoundError:
+                f_df = fs_df = None
+            if f_df is not None and fs_df is not None:
+                feats_path.parent.mkdir(parents=True, exist_ok=True)
+                f_df.to_parquet(feats_path)
+                fs_df.to_parquet(sup_path)
+                log.info(
+                    "Step 2: materialized %s + %s from checkpoints",
+                    feats_path.name,
+                    sup_path.name,
+                )
+                have_files = True
+        if have_files:
+            log.info("Step 2: using cached features checkpoint")
+            return
 
     raw = _load_parquet(DATA_DIR / "raw" / "macro_raw.parquet", "macro_raw")
 
@@ -779,16 +845,35 @@ def step6_asset_returns(cfg: dict, run_cfg: RunConfig) -> None:
 
     labels = _load_parquet(DATA_DIR / "regimes" / "cluster_labels.parquet", "cluster_labels")["balanced_cluster"]
 
-    # Try yfinance first; fall back to cached parquet if present
+    # ETF prices: use data/raw snapshot first; restore from checkpoint if raw is missing;
+    # network fetch only when --refresh-assets or no valid local data.
     prices: pd.DataFrame | None = None
     cache_path = DATA_DIR / "raw" / "asset_prices.parquet"
+    raw_dir = DATA_DIR / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
-    if run_cfg.refresh_asset_prices or not cache_path.exists():
+    if not run_cfg.refresh_asset_prices and cache_path.exists():
+        prices = pd.read_parquet(cache_path)
+
+    if (
+        not run_cfg.refresh_asset_prices
+        and (prices is None or prices.empty)
+        and cm.is_fresh("asset_prices", max_age_days=7, require_config_match=True)
+    ):
         try:
-            prices = fetch_prices(cfg)
-            if not prices.empty:
-                raw_dir = DATA_DIR / "raw"
-                raw_dir.mkdir(parents=True, exist_ok=True)
+            ck_prices = cm.load("asset_prices")
+            if ck_prices is not None and not ck_prices.empty:
+                prices = ck_prices
+                prices.to_parquet(cache_path)
+                log.info("Step 6: restored asset_prices from checkpoint → %s", cache_path)
+        except FileNotFoundError:
+            pass
+
+    if run_cfg.refresh_asset_prices or prices is None or prices.empty:
+        try:
+            fetched = fetch_prices(cfg)
+            if fetched is not None and not fetched.empty:
+                prices = fetched
                 prices.to_parquet(cache_path)
                 cm.save(prices, "asset_prices")
         except Exception as exc:

@@ -64,3 +64,12 @@ human_verification:
 
 - 2026-03-19 — Phase 13 audit: initial `*-VERIFICATION.md` for roadmap Phase 11 (`gaps_found` on CORE-02 tests).
 - 2026-03-19 — CORE-02 closed: `tests/unit/test_end_date_null_fallback.py`; status → **passed**.
+
+## Test implementation note
+
+`test_end_date_null_fallback.py` loads `fred.py` / `assets.py` via `importlib` so collection does not import `trading_crab_lib`’s package `__init__` (which requires `python-dotenv`). FRED tests stub `fredapi` when the package is not installed; real installs use the live module.
+</think>
+
+
+<｜tool▁calls▁begin｜><｜tool▁call▁begin｜>
+Shell
