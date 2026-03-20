@@ -74,30 +74,21 @@ def main() -> None:
     cfg = load()
 
     labels = pd.read_parquet(DATA_DIR / "regimes" / "cluster_labels.parquet")["balanced_cluster"]
-    cache_path = DATA_DIR / "raw" / "asset_prices.parquet"
 
-    # ── 1. Try yfinance (only if --refresh-assets or no cache exists) ──────────
-    prices: pd.DataFrame | None = None
-    if refresh_assets or not cache_path.exists():
-        if not refresh_assets:
-            print(f"No cached ETF prices found at {cache_path} — fetching from yfinance ...")
-        try:
-            from trading_crab_lib.ingestion.assets import fetch_all as fetch_prices
-            prices = fetch_prices(cfg)
-            if not prices.empty:
-                cache_path.parent.mkdir(parents=True, exist_ok=True)
-                prices.to_parquet(cache_path)
-                print(f"Fetched {prices.shape} ETF prices via yfinance → cached to {cache_path}")
-        except Exception as exc:
-            log.warning("yfinance fetch failed: %s", exc)
-            print(f"yfinance unavailable: {exc}")
-    else:
-        print(f"Using cached ETF prices (pass --refresh-assets to re-fetch from yfinance).")
+    from trading_crab_lib.checkpoints import CheckpointManager
+    from trading_crab_lib.ingestion.assets import load_or_fetch_quarterly_prices
 
-    # ── 2. Fall back to cached parquet ─────────────────────────────────────────
-    if (prices is None or prices.empty) and cache_path.exists():
-        prices = pd.read_parquet(cache_path)
-        print(f"Loaded cached ETF prices: {prices.shape}")
+    cm = CheckpointManager()
+    ttl = float(cfg.get("data", {}).get("checkpoint_max_age_days", 7))
+    prices = load_or_fetch_quarterly_prices(
+        cfg,
+        data_dir=DATA_DIR,
+        refresh=refresh_assets,
+        cm=cm,
+        max_age_days=ttl,
+    )
+    if prices is not None and not prices.empty:
+        print(f"ETF prices ready: {prices.shape} (use --refresh-assets to re-fetch)")
 
     # ── 3. Compute returns ─────────────────────────────────────────────────────
     returns: pd.DataFrame | None = None

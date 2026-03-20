@@ -166,3 +166,6 @@ tests/test_pipelines_ingest_features.py
 After completion, ensure Phase 1 verification and any future `/gsd:verify-work` steps reference these constraint and pipeline tests as part of the standard validation checklist.
 </output>
 
+## PLANNING COMPLETE
+
+**Closed:** 2026-03-20 — Implementation matches `<verification>`; see `01-null-03-SUMMARY.md`. Quick check: `pytest tests/ -k "constraints_etf_universe or constraints_frequency or pipelines_ingest_features" -v`.

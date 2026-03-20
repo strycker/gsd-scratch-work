@@ -8,6 +8,11 @@ data:
   end_date:   null            # null → use today's date at runtime
   frequency:  "Q"             # quarterly resampling target
 
+  # Age in days for macro_raw, features, cluster_labels, and asset_prices cache hits
+  # (CheckpointManager.is_fresh). Increase for fewer automatic re-computes; use
+  # --refresh / --refresh-assets / --recompute to force.
+  checkpoint_max_age_days: 21
+
   # Remove the most-recent quarter from consideration for prediction/training
   # when it contains NaN in any feature column.  This happens naturally at
   # quarter-end because centered np.gradient cannot compute derivatives for

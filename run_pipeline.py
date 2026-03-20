@@ -7,7 +7,9 @@ RunConfig passed through every module.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  PIPELINE STEPS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  1  ingest         Scrape multpl.com (46 series) + FRED API → macro_raw.parquet
+  1  ingest         Scrape multpl.com (46 series) + FRED API → macro_raw.parquet;
+                     also loads ETF prices into ``data/raw/asset_prices.parquet``
+                     (same cache step 6 uses unless ``--refresh-assets``).
   2  features       Log transforms, derivatives, gap-fill → features.parquet
   3  cluster        PCA + KMeans → cluster_labels.parquet
   4  regime_label   Statistical profiling + human-readable names → profiles.parquet
@@ -21,8 +23,9 @@ RunConfig passed through every module.
  ALL CLI FLAGS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   --refresh            Re-scrape multpl.com + re-hit FRED API (~10 min).
-                       Without this flag, steps 1-2 load from cached checkpoints
-                       if they are less than 7 days old.
+                       Without this flag, steps 1–2 load from cached checkpoints
+                       if younger than ``data.checkpoint_max_age_days`` in
+                       ``config/settings.yaml`` (default 7; raise to refresh less often).
 
   --recompute          Recompute derived features (step 2) from cached raw data.
                        Use after editing config/settings.yaml feature lists or
@@ -223,6 +226,31 @@ def _repair_macro_raw_missing_columns(
     return out, added
 
 
+def _checkpoint_ttl_days(cfg: dict) -> float:
+    """Max age for macro_raw / features / cluster_labels / asset_prices cache hits."""
+    return float(cfg.get("data", {}).get("checkpoint_max_age_days", 7))
+
+
+def _sync_etf_prices_cache(cfg: dict, run_cfg: RunConfig, cm: "CheckpointManager") -> None:
+    """Fetch or reuse ETF prices during step 1 so later steps share one cache path."""
+    from trading_crab_lib.ingestion.assets import load_or_fetch_quarterly_prices
+
+    ttl = _checkpoint_ttl_days(cfg)
+    prices = load_or_fetch_quarterly_prices(
+        cfg,
+        data_dir=DATA_DIR,
+        refresh=run_cfg.refresh_asset_prices,
+        cm=cm,
+        max_age_days=ttl,
+    )
+    if prices is not None and not prices.empty:
+        log.info(
+            "Step 1: ETF price cache ready (%d quarters × %d tickers)",
+            len(prices),
+            len(prices.columns),
+        )
+
+
 # ── market_code helpers ───────────────────────────────────────────────────────
 
 def _load_market_code(
@@ -285,15 +313,20 @@ def _save_market_code(labels: "pd.Series", name: str) -> None:
 # ── Step registry ──────────────────────────────────────────────────────────────
 
 def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
-    """Scrape multpl.com + FRED → data/raw/macro_raw.parquet.
-    Optionally attaches a market_code column from the configured source."""
+    """Ingest macro + ETF prices → ``data/raw/``.
+
+    Writes ``macro_raw.parquet`` (FRED + multpl) and ``asset_prices.parquet`` (or
+    restores ETF data from checkpoint) so all network-heavy loading happens here.
+    Optionally attaches ``market_code`` from the configured source."""
     from trading_crab_lib.ingestion import fred as fred_module
     from trading_crab_lib.ingestion import multpl as multpl_module
+    from trading_crab_lib.ingestion.macro_partial import merge_missing_macro_columns
     from trading_crab_lib.checkpoints import CheckpointManager
     from trading_crab_lib import plotting
     import pandas as pd
 
     cm = CheckpointManager()
+    ttl = _checkpoint_ttl_days(cfg)
     required_for_step2 = {
         # Needed by transforms.add_cross_ratios() (cross-asset ratios)
         "dividend",
@@ -309,72 +342,86 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
         "sp500_adj",
     }
 
+    raw_path = DATA_DIR / "raw" / "macro_raw.parquet"
+
     if (
         not run_cfg.refresh_source_datasets
-        and cm.is_fresh("macro_raw", max_age_days=7, require_config_match=True)
+        and cm.is_fresh("macro_raw", max_age_days=ttl, require_config_match=True)
+        and raw_path.exists()
     ):
-        raw_path = DATA_DIR / "raw" / "macro_raw.parquet"
-        if raw_path.exists():
-            combined = pd.read_parquet(raw_path)
+        combined = pd.read_parquet(raw_path)
 
-            # Guardrail: incomplete raw/macro_raw.parquet vs a fuller checkpoint snapshot.
-            # Prefer repairing from data/checkpoints/macro_raw.parquet before forcing network.
+        missing = sorted(required_for_step2 - set(combined.columns))
+        repaired_cols: list[str] = []
+        dirty = False
+        if missing:
+            combined, repaired_cols = _repair_macro_raw_missing_columns(
+                combined, required_for_step2, cm
+            )
+            if repaired_cols:
+                log.info(
+                    "Step 1: restored %d macro_raw column(s) from checkpoint: %s",
+                    len(repaired_cols),
+                    repaired_cols,
+                )
+                dirty = True
             missing = sorted(required_for_step2 - set(combined.columns))
-            repaired_cols: list[str] = []
-            if missing:
-                combined, repaired_cols = _repair_macro_raw_missing_columns(
-                    combined, required_for_step2, cm
-                )
-                if repaired_cols:
+
+        if missing:
+            log.info(
+                "Step 1: cached macro_raw missing %d column(s); trying partial FRED/multpl merge: %s",
+                len(missing),
+                missing,
+            )
+            try:
+                before = set(combined.columns)
+                combined = merge_missing_macro_columns(combined, set(missing), cfg)
+                if set(combined.columns) != before:
+                    dirty = True
+            except Exception as exc:
+                log.warning("Step 1: partial macro ingest failed (%s)", exc)
+            missing = sorted(required_for_step2 - set(combined.columns))
+
+        if not missing:
+            log.info("Step 1: using cached macro_raw checkpoint")
+            if run_cfg.market_code_source:
+                mc = _load_market_code(run_cfg.market_code_source, cfg)
+                if mc is not None:
+                    combined["market_code"] = mc.reindex(combined.index)
+                    dirty = True
                     log.info(
-                        "Step 1: restored %d macro_raw column(s) from checkpoint: %s",
-                        len(repaired_cols),
-                        repaired_cols,
+                        "Step 1: refreshed market_code=%s in cached macro_raw",
+                        run_cfg.market_code_source,
                     )
-                missing = sorted(required_for_step2 - set(combined.columns))
-            if missing:
-                log.warning(
-                    "Step 1: cached macro_raw is missing required columns (%d). "
-                    "Re-fetching macro data even without --refresh. Missing: %s",
-                    len(missing),
-                    missing,
-                )
-            else:
-                log.info("Step 1: using cached macro_raw checkpoint")
-                if repaired_cols:
-                    combined.to_parquet(raw_path)
-                    cm.save(combined, "macro_raw")
-                    log.info(
-                        "Step 1: wrote repaired macro_raw → %s (+ checkpoint refresh)",
-                        raw_path,
-                    )
-                # Still need to re-attach market_code if source changed
-                if run_cfg.market_code_source:
-                    mc = _load_market_code(run_cfg.market_code_source, cfg)
-                    if mc is not None:
-                        combined["market_code"] = mc.reindex(combined.index)
-                        combined.to_parquet(raw_path)
-                        cm.save(combined, "macro_raw")
-                        log.info(
-                            "Step 1: refreshed market_code=%s in cached macro_raw",
-                            run_cfg.market_code_source,
-                        )
-                return
-        else:
-            log.info("Step 1: macro_raw.parquet missing — recomputing ingestion")
+            if dirty:
+                combined.to_parquet(raw_path)
+                cm.save(combined, "macro_raw")
+                log.info("Step 1: wrote updated macro_raw → %s", raw_path)
+            _sync_etf_prices_cache(cfg, run_cfg, cm)
+            return
+
+        log.warning(
+            "Step 1: macro_raw still missing required columns (%d) after partial merge — "
+            "full FRED + multpl fetch. Missing: %s",
+            len(missing),
+            missing,
+        )
+    elif not raw_path.exists():
+        log.info("Step 1: macro_raw.parquet missing — recomputing ingestion")
 
     log.info("Step 1: fetching FRED data …")
     fred_df = fred_module.fetch_all(cfg)
 
-    log.info("Step 1: scraping multpl.com (%d series) …",
-             len(cfg["multpl"]["datasets"]))
+    log.info(
+        "Step 1: scraping multpl.com (%d series) …",
+        len(cfg["multpl"]["datasets"]),
+    )
     multpl_df = multpl_module.fetch_all(cfg)
 
     combined = fred_df.join(multpl_df, how="outer") if not multpl_df.empty else fred_df
     start = cfg["data"]["start_date"]
     combined = combined[combined.index >= start]
 
-    # Optionally attach market_code
     if run_cfg.market_code_source:
         mc = _load_market_code(run_cfg.market_code_source, cfg)
         if mc is not None:
@@ -391,12 +438,22 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
     combined.to_parquet(raw_dir / "macro_raw.parquet")
     cm.save(combined, "macro_raw")
 
+    _sync_etf_prices_cache(cfg, run_cfg, cm)
+
     if run_cfg.generate_plots:
         plotting.plot_raw_series_coverage(combined, run_cfg)
-        # Sample a handful of economically meaningful raw series for a quick QC chart
-        sample_series = [c for c in [
-            "sp500", "fred_gdp", "us_infl", "10yr_ustreas", "div_yield", "fred_baa",
-        ] if c in combined.columns]
+        sample_series = [
+            c
+            for c in [
+                "sp500",
+                "fred_gdp",
+                "us_infl",
+                "10yr_ustreas",
+                "div_yield",
+                "fred_baa",
+            ]
+            if c in combined.columns
+        ]
         if sample_series:
             plotting.plot_raw_series_sample(combined, sample_series, run_cfg)
 
@@ -413,9 +470,10 @@ def step2_features(cfg: dict, run_cfg: RunConfig) -> None:
     cm = CheckpointManager()
     feats_path = DATA_DIR / "processed" / "features.parquet"
     sup_path = DATA_DIR / "processed" / "features_supervised.parquet"
+    ttl = _checkpoint_ttl_days(cfg)
 
     if not run_cfg.recompute_derived_datasets and cm.is_fresh(
-        "features", max_age_days=7, require_config_match=True
+        "features", max_age_days=ttl, require_config_match=True
     ):
         have_files = feats_path.exists() and sup_path.exists()
         if not have_files:
@@ -492,6 +550,7 @@ def step3_cluster(cfg: dict, run_cfg: RunConfig, save_market_code: bool = False)
 
     cm = CheckpointManager()
     clust_cfg = cfg["clustering"]
+    ttl = _checkpoint_ttl_days(cfg)
 
     features = _load_parquet(DATA_DIR / "processed" / "features.parquet", "features")
     X = features.drop(columns=["market_code"], errors="ignore").dropna()
@@ -546,7 +605,7 @@ def step3_cluster(cfg: dict, run_cfg: RunConfig, save_market_code: bool = False)
     # Backfill fallback caching (age-based) when manifest doesn't exist (older runs).
     if (
         not run_cfg.recompute_derived_datasets
-        and cm.is_fresh("cluster_labels", max_age_days=7, require_config_match=True)
+        and cm.is_fresh("cluster_labels", max_age_days=ttl, require_config_match=True)
     ):
         log.info("Step 3: using cached cluster_labels checkpoint (age/config ok)")
         return
@@ -826,9 +885,11 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
 
 
 def step6_asset_returns(cfg: dict, run_cfg: RunConfig) -> None:
-    """Fetch ETF prices via yfinance → data/regimes/asset_return_profile.parquet.
-    Falls back to macro-data proxy returns when yfinance is unavailable."""
-    from trading_crab_lib.ingestion.assets import fetch_all as fetch_prices
+    """Compute ETF / proxy returns by regime → ``data/regimes/asset_return_profile.parquet``.
+
+    ETF prices are normally loaded in step 1; this step reuses
+    ``data/raw/asset_prices.parquet`` unless ``--refresh-assets`` is set."""
+    from trading_crab_lib.ingestion.assets import load_or_fetch_quarterly_prices
     from trading_crab_lib.asset_returns import (
         behavior_tables,
         compute_quarterly_returns,
@@ -842,45 +903,17 @@ def step6_asset_returns(cfg: dict, run_cfg: RunConfig) -> None:
     import pandas as pd
 
     cm = CheckpointManager()
+    ttl = _checkpoint_ttl_days(cfg)
 
     labels = _load_parquet(DATA_DIR / "regimes" / "cluster_labels.parquet", "cluster_labels")["balanced_cluster"]
 
-    # ETF prices: use data/raw snapshot first; restore from checkpoint if raw is missing;
-    # network fetch only when --refresh-assets or no valid local data.
-    prices: pd.DataFrame | None = None
-    cache_path = DATA_DIR / "raw" / "asset_prices.parquet"
-    raw_dir = DATA_DIR / "raw"
-    raw_dir.mkdir(parents=True, exist_ok=True)
-
-    if not run_cfg.refresh_asset_prices and cache_path.exists():
-        prices = pd.read_parquet(cache_path)
-
-    if (
-        not run_cfg.refresh_asset_prices
-        and (prices is None or prices.empty)
-        and cm.is_fresh("asset_prices", max_age_days=7, require_config_match=True)
-    ):
-        try:
-            ck_prices = cm.load("asset_prices")
-            if ck_prices is not None and not ck_prices.empty:
-                prices = ck_prices
-                prices.to_parquet(cache_path)
-                log.info("Step 6: restored asset_prices from checkpoint → %s", cache_path)
-        except FileNotFoundError:
-            pass
-
-    if run_cfg.refresh_asset_prices or prices is None or prices.empty:
-        try:
-            fetched = fetch_prices(cfg)
-            if fetched is not None and not fetched.empty:
-                prices = fetched
-                prices.to_parquet(cache_path)
-                cm.save(prices, "asset_prices")
-        except Exception as exc:
-            log.warning("yfinance fetch failed: %s", exc)
-
-    if (prices is None or prices.empty) and cache_path.exists():
-        prices = pd.read_parquet(cache_path)
+    prices = load_or_fetch_quarterly_prices(
+        cfg,
+        data_dir=DATA_DIR,
+        refresh=run_cfg.refresh_asset_prices,
+        cm=cm,
+        max_age_days=ttl,
+    )
 
     # Compute returns: use real ETF prices when available, macro proxies otherwise
     returns: pd.DataFrame | None = None

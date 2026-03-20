@@ -54,8 +54,13 @@ from __future__ import annotations
 
 import logging
 from datetime import date
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pandas as pd
+
+if TYPE_CHECKING:
+    from trading_crab_lib.checkpoints import CheckpointManager
 
 log = logging.getLogger(__name__)
 
@@ -474,3 +479,59 @@ def fetch_all(cfg: dict) -> pd.DataFrame:
         100 * df.notna().mean().mean(),
     )
     return df
+
+
+def load_or_fetch_quarterly_prices(
+    cfg: dict,
+    *,
+    data_dir: Path,
+    refresh: bool,
+    cm: CheckpointManager,
+    max_age_days: float,
+) -> pd.DataFrame | None:
+    """
+    Load ``data_dir/raw/asset_prices.parquet``, restore from the ``asset_prices``
+    checkpoint when allowed, or call ``fetch_all``.  Shared by step 1 (ingest-all)
+    and step 6 (returns).
+
+    Returns ``None`` when no usable price matrix exists (caller may fall back to
+    macro proxies).
+    """
+    cache_path = data_dir / "raw" / "asset_prices.parquet"
+    raw_dir = data_dir / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    prices: pd.DataFrame | None = None
+    if not refresh and cache_path.exists():
+        prices = pd.read_parquet(cache_path)
+
+    if (
+        not refresh
+        and (prices is None or prices.empty)
+        and cm.is_fresh("asset_prices", max_age_days=max_age_days, require_config_match=True)
+    ):
+        try:
+            ck_prices = cm.load("asset_prices")
+            if ck_prices is not None and not ck_prices.empty:
+                prices = ck_prices
+                prices.to_parquet(cache_path)
+                log.info("Restored asset_prices from checkpoint → %s", cache_path)
+        except FileNotFoundError:
+            pass
+
+    if refresh or prices is None or prices.empty:
+        try:
+            fetched = fetch_all(cfg)
+            if fetched is not None and not fetched.empty:
+                prices = fetched
+                prices.to_parquet(cache_path)
+                cm.save(prices, "asset_prices")
+        except Exception as exc:
+            log.warning("ETF price fetch failed: %s", exc)
+
+    if (prices is None or prices.empty) and cache_path.exists():
+        prices = pd.read_parquet(cache_path)
+
+    if prices is None or prices.empty:
+        return None
+    return prices
