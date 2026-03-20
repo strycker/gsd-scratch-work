@@ -217,7 +217,7 @@ These IDs tie **ROADMAP** Phases 7–11 to the same requirement vocabulary used 
 
 - **CORE-02 — Null end_date handling**
   - **Description**: `data.end_date: null` in YAML resolves to “today” for ingestion windows.
-  - **Details**: `trading_crab_lib.ingestion.fred` and `ingestion.assets`; **unit test coverage still pending** (see Phase 11 verification).
+  - **Details**: `trading_crab_lib.ingestion.fred` and `ingestion.assets`; covered by `tests/unit/test_end_date_null_fallback.py`.
 
 ---
 
@@ -230,7 +230,7 @@ These IDs tie **ROADMAP** Phases 7–11 to the same requirement vocabulary used 
 
 ## Traceability
 
-> **Gap closure (v1.0 audit):** `$gsd-plan-milestone-gaps` added **Phases 12–14** (see `.planning/ROADMAP.md`). **Phase 12** closed PORT/UX/REPORT (`04`–`06` verification). **Phase 13** (2026-03-19) added §8 narrative + traceability for Phase 7–11 IDs; **CORE-02** stays **Pending** until a unit test covers `end_date: null` → today (see `11-core-cleanup-VERIFICATION.md`).
+> **Gap closure (v1.0 audit):** `$gsd-plan-milestone-gaps` added **Phases 12–14** (see `.planning/ROADMAP.md`). **Phase 12** closed PORT/UX/REPORT (`04`–`06` verification). **Phase 13** (2026-03-19) added §8 narrative + traceability for Phase 7–11 IDs; **CORE-02** closed with `tests/unit/test_end_date_null_fallback.py`.
 
 | Requirement | Phase  | Status  |
 |------------|--------|---------|
@@ -264,7 +264,7 @@ These IDs tie **ROADMAP** Phases 7–11 to the same requirement vocabulary used 
 | TACTICS-03 | Phase 13 | Complete |
 | INSTALL-10 | Phase 13 | Complete |
 | CORE-01    | Phase 13 | Complete |
-| CORE-02    | Phase 13 | Pending |
+| CORE-02    | Phase 13 | Complete |
 
 ---
 

@@ -1,30 +1,26 @@
 ---
 phase: 11-core-cleanup
 verified: 2026-03-19T00:00:00Z
-status: gaps_found
-score: 2/3 roadmap success themes fully verified in automated tests (CORE-01 ✓, import style ✓, CORE-02 partial)
+status: passed
+score: 3/3 roadmap success themes (CORE-01 ✓, CORE-02 ✓, import style ✓)
 human_verification:
   - test: "Set data.end_date: null in settings.yaml; run ingestion paths (mock or live)"
     expected: "FRED and yfinance calls use today's calendar date as end bound."
     why_human: "Confirms runtime behavior beyond static code read."
-gaps_found:
-  - id: CORE-02-tests
-    detail: "No dedicated unit test asserts `cfg['data']['end_date'] is None` → end string equals `date.today()` in FRED/ETF fetchers (implementation present; coverage gap)."
-    next_action: "Add tests that monkeypatch `date.today` or pass cfg with null end_date into ingest helpers."
 ---
 
 # Phase 11: Core Cleanup & Env Sanity — Verification
 
 **Phase goal (ROADMAP):** Predictable directories, null-safe `end_date`, consistent modern imports.  
 **Audit closure:** Phase 13 — evidence for CORE-01, CORE-02 (+ import convention).  
-**Status:** **gaps_found** — **CORE-02** implementation verified in source; **automated test** for null `end_date` **missing**.
+**Status:** **passed**.
 
 ## Requirement coverage
 
 | ID | Description | Status | Evidence |
 |----|-------------|--------|----------|
 | CORE-01 | `data/` and `outputs/` subtrees created by setup or pipeline | ✓ | `scripts/setup.sh` creates `data/raw`, `data/processed`, `data/regimes`, `data/checkpoints`, `outputs/plots`, `outputs/models`, `outputs/reports`. `run_pipeline.py` / steps use `mkdir(parents=True, exist_ok=True)` for `raw`, `processed`, `regimes`, `models`, `reports`, diagnostics dirs, etc. |
-| CORE-02 | `data.end_date` null → effective “today”; **tested** | **partial** | **Implementation:** `trading_crab_lib.ingestion.fred` uses `end = cfg["data"]["end_date"] or str(date.today())`. `trading_crab_lib.ingestion.assets` uses same pattern for ETF fetch. **Tests:** repository `tests/` grep shows **no** `end_date` null/today assertion tied to ingestion (gap). |
+| CORE-02 | `data.end_date` null → effective “today”; **tested** | ✓ | **Implementation:** `trading_crab_lib.ingestion.fred` and `ingestion.assets` use `end = cfg["data"]["end_date"] or str(date.today())`. **Tests:** `tests/unit/test_end_date_null_fallback.py` patches `date.today`, asserts `observation_end` / `_batch_yfinance` `end` match fixed “today”; regression tests for explicit `end_date`. |
 | (ROADMAP §3) | `from __future__ import annotations` consistency in key modules | ✓ | Convention followed across `trading_crab_lib` sources and many `tests/*` files (spot-check + grep patterns in test suite). |
 
 ## Code references (CORE-02)
@@ -36,7 +32,7 @@ gaps_found:
 
 | Test file | CORE-02 |
 |-----------|---------|
-| *(none)* | Add `tests/unit/test_end_date_fallback.py` or extend ingest tests |
+| `tests/unit/test_end_date_null_fallback.py` | FRED + assets fetch window end when `end_date` is `None` vs explicit string |
 
 ## `key_links`
 
@@ -49,17 +45,15 @@ gaps_found:
 ## Summary for auditors
 
 - **CORE-01:** **passed** — scripts + pipeline create expected layout.  
-- **CORE-02:** **gaps_found** for **test coverage** only; runtime behavior matches ROADMAP intent in code.  
+- **CORE-02:** **passed** — code + dedicated unit tests.  
 - **Import style:** **passed** — aligned with project conventions.
-
-After adding a focused unit test for null `end_date`, this document’s frontmatter can move to `status: passed` and `REQUIREMENTS.md` CORE-02 row to **Complete**.
 
 ## Evidence checklist (audit)
 
 - [x] `scripts/setup.sh` provisions canonical `data/` + `outputs/` paths.
 - [x] Pipeline steps create canonical dirs opportunistically (`run_pipeline.py` / step implementations).
 - [x] `end_date or today` idiom present in FRED and assets ingestion.
-- [ ] Unit test locking null `end_date` behavior (missing — see `gaps_found`).
+- [x] Unit tests lock null `end_date` behavior (`test_end_date_null_fallback.py`).
 
 ## Related documentation
 
@@ -69,3 +63,4 @@ After adding a focused unit test for null `end_date`, this document’s frontmat
 ## Revision history
 
 - 2026-03-19 — Phase 13 audit: initial `*-VERIFICATION.md` for roadmap Phase 11 (`gaps_found` on CORE-02 tests).
+- 2026-03-19 — CORE-02 closed: `tests/unit/test_end_date_null_fallback.py`; status → **passed**.
