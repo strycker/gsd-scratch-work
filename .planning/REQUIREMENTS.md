@@ -231,6 +231,8 @@ These IDs tie **ROADMAP** Phases 7–11 to the same requirement vocabulary used 
 ## Traceability
 
 > **Gap closure (v1.0 audit):** `$gsd-plan-milestone-gaps` added **Phases 12–14** (see `.planning/ROADMAP.md`). **Phase 12** closed PORT/UX/REPORT (`04`–`06` verification). **Phase 13** (2026-03-19) added §8 narrative + traceability for Phase 7–11 IDs; **CORE-02** closed with `tests/unit/test_end_date_null_fallback.py`.
+>
+> **Gap closure (audit `gaps_found` 2026-03-20):** **Phase 15** tracks **REGIME-02** / **REGIME-03** through `passed` verification. **Phase 16** tracks **integration** runbook/doc work (audit `gaps.integration`); listed requirement IDs remain **Complete** in this table until Phase 16 artifacts explicitly supersede narrative evidence.
 
 | Requirement | Phase  | Status  |
 |------------|--------|---------|
@@ -238,8 +240,8 @@ These IDs tie **ROADMAP** Phases 7–11 to the same requirement vocabulary used 
 | DATA-02    | Phase 1 | Complete |
 | DATA-03    | Phase 1 | Complete |
 | REGIME-01  | Phase 2 | Complete |
-| REGIME-02  | Phase 2 | Complete |
-| REGIME-03  | Phase 2 | Complete |
+| REGIME-02  | Phase 15 | Pending |
+| REGIME-03  | Phase 15 | Pending |
 | MODEL-01   | Phase 3 | Complete |
 | MODEL-02   | Phase 3 | Complete |
 | MODEL-03   | Phase 3 | Complete |

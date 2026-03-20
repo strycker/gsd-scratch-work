@@ -2,7 +2,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Data & Constraints Foundations** - Establish ETF-only, non-intraday data universe with checkpointed, causal-aware feature pipeline.
+- [x] **Phase 1: Data & Constraints Foundations** - Establish ETF-only, non-intraday data universe with checkpointed, causal-aware feature pipeline. (completed 2026-03-20)
 - [x] **Phase 2: Regime Clustering & Interpretation** - Derive stable, interpretable market regimes and descriptive profiles. (completed 2026-03-16)
 - [x] **Phase 3: Supervised Regime & Behavior Models** - Train and evaluate models for current and forward regimes and ETF/portfolio behavior. (completed 2026-03-19)
 - [x] **Phase 4: Regime-Conditional ETF & Portfolio Behavior** - Quantify ETF and portfolio performance characteristics by regime. (completed 2026-03-17)
@@ -16,6 +16,8 @@
 - [x] **Phase 12: v1.0 Audit — Verify Phases 4–6 (PORT / UX / REPORT)** — Close `.planning/v1.0-MILESTONE-AUDIT.md` requirement gaps with formal `*-VERIFICATION.md` and traceability evidence. (completed 2026-03-19)
 - [x] **Phase 13: v1.0 Audit — Verify Phases 7–11** — Author missing phase `*-VERIFICATION.md` files and map roadmap success criteria to tests/artifacts. (completed 2026-03-19)
 - [x] **Phase 14: v1.0 Audit — Planning reconciliation** — Align ROADMAP vs REQUIREMENTS, refresh `STATE.md`, fix stale verification paths (`trading_crab_lib`), reconcile Phase 2 verification vs validation. (completed 2026-03-20)
+- [ ] **Phase 15: v1.0 Gap Closure — Regime ETF profiles & pinned names** — Close `$gsd-audit-milestone` **REGIME-02** / **REGIME-03** (ETF statistics in or alongside `profiles.parquet`; pin `config/regime_labels.yaml`; refresh Phase 2 `*-VERIFICATION.md` toward `passed`).
+- [ ] **Phase 16: v1.0 Gap Closure — E2E runbook & integration contract** — Address audit **integration** findings: documented golden-path pipeline recipe, `--market-code` / checkpoint consistency guidance, when steps **8–9** are required for DIAG/TACTICS/report excerpts (refs **CORE-01**, **MODEL-*** , **PORT-01**, **DIAG-*** , **TACTICS-*** , **REPORT-01/02**).
 
 ## Phase Details
 
@@ -30,12 +32,10 @@
   4. All data ingestion, features, and models operate strictly on ETFs (including bitcoin via ETF) with no single stocks or direct crypto, and no intraday or auto-trading behavior is introduced (CONSTR-01, CONSTR-02).
 **Plans**: 3 plans
 
-> **Note:** `REQUIREMENTS.md` marks DATA-01..DATA-03 and CONSTR-01..CONSTR-02 **Complete** with evidence in `01-null-VERIFICATION.md`. This roadmap line stays `[ ]` and Progress shows **2/3** until `01-null-03-PLAN.md` is formally closed in GSD tracking, even though requirement traceability is already satisfied.
-
 Plans:
 - [x] `.planning/phases/01-null/01-null-01-PLAN.md` — ingestion, checkpoints, macro + ETF wiring
 - [x] `.planning/phases/01-null/01-null-02-PLAN.md` — dual causal / non-causal feature artifacts
-- [ ] `.planning/phases/01-null/01-null-03-PLAN.md` — constraint + pipeline smoke tests (open in GSD inventory)
+- [x] `.planning/phases/01-null/01-null-03-PLAN.md` — constraint + pipeline smoke tests <done> (see `01-null-03-SUMMARY.md`; `pytest` subset green)
 
 ### Phase 2: Regime Clustering & Interpretation
 **Goal**: Produce a small, stable set of interpretable market regimes with reproducible profiles and names that downstream models and users can rely on.
@@ -178,11 +178,32 @@ Plans:
 Plans:
 - [x] `14-v1-audit-planning-reconciliation-01-PLAN.md` — documentation reconciliation (ROADMAP / REQUIREMENTS / STATE + VERIFICATION path refresh) <done>
 
+### Phase 15: v1.0 Gap Closure — Regime ETF profiles & pinned names
+**Goal:** Satisfy **REGIME-02** and **REGIME-03** at the evidence level called out in `.planning/v1.0-MILESTONE-AUDIT.md` (Phase 2 `VERIFICATION.md` no longer `gaps_found` for those truths).
+**Depends on:** Phase 2 original work complete; Phase 4+ artifacts available for ETF-by-regime statistics if extending `profiles.parquet` or adding a documented parallel artifact.
+**Requirements:** REGIME-02, REGIME-03
+**Gap closure:** `gaps.requirements` from `$gsd-audit-milestone` (2026-03-20).
+**Success criteria:**
+  1. ETF return (or return-summary) statistics by regime are reproducible and cited from a **single agreed artifact** (`profiles.parquet` extension and/or e.g. `etf_behavior_by_regime.parquet` cross-linked in VERIFICATION).
+  2. `config/regime_labels.yaml` contains **pinned** cluster-ID → name mappings for the current production clustering config (not comments only).
+  3. `02-regime-clustering-interpretation-VERIFICATION.md` updated; human visual regime check documented (notebook/plot refs) if still required.
+**Plans:** 0 plans (use `$gsd-plan-phase 15`)
+
+### Phase 16: v1.0 Gap Closure — E2E runbook & integration contract
+**Goal:** Close **integration** gaps from the same audit without re-opening unrelated requirement rows: one **golden-path** doc, **market_code** / checkpoint discipline, and clarity on **steps 1–7 vs 8–9**.
+**Depends on:** Phase 15 optional in parallel; prefers Phase 3–7 familiarity.
+**Requirements (evidence targets, traceability unchanged unless extended):** CORE-01, MODEL-01–MODEL-04, REGIME-03, PORT-01, DIAG-01, DIAG-02, TACTICS-01, TACTICS-02, REPORT-01, REPORT-02 — satisfied in docs + links; no automatic `Pending` flip except via explicit follow-up.
+**Gap closure:** `gaps.integration` from `$gsd-audit-milestone`.
+**Success criteria:**
+  1. New or updated doc under `.planning/` or repo root (e.g. `RUNBOOK.md` or `ARCHITECTURE.md` section) describes a **repeatable** full run (flags, `--market-code`, when to `--recompute` / `--refresh`, post–re-cluster YAML checklist).
+  2. Audit integration bullets mapped to explicit doc subsections (semantic drift, checkpoint freshness, extended pipeline).
+**Plans:** 0 plans (use `$gsd-plan-phase 16`)
+
 ## Progress
 
 | Phase | Name                                      | Plans Complete | Status       | Completed    |
 |-------|-------------------------------------------|----------------|--------------|--------------|
-| 1     | Data & Constraints Foundations            | 2/3            | In Progress  | -            |
+| 1     | Data & Constraints Foundations            | 3/3            | Complete     | 2026-03-20   |
 | 2     | Regime Clustering & Interpretation        | 2/2            | Complete     | 2026-03-16   |
 | 3     | Supervised Regime & Behavior Models       | 4/4            | Complete     | 2026-03-19   |
 | 4     | Regime-Conditional ETF & Portfolio Behavior | 0/0          | Complete     | 2026-03-17   |
@@ -196,4 +217,6 @@ Plans:
 | 12    | v1.0 Audit — Verify Phases 4–6            | 1/1            | Complete     | 2026-03-19   |
 | 13    | v1.0 Audit — Verify Phases 7–11         | 1/1            | Complete     | 2026-03-19   |
 | 14    | v1.0 Audit — Planning reconciliation     | 1/1            | Complete     | 2026-03-20   |
+| 15    | v1.0 Gap Closure — Regime ETF profiles & pinned names | 0/? | **Active**   | —            |
+| 16    | v1.0 Gap Closure — E2E runbook & integration contract | 0/? | **Planned**  | —            |
 
