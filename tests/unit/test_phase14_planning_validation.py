@@ -53,8 +53,14 @@ def test_state_points_at_phase14_not_stale_phase3() -> None:
         or "current_phase: 15" in md
         or "current_phase: 16" in md
         or "current_phase: null" in md
+        or "current_phase: 17" in md
+        or "current_phase: 18" in md
+        or "current_phase: 19" in md
+        or "current_phase: 20" in md
+        or "current_phase: 21" in md
+        or "current_phase: 22" in md
     )
-    assert acceptable, "STATE.md should not be stuck on early phases; expected 14–16 or null (post v1.0)"
+    assert acceptable, "STATE.md should not be stuck on early phases; expected 14–22, or null (between milestones)"
 
 
 def test_early_verification_bodies_use_trading_crab_lib_paths() -> None:

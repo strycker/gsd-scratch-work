@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: tactics-triggers-expanded-signals
-current_phase: null
+current_phase: 17
 current_plan: null
-status: planning_next_milestone
-stopped_at: "$gsd-complete-milestone v1.0 — archived 2026-03-20"
-last_updated: "2026-03-21T12:00:00.000Z"
+status: ready_to_plan
+stopped_at: "$gsd-new-milestone — v1.2 REQUIREMENTS + ROADMAP (phases 17–22)"
+last_updated: "2026-03-21T20:00:00.000Z"
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -29,17 +29,17 @@ previous_milestone:
 
 ## Current position
 
-- **Shipped:** **v1.0** — 16 phases, planning evidence + `RUNBOOK.md` + verification/audit closure (see `.planning/milestones/v1.0-*`).
-- **Next:** **`$gsd-new-milestone`** to author **v1.2** roadmap and requirements (phase numbering from **17**).
+- **Milestone:** **v1.2** — Tactics, triggers, expanded signals.
+- **Roadmap:** Phases **17–22** defined in **`.planning/ROADMAP.md`**; requirements in **`.planning/REQUIREMENTS.md`**.
+- **Next:** Run **`$gsd-discuss-phase`** / **`$gsd-plan-phase`** with argument **`17`** — first v1.2 workstream: expanded macro & yield data (**DATA-10**).
 
 ## Milestone alignment
 
 | Milestone | Role in PROJECT.md | `.planning/` status |
 |-----------|--------------------|---------------------|
 | **v1.0** | Core pipeline + planning evidence | ✅ Archived under `milestones/` |
-| **v1.2** | Tactics, triggers, expanded signals | 📋 Not started |
+| **v1.2** | Tactics, triggers, expanded signals | 🚧 Roadmap + requirements defined |
 
 ## Session
 
 - **Last updated:** 2026-03-21
-- **Git tag:** `v1.0` (create locally if missing; push when ready)

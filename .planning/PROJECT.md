@@ -136,30 +136,25 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 ## Milestone model (aligned with GSD)
 
+## Current Milestone: v1.2 — Tactics, Triggers & Expanded Signals
+
+**Goal:** Deepen regime-aware analysis into **actionable tactics**—more macro and cross-asset signals, stronger models (boosted + interpretable trees), richer diagnostics, optional email delivery, and safer optional data providers.
+
+**Target features:** See **`.planning/REQUIREMENTS.md`** (REQ-IDs **DATA-10/11**, **SIGNAL-10/11**, **MODEL-10/11**, **TACTICS-10**, **EMAIL-10**, **INSTALL-20**). Roadmap phases **17–22** in **`.planning/ROADMAP.md`**.
+
+**Next step:** **`$gsd-discuss-phase 17`** or **`$gsd-plan-phase 17`**.
+
+---
+
 ### v1.0 — Core pipeline + planning evidence (**shipped**)
 
 **Status:** ✅ **Complete** — **2026-03-20** (git tag **`v1.0`**). Full roadmap, requirements, and audit: **`.planning/milestones/v1.0-ROADMAP.md`**, **`v1.0-REQUIREMENTS.md`**, **`v1.0-MILESTONE-AUDIT.md`**. Ledger: **`.planning/MILESTONES.md`**.
 
-### v1.2 — Tactics, Triggers & Expanded Signals (**current** milestone)
+### v1.2 — narrative themes (detail in REQUIREMENTS)
 
-**Status:** **Not yet** split into new phases on **`.planning/ROADMAP.md`**. Start with **`$gsd-new-milestone`** (phase numbering continues from **17**).
-
-**Goal:** Deepen Trading-Crab from regime-aware strategy into actionable tactics by expanding data sources, adding richer signals (ratios, correlations, differential-equation-style views), upgrading models, and wiring the weekly report all the way to email delivery.
-
-**Target features (high level):**
-- **Email delivery first (D):** Simple SMTP-based sending of the weekly report (e.g. via Gmail) with email address and SMTP credentials stored in a local, non-committed config file.
-- **More macro + ratios (A):** Additional FRED series (e.g. VIX, UNRATE, M2, yield-curve spreads) and derived triggers/ratios such as Lumber:Gold and Saylor↔Schiff-style signals, Oil:Gold, Oil:Bonds, Bonds:Gold, etc., surfaced as diagnostic plots/tables first.
-- **Richer models (B):** Add XGBoost / LightGBM (or similar) alongside RF/DT for regime and forward-return prediction, using non-forward-looking features including correlations, ratios, and higher-order derivatives; always also fit a simple DecisionTree on top RF features and visualize it for human review.
-- **Tactics layer (C):** Classify assets into buy-and-hold vs swing-trade vs stand-aside based on volatility at different time scales, trend slope, and correlations, with a focus on weekly entries and multi-day holds, anchored-VWAP-style stop-loss ideas, and soft constraints (no strict enforcement).
-- **More assets/APIs:** Broaden ETF/asset coverage (REITs and other investable exposures beyond current broker-specific lists) and evaluate/plug in additional data providers where practical (e.g. stooq, and—optionally and safely—other APIs the user has access to such as finviz Elite), while preserving the existing pipeline’s integrity.
-
-At each step of the pipeline, v1.2 should encourage answers to:
-- **Is now a good time to invest at all (vs cash)?**
-- **If yes, in what (cash vs stocks vs bonds vs gold vs energy/commodities)?**
-- **What should be done now (tactics) and on what horizon?**
-- **What human review is helpful here (plots, trees, triggers), and can it be toggled via a flag?**
+Product questions v1.2 keeps answering: *Is now a good time to invest (vs cash)? In what sleeves? What tactics on what horizon? What plots/trees/triggers deserve human review?* — all mapped to REQ-IDs above.
 
 ---
 
-*Last updated: 2026-03-21 — v1.0 shipped and archived; v1.2 is next planning cycle*
+*Last updated: 2026-03-21 — `$gsd-new-milestone`: v1.2 requirements + roadmap (phases 17–22)*
 
