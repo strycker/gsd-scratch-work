@@ -189,6 +189,7 @@ def main() -> None:
             recommendations,
             tm.loc[current_regime] if current_regime in tm.index else None,
             report_dir / "weekly_report.md",
+            cfg=cfg,
         )
         print(f"\nReports saved to {report_dir}")
 

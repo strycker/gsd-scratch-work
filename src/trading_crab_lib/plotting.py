@@ -737,3 +737,69 @@ def plot_asset_return_distributions(
     ax.grid(alpha=0.3)
     fig.tight_layout()
     _save_or_show(fig, f"06_returns_dist_{ticker}.png", run_cfg)
+
+
+# ── Step 08: Diagnostics (ratios + RRG) ─────────────────────────────────────────
+
+def plot_diagnostics_ratios_summary(ratios_df: pd.DataFrame, run_cfg: RunConfig) -> None:
+    """Bar chart of |latest_zscore| by configured ratio name."""
+    if ratios_df.empty or not run_cfg.generate_plots:
+        return
+    need = {"name", "latest_zscore"}
+    if not need <= set(ratios_df.columns):
+        return
+    df = ratios_df.dropna(subset=["latest_zscore"]).copy()
+    if df.empty:
+        return
+    df["abs_z"] = df["latest_zscore"].abs()
+    df = df.sort_values("abs_z", ascending=True)
+    fig, ax = plt.subplots(figsize=(9, max(3.0, 0.35 * len(df))))
+    ax.barh(df["name"].astype(str), df["abs_z"], color="#2a6f97")
+    ax.set_xlabel("|Z-score| (full-sample)")
+    ax.set_title("Cross-asset ratio extremes (diagnostic)", fontsize=12)
+    ax.grid(axis="x", alpha=0.3)
+    fig.tight_layout()
+    _save_or_show(fig, "08_diagnostics_ratios.png", run_cfg)
+
+
+def plot_diagnostics_rrg(rrg_df: pd.DataFrame, run_cfg: RunConfig) -> None:
+    """Scatter RS-ratio vs RS-momentum, faceted by benchmark (one subplot each)."""
+    if rrg_df.empty or not run_cfg.generate_plots:
+        return
+    need = {"benchmark", "asset", "rs_ratio", "rs_momentum", "quadrant"}
+    if not need <= set(rrg_df.columns):
+        return
+    benchmarks = rrg_df["benchmark"].dropna().unique()
+    if len(benchmarks) == 0:
+        return
+    n = len(benchmarks)
+    fig, axes = plt.subplots(
+        1, n, figsize=(5 * n, 5), squeeze=False
+    )
+    quadrant_colors = {
+        "LEADING": "#2a9d8f",
+        "WEAKENING": "#e9c46a",
+        "LAGGING": "#e76f51",
+        "IMPROVING": "#264653",
+    }
+    for ax, bench in zip(axes.flat, benchmarks):
+        sub = rrg_df[rrg_df["benchmark"] == bench]
+        for q, g in sub.groupby("quadrant"):
+            c = quadrant_colors.get(str(q), "#888888")
+            ax.scatter(
+                g["rs_ratio"],
+                g["rs_momentum"],
+                c=c,
+                label=str(q),
+                alpha=0.85,
+                s=36,
+            )
+        ax.axhline(100.0, color="gray", lw=0.8, ls="--")
+        ax.axvline(100.0, color="gray", lw=0.8, ls="--")
+        ax.set_xlabel("RS-Ratio (normalized)")
+        ax.set_ylabel("RS-Momentum (normalized)")
+        ax.set_title(f"RRG-style vs {bench}", fontsize=11)
+        ax.legend(fontsize=7, loc="upper left")
+        ax.grid(alpha=0.3)
+    fig.tight_layout()
+    _save_or_show(fig, "08_diagnostics_rrg.png", run_cfg)

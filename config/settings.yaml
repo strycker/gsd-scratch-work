@@ -486,6 +486,16 @@ plotting:
 
 # ── Diagnostics (Phase 8) ───────────────────────────────────────────────────────
 diagnostics:
+  # Include a ## Diagnostics section in weekly_report.md when parquet artifacts exist.
+  weekly_report_include: true
+  # Lookback periods (rows) for RRG RS vs benchmark; default 52 ≈ one year of weekly bars.
+  rrg_lookback: 52
+  # Ratio trigger rules (diagnostic only — not fed into ML features). Per-ratio `triggers:`
+  # merges over these defaults. Set z_abs_min to null to disable the |z| rule.
+  trigger_defaults:
+    z_abs_min: 2.0
+    percentile_high: 0.9
+    percentile_low: 0.1
   # Config-driven ratios: numerator / denominator
   ratios:
     - name: "Oil:Gold"

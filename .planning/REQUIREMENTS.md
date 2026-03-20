@@ -19,11 +19,11 @@ Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md
 
 ### 2. Signals & diagnostics
 
-- [ ] **SIGNAL-10** — Ratio & trigger diagnostics  
-  Config-driven cross-asset ratios (e.g. Oil:Gold, Oil:Bonds, Bonds:Gold, Lumber:Gold proxy, narrative “Saylor↔Schiff-style” views). Surface as parquet + plots/tables before promoting to model features.
+- [x] **SIGNAL-10** — Ratio & trigger diagnostics  
+  Config-driven cross-asset ratios (e.g. Oil:Gold, Oil:Bonds, Bonds:Gold, Lumber:Gold proxy, narrative “Saylor↔Schiff-style” views). Surface as parquet + plots/tables before promoting to model features. **Completed in Phase 18** — `diagnostics.trigger_defaults`, `compute_ratios_diagnostics`, plots `08_diagnostics_*.png`.
 
-- [ ] **SIGNAL-11** — Relative rotation / RS-style diagnostics  
-  RS-ratio / RS-momentum vs benchmark(s); machine-readable artifacts and notebook/report hooks.
+- [x] **SIGNAL-11** — Relative rotation / RS-style diagnostics  
+  RS-ratio / RS-momentum vs benchmark(s); machine-readable artifacts and notebook/report hooks. **Completed in Phase 18** — `rrg_current.parquet`, `notebooks/08_diagnostics.ipynb`, weekly report **Diagnostics** section.
 
 ### 3. Models
 
@@ -81,7 +81,7 @@ These requirements make **`gsd-tools stats` / `validate health` / plan–summary
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | DATA-10 | Phase 17 | Complete |
-| SIGNAL-10, SIGNAL-11 | Phase 18 | Not started |
+| SIGNAL-10, SIGNAL-11 | Phase 18 | Complete |
 | MODEL-10, MODEL-11 | Phase 19 | Not started |
 | TACTICS-10 | Phase 20 | Not started |
 | EMAIL-10, INSTALL-20 | Phase 21 | Not started |

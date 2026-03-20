@@ -22,6 +22,52 @@ import pandas as pd
 log = logging.getLogger(__name__)
 
 
+def _append_diagnostics_section(lines: list[str], cfg: dict) -> None:
+    """Append ## Diagnostics from parquet artifacts when enabled in config."""
+    from trading_crab_lib import OUTPUT_DIR
+
+    diag_cfg = cfg.get("diagnostics") or {}
+    if not diag_cfg.get("weekly_report_include", True):
+        return
+    diag_dir = OUTPUT_DIR / "reports" / "diagnostics"
+    r_path = diag_dir / "ratios_current.parquet"
+    g_path = diag_dir / "rrg_current.parquet"
+    if not r_path.exists() and not g_path.exists():
+        return
+    lines.append("## Diagnostics")
+    lines.append("")
+    try:
+        if r_path.exists():
+            rdf = pd.read_parquet(r_path)
+            if not rdf.empty and "name" in rdf.columns:
+                rdf = rdf.copy()
+                if "latest_zscore" in rdf.columns:
+                    rdf["abs_z"] = rdf["latest_zscore"].abs()
+                    top = rdf.sort_values("abs_z", ascending=False).head(5)
+                else:
+                    top = rdf.head(5)
+                lines.append("**Ratio snapshots (top by |z|):**")
+                for _, row in top.iterrows():
+                    nm = row.get("name", "?")
+                    tr = row.get("trigger", "")
+                    z = row.get("latest_zscore", float("nan"))
+                    z_txt = f"{z:.2f}" if pd.notna(z) else "n/a"
+                    tr_txt = f", trigger={tr}" if tr else ""
+                    lines.append(f"- {nm}: z={z_txt}{tr_txt}")
+                lines.append("")
+        if g_path.exists():
+            gdf = pd.read_parquet(g_path)
+            if not gdf.empty and "benchmark" in gdf.columns and "quadrant" in gdf.columns:
+                lines.append("**RRG quadrant counts (vs benchmark):**")
+                for bench, sub in gdf.groupby("benchmark"):
+                    cnt = sub["quadrant"].value_counts().to_dict()
+                    lines.append(f"- {bench}: {cnt}")
+                lines.append("")
+    except Exception:
+        # Malformed diagnostics must not break the weekly report.
+        return
+
+
 # ── Dashboard ──────────────────────────────────────────────────────────────────
 
 # Default thresholds — overridden at call time by values from settings.yaml.
@@ -369,9 +415,13 @@ def write_weekly_report_md(
     rec_df: pd.DataFrame,
     transition_row: pd.Series | None,
     output_path: Path,
+    cfg: dict | None = None,
 ) -> Path:
     """
     Write weekly_report.md: 2–3 sentences regime/macro, BUY/SELL bullets, risk/transition note.
+
+    Pass ``cfg`` so optional **Diagnostics** and **Tactics** sections read the same
+    ``settings.yaml`` flags (e.g. ``diagnostics.weekly_report_include``).
     """
     lines = [
         "# Weekly Regime Report",
@@ -442,6 +492,15 @@ def write_weekly_report_md(
         except Exception:
             # Do not let a malformed tactics file break the report.
             pass
+
+    if cfg is None:
+        try:
+            from trading_crab_lib.config import load
+
+            cfg = load()
+        except Exception:
+            cfg = {}
+    _append_diagnostics_section(lines, cfg)
 
     text = "\n".join(lines)
     output_path.parent.mkdir(parents=True, exist_ok=True)

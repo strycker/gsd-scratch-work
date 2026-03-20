@@ -26,13 +26,9 @@ OUTPUT_DIR = crab.OUTPUT_DIR
 load = crab.load
 setup_logging = crab.setup_logging
 RunConfig = crab.RunConfig
+plotting = crab.plotting
 
-from trading_crab_lib.diagnostics import (  # noqa: E402
-    normalize_100,
-    percentile_rank,
-    rolling_zscore,
-    rrg_for_benchmark,
-)
+from trading_crab_lib.diagnostics import compute_ratios_diagnostics, rrg_for_benchmark  # noqa: E402
 
 log = logging.getLogger(__name__)
 
@@ -51,58 +47,6 @@ def _load_etf_prices(cfg: dict) -> pd.DataFrame:
     return prices[cols]
 
 
-def _rolling_zscore(series: pd.Series) -> pd.Series:
-    """Backwards-compat shim to the shared diagnostics implementation."""
-    return rolling_zscore(series)
-
-
-def _percentile_rank(series: pd.Series) -> float:
-    return percentile_rank(series)
-
-
-def _compute_ratios(prices: pd.DataFrame, cfg: dict) -> pd.DataFrame:
-    """
-    Compute configured ratios from ETF prices and summarize current readings.
-    """
-    ratios_cfg = cfg.get("diagnostics", {}).get("ratios") or []
-    if prices.empty or not ratios_cfg:
-        return pd.DataFrame()
-
-    records: list[dict] = []
-    for item in ratios_cfg:
-        name = item.get("name")
-        num = item.get("numerator")
-        den = item.get("denominator")
-        if not name or not num or not den:
-            continue
-        if num not in prices.columns or den not in prices.columns:
-            continue
-        ratio_series = prices[num] / prices[den]
-        z = _rolling_zscore(ratio_series)
-        pct = _percentile_rank(ratio_series)
-        latest = ratio_series.dropna().iloc[-1] if not ratio_series.dropna().empty else float("nan")
-        latest_z = z.dropna().iloc[-1] if not z.dropna().empty else float("nan")
-        records.append(
-            {
-                "name": name,
-                "numerator": num,
-                "denominator": den,
-                "latest_value": latest,
-                "latest_zscore": latest_z,
-                "percentile": pct,
-            }
-        )
-    return pd.DataFrame.from_records(records)
-
-
-def _normalize_100(series: pd.Series) -> pd.Series:
-    return normalize_100(series)
-
-
-def _rrg_for_benchmark(prices: pd.DataFrame, benchmark: str, lookback: int = 52) -> pd.DataFrame:
-    return rrg_for_benchmark(prices, benchmark, lookback=lookback)
-
-
 def main() -> None:
     setup_logging()
     cfg = load()
@@ -116,27 +60,30 @@ def main() -> None:
     diag_dir = OUTPUT_DIR / "reports" / "diagnostics"
     diag_dir.mkdir(parents=True, exist_ok=True)
 
-    # Ratios / triggers
-    ratios_df = _compute_ratios(prices, cfg)
+    ratios_df = compute_ratios_diagnostics(prices, cfg)
     if not ratios_df.empty:
         out_ratios = diag_dir / "ratios_current.parquet"
         ratios_df.to_parquet(out_ratios, index=False)
         print(f"Wrote ratio diagnostics → {out_ratios}")
 
-    # RRG diagnostics for configured benchmarks
-    benchmarks = cfg.get("diagnostics", {}).get("rrg_benchmarks") or ["SPY"]
-    all_rrg_frames: list[pd.DataFrame] = []
+    diag = cfg.get("diagnostics") or {}
+    lookback = int(diag.get("rrg_lookback") or 52)
+    benchmarks = diag.get("rrg_benchmarks") or ["SPY"]
+    all_rrg: list[pd.DataFrame] = []
     for bench in benchmarks:
-        df_b = _rrg_for_benchmark(prices, bench)
+        df_b = rrg_for_benchmark(prices, bench, lookback=lookback)
         if not df_b.empty:
-            all_rrg_frames.append(df_b)
-    if all_rrg_frames:
-        rrg_df = pd.concat(all_rrg_frames, ignore_index=True)
+            all_rrg.append(df_b)
+    rrg_combined = pd.concat(all_rrg, ignore_index=True) if all_rrg else pd.DataFrame()
+    if not rrg_combined.empty:
         out_rrg = diag_dir / "rrg_current.parquet"
-        rrg_df.to_parquet(out_rrg, index=False)
+        rrg_combined.to_parquet(out_rrg, index=False)
         print(f"Wrote RRG diagnostics → {out_rrg}")
+
+    if run_cfg.generate_plots:
+        plotting.plot_diagnostics_ratios_summary(ratios_df, run_cfg)
+        plotting.plot_diagnostics_rrg(rrg_combined, run_cfg)
 
 
 if __name__ == "__main__":
     main()
-

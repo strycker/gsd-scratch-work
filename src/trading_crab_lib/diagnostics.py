@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 import pandas as pd
 
@@ -91,5 +93,95 @@ def rrg_for_benchmark(
                 "quadrant": quadrant,
             }
         )
+    return pd.DataFrame.from_records(records)
+
+
+def merge_trigger_config(
+    defaults: dict[str, Any] | None,
+    overrides: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Merge per-ratio `triggers` overrides onto `trigger_defaults` from settings."""
+    out = dict(defaults or {})
+    for k, v in (overrides or {}).items():
+        out[k] = v
+    return out
+
+
+def evaluate_ratio_triggers(
+    latest_zscore: float,
+    percentile: float,
+    defaults: dict[str, Any] | None,
+    overrides: dict[str, Any] | None = None,
+) -> tuple[str, str]:
+    """
+    Classify a ratio reading using YAML-first rules.
+
+    Priority:
+      1. |z| >= z_abs_min  → trigger ``stretched``, detail cites threshold
+      2. percentile >= percentile_high → ``elevated``
+      3. percentile <= percentile_low → ``depressed``
+      4. else → ``neutral``
+
+    If ``trigger_defaults`` is missing or empty, returns (``neutral``, ``no trigger rules configured``).
+    """
+    rules = merge_trigger_config(defaults, overrides)
+    if not rules:
+        return "neutral", "no trigger rules configured"
+
+    z = latest_zscore
+    p = percentile
+    z_min = rules.get("z_abs_min")
+    p_hi = rules.get("percentile_high")
+    p_lo = rules.get("percentile_low")
+
+    if z_min is not None and not np.isnan(z) and abs(z) >= float(z_min):
+        return "stretched", f"|z|={abs(z):.2f} (threshold {z_min})"
+    if p_hi is not None and not np.isnan(p) and p >= float(p_hi):
+        return "elevated", f"percentile={p:.2f} (high ≥ {p_hi})"
+    if p_lo is not None and not np.isnan(p) and p <= float(p_lo):
+        return "depressed", f"percentile={p:.2f} (low ≤ {p_lo})"
+    return "neutral", ""
+
+
+def compute_ratios_diagnostics(prices: pd.DataFrame, cfg: dict) -> pd.DataFrame:
+    """
+    Build the ratio diagnostics table (latest value, z-score, percentile, triggers).
+
+    Reads ``cfg['diagnostics']['ratios']`` and optional ``trigger_defaults`` /
+    per-ratio ``triggers`` overrides.
+    """
+    diag_cfg = cfg.get("diagnostics") or {}
+    ratios_cfg = diag_cfg.get("ratios") or []
+    defaults = diag_cfg.get("trigger_defaults")
+    if prices.empty or not ratios_cfg:
+        return pd.DataFrame()
+
+    records: list[dict[str, Any]] = []
+    for item in ratios_cfg:
+        name = item.get("name")
+        num = item.get("numerator")
+        den = item.get("denominator")
+        if not name or not num or not den:
+            continue
+        if num not in prices.columns or den not in prices.columns:
+            continue
+        ratio_series = prices[num] / prices[den]
+        z = rolling_zscore(ratio_series)
+        pct = percentile_rank(ratio_series)
+        latest = ratio_series.dropna().iloc[-1] if not ratio_series.dropna().empty else float("nan")
+        latest_z = z.dropna().iloc[-1] if not z.dropna().empty else float("nan")
+        ov = item.get("triggers") or item.get("trigger_overrides")
+        trig, detail = evaluate_ratio_triggers(latest_z, pct, defaults, ov)
+        row: dict[str, Any] = {
+            "name": name,
+            "numerator": num,
+            "denominator": den,
+            "latest_value": latest,
+            "latest_zscore": latest_z,
+            "percentile": pct,
+            "trigger": trig,
+            "trigger_detail": detail,
+        }
+        records.append(row)
     return pd.DataFrame.from_records(records)
 

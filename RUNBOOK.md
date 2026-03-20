@@ -139,13 +139,23 @@ Core **end-to-end “weekly product”** path is usually steps **1–7** (ingest
 
 | Step | Name | Main outputs |
 |------|------|----------------|
-| **8** | diagnostics | Under `outputs/reports/diagnostics/` (ratio / RRG-style diagnostics per config) |
+| **8** | diagnostics | `outputs/reports/diagnostics/ratios_current.parquet`, `rrg_current.parquet` (config in `diagnostics.*`); optional PNGs `outputs/plots/08_diagnostics_*.png` with **`--plots`** |
 | **9** | tactics | `outputs/reports/tactics_signals.parquet` (and related tactics config in `settings.yaml`) |
 
-The weekly markdown report **may** include a tactics block when the tactics artifact exists. For a full extended run:
+**Step 8 prerequisite:** ETF **prices** must exist (`data/raw/asset_prices.parquet` from step **6** or a prior run). Ratio **trigger** rules and `rrg_lookback` live under **`config/settings.yaml` → `diagnostics`**.
+
+The weekly markdown report **may** include a **Tactics** block when `tactics_signals.parquet` exists, and a **Diagnostics** block when `diagnostics.weekly_report_include` is true and the diagnostics parquets exist (typically after step **8**). Re-run step **7** after step **8** if you need `weekly_report.md` to pick up the new section.
+
+For a full extended run:
 
 ```bash
 python run_pipeline.py --steps 1,2,3,4,5,6,7,8,9 --plots
+```
+
+If **1–7** are already fresh but you need prices + diagnostics:
+
+```bash
+python run_pipeline.py --steps 6,8,7 --plots
 ```
 
 If **1–7** are already fresh:
@@ -178,4 +188,4 @@ Maps **`.planning/v1.0-MILESTONE-AUDIT.md`** integration / ops bullets to this f
 
 ---
 
-*Last updated with Phase 17 (DATA-10 — expanded FRED + yield features in `settings.yaml`).*
+*Last updated with Phase 18 (SIGNAL-10/11 — diagnostics triggers, plots, weekly report hook).*

@@ -1147,6 +1147,7 @@ def step7_dashboard(cfg: dict, run_cfg: RunConfig) -> None:
                     rec_df=recommendations,
                     transition_row=transition_row,
                     output_path=weekly_out,
+                    cfg=cfg,
                 )
                 log.info("Weekly report saved to %s", weekly_out)
             except Exception as exc:
@@ -1159,11 +1160,9 @@ def step7_dashboard(cfg: dict, run_cfg: RunConfig) -> None:
 
 def step8_diagnostics(cfg: dict, run_cfg: RunConfig) -> None:
     """Compute ratio and RRG diagnostics from ETF prices → outputs/reports/diagnostics/."""
-    from trading_crab_lib.diagnostics import (
-        percentile_rank,
-        rolling_zscore,
-        rrg_for_benchmark,
-    )
+    from trading_crab_lib import plotting
+    from trading_crab_lib.diagnostics import compute_ratios_diagnostics, rrg_for_benchmark
+
     import pandas as pd
 
     prices_path = DATA_DIR / "raw" / "asset_prices.parquet"
@@ -1182,38 +1181,28 @@ def step8_diagnostics(cfg: dict, run_cfg: RunConfig) -> None:
     diag_dir = OUTPUT_DIR / "reports" / "diagnostics"
     diag_dir.mkdir(parents=True, exist_ok=True)
 
-    ratios_cfg = cfg.get("diagnostics", {}).get("ratios") or []
-    if ratios_cfg:
-        records = []
-        for item in ratios_cfg:
-            name = item.get("name")
-            num = item.get("numerator")
-            den = item.get("denominator")
-            if not name or not num or not den or num not in prices.columns or den not in prices.columns:
-                continue
-            ratio_series = prices[num] / prices[den]
-            z = rolling_zscore(ratio_series)
-            pct = percentile_rank(ratio_series)
-            latest = ratio_series.dropna().iloc[-1] if not ratio_series.dropna().empty else float("nan")
-            latest_z = z.dropna().iloc[-1] if not z.dropna().empty else float("nan")
-            records.append({
-                "name": name, "numerator": num, "denominator": den,
-                "latest_value": latest, "latest_zscore": latest_z, "percentile": pct,
-            })
-        if records:
-            pd.DataFrame.from_records(records).to_parquet(diag_dir / "ratios_current.parquet", index=False)
-            log.info("Step 8: wrote ratio diagnostics to %s", diag_dir / "ratios_current.parquet")
+    ratios_df = compute_ratios_diagnostics(prices, cfg)
+    if not ratios_df.empty:
+        ratios_df.to_parquet(diag_dir / "ratios_current.parquet", index=False)
+        log.info("Step 8: wrote ratio diagnostics to %s", diag_dir / "ratios_current.parquet")
 
-    benchmarks = cfg.get("diagnostics", {}).get("rrg_benchmarks") or ["SPY"]
-    all_rrg = []
+    diag = cfg.get("diagnostics") or {}
+    lookback = int(diag.get("rrg_lookback") or 52)
+    benchmarks = diag.get("rrg_benchmarks") or ["SPY"]
+    all_rrg: list[pd.DataFrame] = []
     for bench in benchmarks:
-        df_b = rrg_for_benchmark(prices, bench)
+        df_b = rrg_for_benchmark(prices, bench, lookback=lookback)
         if not df_b.empty:
             all_rrg.append(df_b)
-    if all_rrg:
+    rrg_combined = pd.concat(all_rrg, ignore_index=True) if all_rrg else pd.DataFrame()
+    if not rrg_combined.empty:
         rrg_path = diag_dir / "rrg_current.parquet"
-        pd.concat(all_rrg, ignore_index=True).to_parquet(rrg_path, index=False)
+        rrg_combined.to_parquet(rrg_path, index=False)
         log.info("Step 8: wrote RRG diagnostics to %s", rrg_path)
+
+    if run_cfg.generate_plots:
+        plotting.plot_diagnostics_ratios_summary(ratios_df, run_cfg)
+        plotting.plot_diagnostics_rrg(rrg_combined, run_cfg)
 
     log.info("Step 8 done")
 
