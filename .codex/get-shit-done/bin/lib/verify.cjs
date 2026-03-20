@@ -9,6 +9,40 @@ const { safeReadFile, normalizePhaseName, execGit, findPhaseInternal, getMilesto
 const { extractFrontmatter, parseMustHavesBlock } = require('./frontmatter.cjs');
 const { writeStateMd } = require('./state.cjs');
 
+/**
+ * Phase headings from root ROADMAP (after stripShippedMilestones) union
+ * every `.planning/milestones/v*-ROADMAP.md` (same stripping).
+ * Lets a collapsed post-archive ROADMAP stay small while disk phases 1–N
+ * still match shipped milestone docs.
+ */
+function collectRoadmapPhaseNums(cwd) {
+  const planningDir = path.join(cwd, '.planning');
+  const set = new Set();
+  const phasePattern = /#{2,4}\s*Phase\s+(\d+[A-Z]?(?:\.\d+)*)\s*:/gi;
+  function addFromText(text) {
+    let m;
+    const re = new RegExp(phasePattern.source, 'gi');
+    while ((m = re.exec(text)) !== null) set.add(m[1]);
+  }
+  const roadmapPath = path.join(planningDir, 'ROADMAP.md');
+  if (fs.existsSync(roadmapPath)) {
+    addFromText(stripShippedMilestones(fs.readFileSync(roadmapPath, 'utf-8')));
+  }
+  const milestonesDir = path.join(planningDir, 'milestones');
+  if (fs.existsSync(milestonesDir)) {
+    for (const f of fs.readdirSync(milestonesDir)) {
+      if (!f.endsWith('-ROADMAP.md')) continue;
+      try {
+        const raw = fs.readFileSync(path.join(milestonesDir, f), 'utf-8');
+        addFromText(stripShippedMilestones(raw));
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+  return set;
+}
+
 function cmdVerifySummary(cwd, summaryPath, checkFileCount, raw) {
   if (!summaryPath) {
     error('summary-path required');
@@ -408,16 +442,7 @@ function cmdValidateConsistency(cwd, raw) {
     return;
   }
 
-  const roadmapContentRaw = fs.readFileSync(roadmapPath, 'utf-8');
-  const roadmapContent = stripShippedMilestones(roadmapContentRaw);
-
-  // Extract phases from ROADMAP (archived milestones already stripped)
-  const roadmapPhases = new Set();
-  const phasePattern = /#{2,4}\s*Phase\s+(\d+[A-Z]?(?:\.\d+)*)\s*:/gi;
-  let m;
-  while ((m = phasePattern.exec(roadmapContent)) !== null) {
-    roadmapPhases.add(m[1]);
-  }
+  const roadmapPhases = collectRoadmapPhaseNums(cwd);
 
   // Get phases on disk
   const diskPhases = new Set();
@@ -694,14 +719,7 @@ function cmdValidateHealth(cwd, options, raw) {
   // ─── Check 8: Run existing consistency checks ─────────────────────────────
   // Inline subset of cmdValidateConsistency
   if (fs.existsSync(roadmapPath)) {
-    const roadmapContentRaw = fs.readFileSync(roadmapPath, 'utf-8');
-    const roadmapContent = stripShippedMilestones(roadmapContentRaw);
-    const roadmapPhases = new Set();
-    const phasePattern = /#{2,4}\s*Phase\s+(\d+[A-Z]?(?:\.\d+)*)\s*:/gi;
-    let m;
-    while ((m = phasePattern.exec(roadmapContent)) !== null) {
-      roadmapPhases.add(m[1]);
-    }
+    const roadmapPhases = collectRoadmapPhaseNums(cwd);
 
     const diskPhases = new Set();
     try {
