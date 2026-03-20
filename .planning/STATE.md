@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: tactics-triggers-expanded-signals
 current_phase: 17
-current_plan: null
-status: ready_to_plan
-stopped_at: "$gsd-new-milestone — v1.2 REQUIREMENTS + ROADMAP (phases 17–22)"
+current_plan: 1
+status: planned
+stopped_at: "$gsd-plan-phase 17 — 17-v1-2-expanded-macro-signals-01-PLAN.md"
 last_updated: "2026-03-21T20:00:00.000Z"
 progress:
   total_phases: 9
