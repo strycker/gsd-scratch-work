@@ -117,6 +117,7 @@ for e in mc:
 Checkpoints and manifests live under **`data/checkpoints/`**. The `CheckpointManager` tracks freshness; stale parquets can still be **semantically** wrong if you changed:
 
 - **`clustering_features`** or **`initial_features`** — changes cluster geometry → re-run **2–7** (or at least **3–7**).
+- **FRED / macro expansion** — Adding or rewiring **`fred.series`** entries or **`features.*`** lists (including new **`fred_*`** / **`yc_*`** columns) changes the feature matrix the same way as editing **`clustering_features`**: use **`--recompute`** (and **`--refresh`** if you need fresh FRED pulls), then **3–7**, and refresh **`config/regime_labels.yaml`** when cluster IDs shift.
 - **`config/regime_labels.yaml`** after clusters move — align pinned IDs with `balanced_k` and re-run **4–7**.
 
 Changing `market_code` source **without** re-running dependent steps produces **semantic desync** between classifiers (MODEL-*) and return tables (PORT-*).
@@ -177,4 +178,4 @@ Maps **`.planning/v1.0-MILESTONE-AUDIT.md`** integration / ops bullets to this f
 
 ---
 
-*Last updated with Phase 16 (v1.0 gap closure — E2E runbook).*
+*Last updated with Phase 17 (DATA-10 — expanded FRED + yield features in `settings.yaml`).*

@@ -13,6 +13,18 @@ def _load_cfg() -> dict:
         return yaml.safe_load(f)
 
 
+def test_fred_t10y_spreads_not_in_clustering_features() -> None:
+    """Phase 17: clustering uses yc_* spreads; FRED T10Y2Y/T10Y3M stay ingest-only."""
+    cfg = _load_cfg()
+    cf = cfg["features"]["clustering_features"]
+    assert "fred_t10y2y" not in cf
+    assert "fred_t10y2y_d1" not in cf
+    assert "fred_t10y3m" not in cf
+    assert "fred_t10y3m_d1" not in cf
+    assert "yc_10y_2y_d1" in cf
+    assert "yc_10y_3m_d1" in cf
+
+
 def test_fred_series_includes_phase8_additions() -> None:
     cfg = _load_cfg()
     series = cfg["fred"]["series"]

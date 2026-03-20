@@ -11,8 +11,8 @@ Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md
 
 ### 1. Data & APIs
 
-- [ ] **DATA-10** — Additional FRED series & yield spreads  
-  Ingest and align (with publication lags) high-value series (e.g. VIXCLS, UNRATE, M2, GS2, T10Y2Y, T10Y3M, HOUST, UMCSENT where configured). Derived spreads in `transforms.py` with causal / non-causal parity.
+- [x] **DATA-10** — Additional FRED series & yield spreads  
+  Ingest and align (with publication lags) high-value series (e.g. VIXCLS, UNRATE, M2, GS2, T10Y2Y, T10Y3M, HOUST, UMCSENT where configured). Derived spreads in `transforms.py` with causal / non-causal parity. **Completed in Phase 17** — see `config/settings.yaml` `features.*` + `17-CONTEXT.md`.
 
 - [ ] **DATA-11** — Optional / configurable extra price & data providers  
   Strengthen stooq fallback; evaluate optional APIs (finviz Elite, etc.) behind config flags without breaking checkpoint contracts.
@@ -80,7 +80,7 @@ These requirements make **`gsd-tools stats` / `validate health` / plan–summary
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-10 | Phase 17 | Not started |
+| DATA-10 | Phase 17 | Complete |
 | SIGNAL-10, SIGNAL-11 | Phase 18 | Not started |
 | MODEL-10, MODEL-11 | Phase 19 | Not started |
 | TACTICS-10 | Phase 20 | Not started |

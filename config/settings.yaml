@@ -65,6 +65,8 @@ fred:
     GS2:
       name:  "fred_gs2"
       shift: false
+    # Ingested for QA/exports; **clustering uses yc_10y_2y / yc_10y_3m** (GS10−GS2, GS10−TB3MS)
+    # so we do not also list fred_t10y2y / fred_t10y3m in features.* (avoids double-counting).
     T10Y2Y:
       name:  "fred_t10y2y"
       shift: false
@@ -147,6 +149,12 @@ features:
     - earn_yld
     - fed_debt
     - fred_cpi
+    - fred_houst
+    - fred_m2ns
+    - fred_m2sl
+    - fred_umcsent
+    - fred_unrate
+    - fred_vix
     - fred_gdp
     - fred_gnp
     - gdp
@@ -171,7 +179,14 @@ features:
     - fred_aaa
     - fred_baa
     - fred_gs10
+    - fred_gs2
     - fred_tb3ms
+    - log_fred_houst
+    - log_fred_m2ns
+    - log_fred_m2sl
+    - log_fred_umcsent
+    - log_fred_unrate
+    - log_fred_vix
     - gdp_growth
     - log_cape_shiller
     - log_cpi
@@ -201,6 +216,9 @@ features:
     - sp500_pe
     - us_infl
     - us_pop_growth
+    - yc_10y_2y
+    - yc_10y_3m
+    - yc_2y_3m
 
   # Final feature set fed into PCA + clustering.
   # Uses d1+d2 for most series; d1+d2+d3 only for sp500 series (higher-order
@@ -221,6 +239,26 @@ features:
     - fred_gs10_d2
     - fred_tb3ms_d1
     - fred_tb3ms_d2
+    - fred_gs2_d1
+    - fred_gs2_d2
+    - log_fred_houst_d1
+    - log_fred_houst_d2
+    - log_fred_m2ns_d1
+    - log_fred_m2ns_d2
+    - log_fred_m2sl_d1
+    - log_fred_m2sl_d2
+    - log_fred_umcsent_d1
+    - log_fred_umcsent_d2
+    - log_fred_unrate_d1
+    - log_fred_unrate_d2
+    - log_fred_vix_d1
+    - log_fred_vix_d2
+    - yc_10y_2y_d1
+    - yc_10y_2y_d2
+    - yc_10y_3m_d1
+    - yc_10y_3m_d2
+    - yc_2y_3m_d1
+    - yc_2y_3m_d2
     - gdp_growth
     - gdp_growth_d1
     - log_cape_shiller_d1

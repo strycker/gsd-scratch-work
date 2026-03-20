@@ -1,5 +1,6 @@
-"""Unit tests for src/trading_crab_lib/features/transforms.py"""
+"""Unit tests for src/trading_crab_lib/transforms.py"""
 
+import copy
 import sys
 from pathlib import Path
 
@@ -9,11 +10,14 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+from trading_crab_lib.config import load
 from trading_crab_lib.transforms import (
     add_cross_ratios,
+    add_yield_curve_features,
     apply_log_transforms,
     apply_gap_fill,
     apply_derivatives,
+    engineer_all,
     select_features,
 )
 
@@ -174,3 +178,120 @@ class TestApplyDerivatives:
         d1 = result["x_d1"].dropna()
         # All values should be nearly the same (constant slope)
         assert d1.std() < d1.mean() * 0.1
+
+
+# ── add_yield_curve_features ───────────────────────────────────────────────
+
+class TestAddYieldCurveFeatures:
+    def test_builds_three_spreads_when_rates_present(self, quarterly_index):
+        rng = np.random.default_rng(7)
+        n = len(quarterly_index)
+        df = pd.DataFrame(
+            {
+                "fred_gs10": rng.uniform(3.0, 8.0, n),
+                "fred_gs2": rng.uniform(1.0, 6.0, n),
+                "fred_tb3ms": rng.uniform(0.5, 5.0, n),
+            },
+            index=quarterly_index,
+        )
+        out = add_yield_curve_features(df)
+        assert np.allclose(out["yc_10y_2y"], df["fred_gs10"] - df["fred_gs2"])
+        assert np.allclose(out["yc_10y_3m"], df["fred_gs10"] - df["fred_tb3ms"])
+        assert np.allclose(out["yc_2y_3m"], df["fred_gs2"] - df["fred_tb3ms"])
+
+    def test_no_columns_when_rates_missing(self, quarterly_index):
+        df = pd.DataFrame({"fred_gs10": [4.0] * 20}, index=quarterly_index)
+        out = add_yield_curve_features(df)
+        assert "yc_10y_2y" not in out.columns
+
+
+# ── engineer_all (Phase 17 macro smoke) ───────────────────────────────────
+
+class TestEngineerAllExpandedMacro:
+    """Synthetic frame + narrowed feature lists — exercises yc_* + log_fred_* path."""
+
+    @pytest.fixture
+    def macro_df_v12(self, quarterly_index):
+        rng = np.random.default_rng(42)
+        n = len(quarterly_index)
+        return pd.DataFrame(
+            {
+                "dividend": rng.uniform(10, 60, n),
+                "sp500": rng.uniform(800, 4000, n),
+                "gdp": rng.uniform(8000, 22000, n),
+                "fred_gdp": rng.uniform(8000, 22000, n),
+                "fred_gnp": rng.uniform(7500, 21000, n),
+                "div_yield": rng.uniform(0.01, 0.05, n),
+                "fred_baa": rng.uniform(3.0, 9.0, n),
+                "fred_aaa": rng.uniform(2.5, 8.0, n),
+                "cpi": rng.uniform(150, 280, n),
+                "fred_cpi": rng.uniform(150, 280, n),
+                "sp500_adj": rng.uniform(800, 4000, n),
+                "10yr_ustreas": rng.uniform(2.0, 6.0, n),
+                "fred_gs10": rng.uniform(3.0, 9.0, n),
+                "fred_gs2": rng.uniform(2.0, 6.0, n),
+                "fred_tb3ms": rng.uniform(0.5, 6.0, n),
+                "fred_vix": rng.uniform(12, 45, n),
+                "fred_unrate": rng.uniform(3.5, 9.0, n),
+                "fred_m2sl": rng.uniform(5000, 25000, n),
+                "fred_m2ns": rng.uniform(3000, 20000, n),
+                "fred_houst": rng.uniform(400, 1800, n),
+                "fred_umcsent": rng.uniform(55, 105, n),
+            },
+            index=quarterly_index,
+        )
+
+    def test_engineer_all_no_exception_and_clustering_columns(self, macro_df_v12):
+        cfg = copy.deepcopy(load())
+        cfg["features"]["initial_features"] = [
+            "credit_spread",
+            "div_minus_baa",
+            "10yr_ustreas",
+            "fred_gs10",
+            "fred_tb3ms",
+            "fred_gs2",
+            "log_fred_vix",
+            "log_fred_unrate",
+            "log_fred_m2sl",
+            "log_fred_m2ns",
+            "log_fred_houst",
+            "log_fred_umcsent",
+            "yc_10y_2y",
+            "yc_10y_3m",
+            "yc_2y_3m",
+        ]
+        cfg["features"]["clustering_features"] = [
+            "yc_10y_2y_d1",
+            "yc_10y_2y_d2",
+            "yc_10y_3m_d1",
+            "yc_10y_3m_d2",
+            "yc_2y_3m_d1",
+            "yc_2y_3m_d2",
+            "log_fred_vix_d1",
+            "log_fred_vix_d2",
+            "fred_gs2_d1",
+            "fred_gs2_d2",
+        ]
+        out = engineer_all(macro_df_v12, cfg, causal=False)
+        assert "yc_10y_2y_d1" in out.columns
+        assert "log_fred_vix_d1" in out.columns
+        assert "fred_gs2_d1" in out.columns
+        assert out.drop(columns=["market_code"], errors="ignore").notna().all().all()
+
+    def test_engineer_all_causal_mode_same_columns(self, macro_df_v12):
+        cfg = copy.deepcopy(load())
+        cfg["features"]["initial_features"] = [
+            "credit_spread",
+            "fred_gs10",
+            "fred_tb3ms",
+            "fred_gs2",
+            "log_fred_vix",
+            "yc_10y_2y",
+        ]
+        cfg["features"]["clustering_features"] = [
+            "yc_10y_2y_d1",
+            "log_fred_vix_d1",
+        ]
+        out_nc = engineer_all(macro_df_v12, cfg, causal=False)
+        out_c = engineer_all(macro_df_v12, cfg, causal=True)
+        assert list(out_nc.columns) == list(out_c.columns)

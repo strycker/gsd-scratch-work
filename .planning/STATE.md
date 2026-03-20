@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: tactics-triggers-expanded-signals
-current_phase: 17
+current_phase: 18
 current_plan: 1
-status: planned
-stopped_at: "$gsd-plan-phase 17 — 17-v1-2-expanded-macro-signals-01-PLAN.md"
-last_updated: "2026-03-21T20:00:00.000Z"
+status: in_progress
+stopped_at: "$gsd-execute-phase 17 — 17-v1-2-expanded-macro-signals-01-PLAN.md"
+last_updated: "2026-03-21T22:00:00.000Z"
 progress:
   total_phases: 9
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
 previous_milestone:
   version: v1.0
   shipped: "2026-03-20"
@@ -31,7 +31,7 @@ previous_milestone:
 
 - **Milestone:** **v1.2** — Tactics, triggers, expanded signals.
 - **Roadmap:** Phases **17–22** defined in **`.planning/ROADMAP.md`**; requirements in **`.planning/REQUIREMENTS.md`**.
-- **Next:** Run **`$gsd-discuss-phase`** / **`$gsd-plan-phase`** with argument **`17`** — first v1.2 workstream: expanded macro & yield data (**DATA-10**).
+- **Next:** Phase **18** (SIGNAL-10 / diagnostics) or continue v1.2 roadmap per **`.planning/ROADMAP.md`**. Phase **17** (**DATA-10**) executed — see **`17-SUMMARY.md`** under `phases/17-v1-2-expanded-macro-signals/`.
 
 ## Milestone alignment
 

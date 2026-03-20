@@ -91,7 +91,7 @@ Deliver **DATA-10** for milestone v1.2: wire **already-configured** expanded FRE
     4. If any new column is **supervised-only** (not in clustering), document in `17-CONTEXT.md` and ensure it still appears in **features_supervised** path when causal=True.
   </action>
   <acceptance_criteria>
-    - `python -c "from trading_crab_lib.config import load; c=load(); print(len(c['features']['clustering_features']))"` runs without error.
+    - `python -c "from trading_crab_lib.config import load; c=load(); print(len(c['features']['clustering_features']))"` runs without error (see `trading_crab_lib/config.py`).
     - No duplicate logical spread in `clustering_features` without comment in YAML.
   </acceptance_criteria>
 </task>
