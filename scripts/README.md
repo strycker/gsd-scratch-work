@@ -11,6 +11,16 @@
 
 Prerequisites for `--send-email`: valid `config/email.local.yaml`; prior successful run must have produced `outputs/reports/weekly_report.md` (the script runs the pipeline first).
 
+## repair_macro_raw.py
+
+Targeted **FRED + multpl** merge for missing columns in `data/raw/macro_raw.parquet` (same logic as step 1 partial repair). Use when the checkpoint is missing series names like `div_yield`, `gdp`, `sp500`, etc.
+
+```bash
+PYTHONPATH=src python scripts/repair_macro_raw.py
+```
+
+If columns remain missing (scraping/API issues), run a full ingest: `python run_pipeline.py --steps 1 --refresh`.
+
 ## run_weekly_report.py
 
 Single entry point for the **weekly regime + recommendation report**.

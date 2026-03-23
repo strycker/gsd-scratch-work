@@ -320,27 +320,17 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
     Optionally attaches ``market_code`` from the configured source."""
     from trading_crab_lib.ingestion import fred as fred_module
     from trading_crab_lib.ingestion import multpl as multpl_module
-    from trading_crab_lib.ingestion.macro_partial import merge_missing_macro_columns
+    from trading_crab_lib.ingestion.macro_partial import (
+        REQUIRED_MACRO_RAW_FOR_STEP2,
+        merge_missing_macro_columns,
+    )
     from trading_crab_lib.checkpoints import CheckpointManager
     from trading_crab_lib import plotting
     import pandas as pd
 
     cm = CheckpointManager()
     ttl = _checkpoint_ttl_days(cfg)
-    required_for_step2 = {
-        # Needed by transforms.add_cross_ratios() (cross-asset ratios)
-        "dividend",
-        "sp500",
-        "gdp",
-        "fred_gdp",
-        "fred_gnp",
-        "div_yield",
-        "fred_baa",
-        "fred_aaa",
-        "cpi",
-        "fred_cpi",
-        "sp500_adj",
-    }
+    required_for_step2 = set(REQUIRED_MACRO_RAW_FOR_STEP2)
 
     raw_path = DATA_DIR / "raw" / "macro_raw.parquet"
 
@@ -373,14 +363,24 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
                 len(missing),
                 missing,
             )
+            before_merge_cols = set(combined.columns)
             try:
-                before = set(combined.columns)
                 combined = merge_missing_macro_columns(combined, set(missing), cfg)
-                if set(combined.columns) != before:
-                    dirty = True
             except Exception as exc:
                 log.warning("Step 1: partial macro ingest failed (%s)", exc)
             missing = sorted(required_for_step2 - set(combined.columns))
+            added = set(combined.columns) - before_merge_cols
+            if added:
+                dirty = True
+                # Persist partial merge so data/raw/macro_raw.parquet and the checkpoint
+                # are not left stale if we later fall through to full fetch or exit early.
+                combined.to_parquet(raw_path)
+                cm.save(combined, "macro_raw")
+                log.info(
+                    "Step 1: wrote macro_raw after partial merge (+%d column(s): %s)",
+                    len(added),
+                    sorted(added),
+                )
 
         if not missing:
             log.info("Step 1: using cached macro_raw checkpoint")

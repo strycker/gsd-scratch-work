@@ -15,6 +15,24 @@ import pandas as pd
 
 log = logging.getLogger(__name__)
 
+# Columns required for step 2 transforms (cross-ratios, etc.) — keep in sync with
+# ``run_pipeline.step1_ingest`` / ``_repair_macro_raw_missing_columns``.
+REQUIRED_MACRO_RAW_FOR_STEP2: frozenset[str] = frozenset(
+    {
+        "dividend",
+        "sp500",
+        "gdp",
+        "fred_gdp",
+        "fred_gnp",
+        "div_yield",
+        "fred_baa",
+        "fred_aaa",
+        "cpi",
+        "fred_cpi",
+        "sp500_adj",
+    }
+)
+
 
 def fred_column_names(cfg: dict) -> set[str]:
     return {meta["name"] for meta in cfg["fred"]["series"].values()}
