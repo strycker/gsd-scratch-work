@@ -792,6 +792,10 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
         pickle.dump(rf_model, f)
     with open(model_dir / "decision_tree.pkl", "wb") as f:
         pickle.dump(dt_model, f)
+    if "gb" in current_bundle["models"]:
+        with open(model_dir / "current_regime_gb.pkl", "wb") as f:
+            pickle.dump(current_bundle["models"]["gb"], f)
+        log.info("Step 5: saved gradient boosting model → current_regime_gb.pkl")
     with open(model_dir / "forward_classifiers.pkl", "wb") as f:
         pickle.dump(forward_models, f)
 
@@ -869,17 +873,33 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
         except Exception as exc:
             log.warning("Could not generate prediction plots: %s", exc)
 
-    # ── Interpretability tree (Phase 9) ───────────────────────────────────────
+    # ── Interpretability tree (Phase 9) — RF top features ─────────────────────
+    report_dir = OUTPUT_DIR / "reports"
+    report_dir.mkdir(parents=True, exist_ok=True)
     try:
         tree_model, tree_features = train_interpretability_tree(rf_model, X, y, cfg)
         tree_txt = export_text(tree_model, feature_names=tree_features)
-        report_dir = OUTPUT_DIR / "reports"
-        report_dir.mkdir(parents=True, exist_ok=True)
         tree_path = report_dir / "current_regime_tree.txt"
         tree_path.write_text(tree_txt, encoding="utf-8")
         log.info("Wrote interpretability tree → %s", tree_path)
     except Exception as exc:  # pragma: no cover - defensive
         log.warning("Could not generate interpretability tree: %s", exc)
+
+    # ── Interpretability tree on gradient boosting (Phase 19 / MODEL-11) ─────
+    pred_cfg = cfg.get("prediction", {})
+    if (
+        "gb" in current_bundle["models"]
+        and pred_cfg.get("interpret_tree_on_boosted", True)
+    ):
+        try:
+            gb_model = current_bundle["models"]["gb"]
+            tree_gb, tree_features_gb = train_interpretability_tree(gb_model, X, y, cfg)
+            tree_txt_gb = export_text(tree_gb, feature_names=tree_features_gb)
+            tree_path_gb = report_dir / "current_regime_tree_gb.txt"
+            tree_path_gb.write_text(tree_txt_gb, encoding="utf-8")
+            log.info("Wrote GB interpretability tree → %s", tree_path_gb)
+        except Exception as exc:  # pragma: no cover - defensive
+            log.warning("Could not generate GB interpretability tree: %s", exc)
 
     log.info("Step 5 done — models saved to %s", model_dir)
 

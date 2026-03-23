@@ -57,3 +57,19 @@ def test_train_interpretability_tree_respects_config_depth_and_top_k() -> None:
     # The fitted tree should be able to predict on the same feature subset
     preds = tree.predict(X[top_features])
     assert len(preds) == len(X)
+
+
+def test_train_interpretability_tree_on_gb_when_boosted() -> None:
+    cfg = load()
+    cfg.setdefault("prediction", {})
+    cfg["prediction"]["use_boosted"] = True
+    cfg["prediction"]["interpret_tree_on_boosted"] = True
+    cfg["prediction"]["interpret_top_k_features"] = 4
+
+    X, y = _make_synthetic_data()
+    bundle = train_current_regime(X, y, cfg)
+    assert "gb" in bundle["models"]
+    gb = bundle["models"]["gb"]
+    tree, top_features = train_interpretability_tree(gb, X, y, cfg)
+    assert len(top_features) == 4
+    assert len(tree.predict(X[top_features])) == len(X)

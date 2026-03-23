@@ -4,7 +4,11 @@ import numpy as np
 import pandas as pd
 
 from trading_crab_lib.config import load
-from trading_crab_lib.prediction.classifier import train_current_regime, train_forward_classifiers
+from trading_crab_lib.prediction.classifier import (
+    make_gradient_boosting_classifier,
+    train_current_regime,
+    train_forward_classifiers,
+)
 
 
 def _make_synthetic_data(n_samples: int = 40, n_features: int = 5, n_regimes: int = 3):
@@ -39,6 +43,21 @@ def test_train_current_regime_includes_gb_when_enabled() -> None:
         proba = models["gb"].predict_proba(X)
         assert proba.shape[0] == len(X)
         np.testing.assert_allclose(proba.sum(axis=1), np.ones(len(X)), rtol=1e-6)
+
+
+def test_make_gradient_boosting_classifier_reads_prediction_yaml_keys() -> None:
+    cfg = {
+        "prediction": {
+            "boosted_max_depth": 4,
+            "boosted_learning_rate": 0.05,
+            "boosted_n_estimators": 100,
+            "random_state": 42,
+        }
+    }
+    gb = make_gradient_boosting_classifier(cfg)
+    assert gb.max_depth == 4
+    assert gb.learning_rate == 0.05
+    assert gb.n_estimators == 100
 
 
 def test_train_forward_classifiers_supports_gb_flag() -> None:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Callable, Dict, Hashable, Iterable, List, Tuple
+from typing import Any, Callable, Dict, Hashable, Iterable, List, Tuple
 import copy
 
 import numpy as np
@@ -30,7 +30,7 @@ class FoldReport:
 
 
 def _tscv_reports(
-    model_factory: Callable[[], RandomForestClassifier | DecisionTreeClassifier],
+    model_factory: Callable[[], Any],
     X: pd.DataFrame,
     y: pd.Series,
     n_splits: int,
@@ -100,7 +100,7 @@ def _tscv_reports(
 
 
 def _tscv_scores(
-    model_factory: Callable[[], RandomForestClassifier | DecisionTreeClassifier],
+    model_factory: Callable[[], Any],
     X: pd.DataFrame,
     y: pd.Series,
     n_splits: int,
@@ -134,6 +134,20 @@ def _unique_labels(labels: pd.Series | Iterable[Hashable]) -> List[Hashable]:
         return sorted(uniques.tolist() if isinstance(uniques, np.ndarray) else list(uniques))
     except TypeError:
         return list(uniques)
+
+
+def make_gradient_boosting_classifier(cfg: dict | None) -> GradientBoostingClassifier:
+    """
+    Build ``GradientBoostingClassifier`` from ``cfg['prediction']`` keys:
+    ``boosted_max_depth``, ``boosted_learning_rate``, ``boosted_n_estimators``.
+    """
+    pcfg = (cfg or {}).get("prediction", {})
+    return GradientBoostingClassifier(
+        max_depth=int(pcfg.get("boosted_max_depth", 6)),
+        learning_rate=float(pcfg.get("boosted_learning_rate", 0.1)),
+        n_estimators=int(pcfg.get("boosted_n_estimators", 200)),
+        random_state=int(pcfg.get("random_state", 42)),
+    )
 
 
 def train_current_regime(
@@ -182,12 +196,7 @@ def train_current_regime(
         )
 
     def make_gb() -> GradientBoostingClassifier:
-        return GradientBoostingClassifier(
-            max_depth=6,
-            learning_rate=0.1,
-            n_estimators=200,
-            random_state=42,
-        )
+        return make_gradient_boosting_classifier(cfg)
 
     cv_scores: Dict[str, dict] = {
         "dt": _tscv_scores(make_dt, features, labels, cv_splits, "DT current-regime"),
@@ -297,12 +306,7 @@ def train_forward_classifiers(
             )
 
         def make_gb() -> GradientBoostingClassifier:
-            return GradientBoostingClassifier(
-                max_depth=6,
-                learning_rate=0.1,
-                n_estimators=200,
-                random_state=42,
-            )
+            return make_gradient_boosting_classifier(cfg)
 
         cv_scores: Dict[str, dict] = {
             "dt": _tscv_scores(make_dt, X_h, y_h, cv_splits, f"DT forward h={h}"),

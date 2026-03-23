@@ -27,11 +27,11 @@ Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md
 
 ### 3. Models
 
-- [ ] **MODEL-10** — Gradient-boosted classifiers/regressors  
-  LightGBM or XGBoost (or similar) alongside RF/DT for current regime and forward horizons; same causal-feature and TimeSeriesSplit discipline.
+- [x] **MODEL-10** — Gradient-boosted classifiers/regressors  
+  Sklearn `GradientBoostingClassifier` alongside RF/DT for current regime and forward horizons; same causal-feature and TimeSeriesSplit discipline; `boosted_*` hyperparameters from `settings.yaml`. **Completed in Phase 19** — see `make_gradient_boosting_classifier`, `current_regime_gb.pkl`.
 
-- [ ] **MODEL-11** — Interpretability trees on boosted feature importances  
-  Fit shallow `DecisionTreeClassifier` on top-ranked features from boosted models; text/plot output for review.
+- [x] **MODEL-11** — Interpretability trees on boosted feature importances  
+  Shallow `DecisionTreeClassifier` on top‑K features from the GB model; `current_regime_tree_gb.txt`. **Completed in Phase 19**.
 
 ### 4. Tactics
 
@@ -82,7 +82,7 @@ These requirements make **`gsd-tools stats` / `validate health` / plan–summary
 |-------------|-------|--------|
 | DATA-10 | Phase 17 | Complete |
 | SIGNAL-10, SIGNAL-11 | Phase 18 | Complete |
-| MODEL-10, MODEL-11 | Phase 19 | Not started |
+| MODEL-10, MODEL-11 | Phase 19 | Complete |
 | TACTICS-10 | Phase 20 | Not started |
 | EMAIL-10, INSTALL-20 | Phase 21 | Not started |
 | DATA-11 | Phase 22 | Not started |

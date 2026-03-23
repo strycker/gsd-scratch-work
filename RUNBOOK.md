@@ -122,6 +122,25 @@ Checkpoints and manifests live under **`data/checkpoints/`**. The `CheckpointMan
 
 Changing `market_code` source **without** re-running dependent steps produces **semantic desync** between classifiers (MODEL-*) and return tables (PORT-*).
 
+### Step 5 — model artifacts (`outputs/models/` + reports)
+
+After supervised training (**step 5**), expect at least:
+
+| File | Role |
+|------|------|
+| `current_regime.pkl` | **RandomForest** — primary regime probabilities / production path |
+| `decision_tree.pkl` | Shallow **DecisionTree** (interpretability) |
+| `current_regime_gb.pkl` | **GradientBoostingClassifier** when `prediction.use_boosted: true` (hyperparameters from `boosted_*` in `settings.yaml`) |
+| `forward_classifiers.pkl` | Per-horizon DT/RF/(GB) models |
+| `behavior_models.pkl` | Per-asset behavior classifiers |
+
+Text interpretability exports under **`outputs/reports/`**:
+
+- `current_regime_tree.txt` — shallow tree on top‑K features from **RF** importances  
+- `current_regime_tree_gb.txt` — same pattern from **GB** when `interpret_tree_on_boosted: true`  
+
+Structured CV metrics: **`outputs/reports/model_metrics/`** (includes `gb` rows when boosted training runs).
+
 ---
 
 ## After re-clustering (regime_labels checklist)
@@ -188,4 +207,4 @@ Maps **`.planning/v1.0-MILESTONE-AUDIT.md`** integration / ops bullets to this f
 
 ---
 
-*Last updated with Phase 18 (SIGNAL-10/11 — diagnostics triggers, plots, weekly report hook).*
+*Last updated with Phase 19 (MODEL-10/11 — boosted hyperparameters, `current_regime_gb.pkl`, GB interpret tree).*

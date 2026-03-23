@@ -36,10 +36,13 @@ OUTPUT_DIR = crab.OUTPUT_DIR
 load = crab.load
 setup_logging = crab.setup_logging
 
+from sklearn.tree import export_text
+
 from trading_crab_lib.prediction.classifier import (
     train_current_regime,
     train_forward_classifiers,
     train_forward_behavior_models,
+    train_interpretability_tree,
 )
 from trading_crab_lib.prediction.feature_gating import select_step5_feature_path
 from trading_crab_lib.prediction.model_metrics_artifacts import write_model_metrics_artifacts
@@ -77,7 +80,7 @@ def main() -> None:
     y = labels.loc[X.index]
 
     cv_splits = cfg.get("prediction", {}).get("cv_splits", 5)
-    current_bundle = train_current_regime(X, y, cv_splits=cv_splits)
+    current_bundle = train_current_regime(X, y, cfg, cv_splits=cv_splits)
 
     models = current_bundle["models"]
 
@@ -97,7 +100,9 @@ def main() -> None:
         print(f"  Regime {r}: {p:.1%}")
 
     horizons = cfg.get("prediction", {}).get("forward_horizons_quarters", [1, 2, 4, 8])
-    forward_models = train_forward_classifiers(X, y, horizons=horizons, cv_splits=cv_splits)
+    forward_models = train_forward_classifiers(
+        X, y, horizons=horizons, cfg=cfg, cv_splits=cv_splits
+    )
 
     # ── Behavior models (per-asset up/flat/down) ─────────────────────────
     behavior_horizons = cfg.get("prediction", {}).get("behavior_horizons_quarters", [1])
@@ -139,6 +144,9 @@ def main() -> None:
         pickle.dump(rf, f)
     with open(model_dir / "decision_tree.pkl", "wb") as f:
         pickle.dump(dt_model, f)
+    if "gb" in models:
+        with open(model_dir / "current_regime_gb.pkl", "wb") as f:
+            pickle.dump(models["gb"], f)
     with open(model_dir / "forward_classifiers.pkl", "wb") as f:
         pickle.dump(forward_models, f)
     with open(model_dir / "behavior_models.pkl", "wb") as f:
@@ -154,6 +162,24 @@ def main() -> None:
         forward_models=forward_models,
         behavior_bundle=behavior_bundle,
     )
+
+    report_dir = OUTPUT_DIR / "reports"
+    report_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        tree_model, tree_features = train_interpretability_tree(rf, X, y, cfg)
+        (report_dir / "current_regime_tree.txt").write_text(
+            export_text(tree_model, feature_names=tree_features), encoding="utf-8"
+        )
+    except Exception:
+        pass
+    if "gb" in models and cfg.get("prediction", {}).get("interpret_tree_on_boosted", True):
+        try:
+            tree_gb, tree_features_gb = train_interpretability_tree(models["gb"], X, y, cfg)
+            (report_dir / "current_regime_tree_gb.txt").write_text(
+                export_text(tree_gb, feature_names=tree_features_gb), encoding="utf-8"
+            )
+        except Exception:
+            pass
 
     print(f"\nModels saved to {model_dir}")
 

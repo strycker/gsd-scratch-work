@@ -13,7 +13,7 @@
 
 - [ ] **Phase 17: v1.2 — Expanded macro & yield data** — **DATA-10**
 - [x] **Phase 18: v1.2 — Signal & diagnostic layer** — **SIGNAL-10**, **SIGNAL-11**
-- [ ] **Phase 19: v1.2 — Boosted models & interpretability trees** — **MODEL-10**, **MODEL-11**
+- [x] **Phase 19: v1.2 — Boosted models & interpretability trees** — **MODEL-10**, **MODEL-11**
 - [ ] **Phase 20: v1.2 — Tactics classification** — **TACTICS-10**
 - [ ] **Phase 21: v1.2 — Email delivery & install hardening** — **EMAIL-10**, **INSTALL-20**
 - [ ] **Phase 22: v1.2 — Providers & ETF universe** — **DATA-11**

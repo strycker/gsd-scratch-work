@@ -367,13 +367,14 @@ prediction:
   cv_splits:                 3     # TimeSeriesSplit folds for walk-forward CV
   dt_max_depth:              8     # DecisionTree depth (shallow = human-readable)
   rf_max_depth:              12    # RandomForest max_depth (null = unlimited)
-  # Phase 9: optional boosted models + interpretability trees
-  use_boosted:               true  # try to train a boosted model when library is available
+  # Phase 9 / 19: optional sklearn GradientBoosting + interpretability trees
+  use_boosted:               true  # train sklearn GradientBoostingClassifier alongside RF/DT
   boosted_max_depth:         6
   boosted_learning_rate:     0.1
   boosted_n_estimators:      200
   interpret_tree_max_depth:  3     # shallow tree for human-readable splits
   interpret_top_k_features:  10    # number of top features to use when fitting interpretability tree
+  interpret_tree_on_boosted: true  # when use_boosted, also write current_regime_tree_gb.txt from GB importances
 
 # ── Asset classes ─────────────────────────────────────────────────────────────
 # Phase 4 (v1.1): expanded ETF universe + portfolio templates.
