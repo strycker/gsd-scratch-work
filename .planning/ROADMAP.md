@@ -118,7 +118,7 @@
 | 18 | Signal & diagnostic layer | 1/? | Complete | |
 | 19 | Boosted models & trees | 1/? | Complete | |
 | 20 | Tactics classification | 1/1 | Complete | TACTICS-10 |
-| 21 | Email & install | 0/? | Not started | |
+| 21 | Email & install | 0/1 | Planned | EMAIL-10, INSTALL-20 |
 | 22 | Providers & universe | 0/? | Not started | |
 | 23 | v1.0 plan ↔ summary parity | 0/? | Not started | CLOSURE-01 |
 | 24 | v1.0 brownfield READMEs | 0/? | Not started | CLOSURE-02 |

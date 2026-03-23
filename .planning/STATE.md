@@ -5,12 +5,12 @@ milestone_name: tactics-triggers-expanded-signals
 current_phase: 21
 current_plan: 1
 status: in_progress
-stopped_at: "$gsd:execute-phase 20 — 20-v1-2-tactics-layer-01-PLAN.md"
+stopped_at: "$gsd:plan-phase 21 — 21-v1-2-email-and-install-01-PLAN.md"
 last_updated: "2026-03-23T12:00:00.000Z"
 progress:
   total_phases: 9
   completed_phases: 4
-  total_plans: 4
+  total_plans: 5
   completed_plans: 4
 previous_milestone:
   version: v1.0
@@ -31,7 +31,7 @@ previous_milestone:
 
 - **Milestone:** **v1.2** — Tactics, triggers, expanded signals.
 - **Roadmap:** Phases **17–22** defined in **`.planning/ROADMAP.md`**; requirements in **`.planning/REQUIREMENTS.md`**.
-- **Next:** **`$gsd:plan-phase 21`** / **`$gsd:execute-phase 21`** (EMAIL-10, INSTALL-20). Phase **20** (TACTICS-10) done — **`20-SUMMARY.md`** in `phases/20-v1-2-tactics-layer/`.
+- **Next:** **`$gsd:execute-phase 21`** (EMAIL-10, INSTALL-20). Phase **20** (TACTICS-10) done — **`20-SUMMARY.md`** in `phases/20-v1-2-tactics-layer/`. Plans: **`21-v1-2-email-and-install-01-PLAN.md`**.
 
 ## Milestone alignment
 
