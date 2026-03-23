@@ -16,12 +16,12 @@
 - [x] **Phase 19: v1.2 — Boosted models & interpretability trees** — **MODEL-10**, **MODEL-11**
 - [x] **Phase 20: v1.2 — Tactics classification** — **TACTICS-10**
 - [x] **Phase 21: v1.2 — Email delivery & install hardening** — **EMAIL-10**, **INSTALL-20**
-- [ ] **Phase 22: v1.2 — Providers & ETF universe** — **DATA-11**
+- [x] **Phase 22: v1.2 — Providers & ETF universe** — **DATA-11**
 
 **v1.0 GSD / evidence closure (stats tool showed “missing plans/summaries” for shipped phases):**
 
-- [ ] **Phase 23: v1.2 — v1.0 plan ↔ summary parity** — **CLOSURE-01**
-- [ ] **Phase 24: v1.2 — v1.0 brownfield phase READMEs** — **CLOSURE-02**
+- [x] **Phase 23: v1.2 — v1.0 plan ↔ summary parity** — **CLOSURE-01**
+- [x] **Phase 24: v1.2 — v1.0 brownfield phase READMEs** — **CLOSURE-02**
 - [ ] **Phase 25: v1.2 — Phase 3 plan 04 reconciliation** — **CLOSURE-03**
 
 ---
@@ -73,19 +73,19 @@
   2. No secrets committed; `.gitignore` verified.
   3. One-command or two-command “happy path” documented in `scripts/README.md` or similar.
 
-### Phase 22: v1.2 — Providers & ETF universe
+### Phase 22: v1.2 — Providers & ETF universe ✅
 **Goal:** Optional data providers and broader ETF list behind config; preserve checkpoint contracts.  
 **Depends on:** Phase 17; ingestion module patterns.  
-**Requirements:** DATA-11  
+**Requirements:** DATA-11 (done — see `phases/22-v1-2-providers-universe/22-SUMMARY.md`)  
 **Success criteria:**
   1. Provider modules are optional and fail soft when keys missing.
   2. ETF universe expansion documented in `settings.yaml`.
   3. Regression tests for ingestion contracts.
 
-### Phase 23: v1.2 — v1.0 plan ↔ summary parity
+### Phase 23: v1.2 — v1.0 plan ↔ summary parity ✅
 **Goal:** Satisfy **`validate health` I001** / `gsd-tools stats` plan–summary expectations for every **non–plan-04** plan file under `.planning/phases/` from milestone v1.0.  
 **Depends on:** Nothing blocking (documentation).  
-**Requirements:** CLOSURE-01  
+**Requirements:** CLOSURE-01 (done — see `phases/23-v1-0-plan-summary-parity/23-SUMMARY.md`)  
 **Success criteria:**
   1. For each plan in **CLOSURE-01** list, a matching `*-SUMMARY.md` exists (basename alignment), or the plan is explicitly superseded in git with a one-line pointer SUMMARY.
   2. `gsd-tools validate health` shows **no I001** for those paths (or accepted project convention documented in this phase’s SUMMARY).
@@ -119,7 +119,7 @@
 | 19 | Boosted models & trees | 1/? | Complete | |
 | 20 | Tactics classification | 1/1 | Complete | TACTICS-10 |
 | 21 | Email & install | 1/1 | Complete | EMAIL-10, INSTALL-20 |
-| 22 | Providers & universe | 0/? | Not started | |
-| 23 | v1.0 plan ↔ summary parity | 0/? | Not started | CLOSURE-01 |
-| 24 | v1.0 brownfield READMEs | 0/? | Not started | CLOSURE-02 |
+| 22 | Providers & universe | 1/1 | Complete | DATA-11 |
+| 23 | v1.0 plan ↔ summary parity | 1/1 | Complete | CLOSURE-01 |
+| 24 | v1.0 brownfield READMEs | 1/1 | Complete | CLOSURE-02 |
 | 25 | Phase 3 plan 04 reconciliation | 0/? | Not started | CLOSURE-03 |

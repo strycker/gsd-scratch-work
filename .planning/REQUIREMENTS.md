@@ -14,8 +14,8 @@ Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md
 - [x] **DATA-10** — Additional FRED series & yield spreads  
   Ingest and align (with publication lags) high-value series (e.g. VIXCLS, UNRATE, M2, GS2, T10Y2Y, T10Y3M, HOUST, UMCSENT where configured). Derived spreads in `transforms.py` with causal / non-causal parity. **Completed in Phase 17** — see `config/settings.yaml` `features.*` + `17-CONTEXT.md`.
 
-- [ ] **DATA-11** — Optional / configurable extra price & data providers  
-  Strengthen stooq fallback; evaluate optional APIs (finviz Elite, etc.) behind config flags without breaking checkpoint contracts.
+- [x] **DATA-11** — Optional / configurable extra price & data providers
+  Strengthen stooq fallback; evaluate optional APIs (finviz Elite, etc.) behind config flags without breaking checkpoint contracts. **Done in Phase 22** — `config/settings.yaml` **`assets.providers`**, per-ticker stooq after partial Yahoo failure, **`tests/unit/test_assets_providers.py`**, [`22-SUMMARY.md`](phases/22-v1-2-providers-universe/22-SUMMARY.md).
 
 ### 2. Signals & diagnostics
 
@@ -50,13 +50,11 @@ Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md
 
 These requirements make **`gsd-tools stats` / `validate health` / plan–summary parity** align with **shipped v1.0 product work**. They do not re-open the v1.0 **code** scope unless explicitly noted (**CLOSURE-03**).
 
-- [ ] **CLOSURE-01** — Per-plan `*-SUMMARY.md` for every remaining `*-PLAN.md`  
-  Add a summary file whose basename matches each plan (same rule as `validate health` I001). **Known gaps (2026-03-21):**  
-  `06-weekly-report-pipeline-01-PLAN.md`, `08-data-signals-diagnostics-01-PLAN.md`, `12-v1-audit-verify-phases-4-6-01-PLAN.md`, `13-v1-audit-verify-phases-7-11-01-PLAN.md`, `15-v1-gap-regime-profiles-names-01-PLAN.md`, `16-v1-gap-e2e-integration-runbook-01-PLAN.md`.  
-  Summaries may point to existing phase-level `NN-SUMMARY.md` where that file is the canonical narrative.
+- [x] **CLOSURE-01** — Per-plan `*-SUMMARY.md` for every remaining `*-PLAN.md`  
+  Add a summary file whose basename matches each plan (same rule as `validate health` I001). **Completed in Phase 23** — six `*-01-SUMMARY.md` files beside the plan; see [`phases/23-v1-0-plan-summary-parity/23-SUMMARY.md`](phases/23-v1-0-plan-summary-parity/23-SUMMARY.md). Phase-level `NN-SUMMARY.md` remains canonical where linked.
 
-- [ ] **CLOSURE-02** — Brownfield phase directories **04–11** (no historical `*-PLAN.md`)  
-  Add a short **`README.md`** in each of: `04-regime-conditional-etf-portfolio-behavior`, `05-recommendations-machine-readable-outputs`, `07-portfolio-and-email-integration`, `09-tactics-and-diagnostics`, `10-tactics-install`, `11-core-cleanup` (and **`06`**, **`08`** if not fully covered by **CLOSURE-01**) stating: work was delivered under v1.0; primary evidence is `*-VERIFICATION.md` / `*-VALIDATION.md` + `RUNBOOK.md` / pipeline entrypoints.
+- [x] **CLOSURE-02** — Brownfield phase directories **04–11** (no historical `*-PLAN.md`)  
+  Add a short **`README.md`** in each of: `04-regime-conditional-etf-portfolio-behavior`, `05-recommendations-machine-readable-outputs`, `07-portfolio-and-email-integration`, `09-tactics-and-diagnostics`, `10-tactics-install`, `11-core-cleanup` (and **`06`**, **`08`** if not fully covered by **CLOSURE-01**) stating: work was delivered under v1.0; primary evidence is `*-VERIFICATION.md` / `*-VALIDATION.md` + `RUNBOOK.md` / pipeline entrypoints. **Completed in Phase 24** — see [`phases/24-v1-0-brownfield-phase-readmes/24-SUMMARY.md`](phases/24-v1-0-brownfield-phase-readmes/24-SUMMARY.md).
 
 - [ ] **CLOSURE-03** — Phase **3** plan **04** (`03-supervised-regime-behavior-models-04-PLAN.md`)  
   Reconcile plan `must_haves` against the repo (`trading_crab_lib`, `pipelines/05_predict.py`, `outputs/reports/model_metrics/*`, tests). **Either:** implement/polish remaining gaps and update **VERIFICATION**/**VALIDATION**, **or** document a **signed waiver** (deferred items, rationale, optional follow-up REQ) in a new **`03-supervised-regime-behavior-models-04-SUMMARY.md`** plus a short note in **VERIFICATION**.
@@ -85,7 +83,7 @@ These requirements make **`gsd-tools stats` / `validate health` / plan–summary
 | MODEL-10, MODEL-11 | Phase 19 | Complete |
 | TACTICS-10 | Phase 20 | Complete |
 | EMAIL-10, INSTALL-20 | Phase 21 | Complete |
-| DATA-11 | Phase 22 | Not started |
-| CLOSURE-01 | Phase 23 | Not started |
-| CLOSURE-02 | Phase 24 | Not started |
+| DATA-11 | Phase 22 | Done |
+| CLOSURE-01 | Phase 23 | Done |
+| CLOSURE-02 | Phase 24 | Done |
 | CLOSURE-03 | Phase 25 | Not started |

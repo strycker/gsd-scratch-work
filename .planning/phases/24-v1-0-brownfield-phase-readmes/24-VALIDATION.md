@@ -1,8 +1,8 @@
 ---
 phase: 24
 slug: v1-0-brownfield-phase-readmes
-status: draft
-nyquist_compliant: false
+status: validated
+nyquist_compliant: true
 wave_0_complete: true
 created: 2026-03-23
 ---
@@ -35,9 +35,9 @@ created: 2026-03-23
 
 | Task ID | Plan | Wave | Requirement | Check | Status |
 |---------|------|------|-------------|-------|--------|
-| 24-01-01 | 01 | 1 | CLOSURE-02 | `README.md` in 04–07 | ⬜ |
-| 24-01-02 | 01 | 1 | CLOSURE-02 | `README.md` in 08–11 | ⬜ |
-| 24-01-03 | 01 | 1 | CLOSURE-02 | REQUIREMENTS + ROADMAP rows | ⬜ |
+| 24-01-01 | 01 | 1 | CLOSURE-02 | `README.md` in 04–07 | ✅ |
+| 24-01-02 | 01 | 1 | CLOSURE-02 | `README.md` in 08–11 | ✅ |
+| 24-01-03 | 01 | 1 | CLOSURE-02 | REQUIREMENTS + ROADMAP rows | ✅ |
 
 ---
 
@@ -57,8 +57,8 @@ created: 2026-03-23
 
 ## Validation Sign-Off
 
-- [ ] All eight `README.md` files exist with required pointers
-- [ ] `nyquist_compliant: true` set when execution complete
-- [ ] CLOSURE-02 marked done in REQUIREMENTS
+- [x] All eight `README.md` files exist with required pointers
+- [x] `nyquist_compliant: true` set when execution complete
+- [x] CLOSURE-02 marked done in REQUIREMENTS
 
-**Approval:** pending
+**Approval:** 2026-03-23
