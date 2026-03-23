@@ -60,7 +60,7 @@ Close **TACTICS-10** for v1.2: enrich the existing step-9 tactics layer with **m
 <context>
 **Regression guard:** Run `PYTHONPATH=src python -m pytest tests/test_tactics.py -q` after each task cluster.
 
-**Compatibility:** Default `tactics.classification_version: "v1_2"` may change labels vs legacy; keep `classification_version: "v1"` path that preserves current mid-vol + first-slope behavior for one release if tests require it — otherwise document label migration in 20-SUMMARY.md.
+**Compatibility:** Default `classification_version: "v1"` preserves current labels; set `"v1_2"` in YAML to activate multi-horizon classification — document any bucket shifts in `20-SUMMARY.md`.
 </context>
 
 <tasks>
@@ -74,7 +74,7 @@ Close **TACTICS-10** for v1.2: enrich the existing step-9 tactics layer with **m
   </read_first>
   <action>
     1. Under `tactics:` add YAML keys with documented defaults:
-       - `classification_version: "v1_2"` (string; `"v1"` preserves legacy classify path).
+       - `classification_version: "v1"` (default — preserves legacy behavior); set `"v1_2"` to enable multi-horizon aggregate + new columns in classification.
        - `vol_aggregate: "max"` — one of `max`, `median`, `mean` — used to combine `vol_*` for band logic in v1_2.
        - `entry_bias: { short_slope_window: 5, long_slope_window: 20 }` — windows must exist in `trend_windows` or add **5** to default `trend_windows` list `[5, 20, 60]` for tactics only.
        - `soft_stop_proxy: { enabled: true, window: 20 }` — z-score of last close vs rolling mean of close over `window` (per asset).
