@@ -1,10 +1,11 @@
 ---
 phase: 21
 slug: v1-2-email-and-install
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-03-23
+validated: 2026-03-23
 ---
 
 # Phase 21 — Validation Strategy
@@ -19,8 +20,8 @@ created: 2026-03-23
 |----------|-------|
 | **Framework** | pytest |
 | **Config file** | `pyproject.toml` |
-| **Quick run command** | `PYTHONPATH=src python -m pytest tests/test_gitignore_secrets.py tests/test_email_weekly.py -q` |
-| **Email + script** | `PYTHONPATH=src python -m pytest tests/test_scripts_weekly_report.py -q` |
+| **Full regression (phase 21)** | `PYTHONPATH=src python -m pytest tests/test_gitignore_secrets.py tests/test_email_weekly.py tests/test_scripts_weekly_report.py -q` |
+| **Gitignore only** | `PYTHONPATH=src python -m pytest tests/test_gitignore_secrets.py -q` |
 
 ---
 
@@ -28,9 +29,10 @@ created: 2026-03-23
 
 | Task | Requirement | Automated Command | Status |
 |------|-------------|-------------------|--------|
-| 21-01-01 | INSTALL-20 | `grep -q email.example.yaml scripts/setup.sh` | ⬜ |
-| 21-01-02 | EMAIL-10 docs | `grep -n send-email RUNBOOK.md` | ⬜ |
-| 21-01-03 | Gitignore test | `pytest tests/test_gitignore_secrets.py -q` | ⬜ |
+| 21-01-01 | INSTALL-20 | `grep -q email.example.yaml scripts/setup.sh` | ✅ |
+| 21-01-02 | EMAIL-10 docs | `grep -n send-email RUNBOOK.md` | ✅ |
+| 21-01-03 | Gitignore + email regression | `pytest tests/test_gitignore_secrets.py tests/test_email_weekly.py tests/test_scripts_weekly_report.py -q` | ✅ |
+| — | `setup.sh` syntax | `bash -n scripts/setup.sh` | ✅ |
 
 ---
 
@@ -42,8 +44,20 @@ created: 2026-03-23
 
 ---
 
+## Validation Audit 2026-03-23
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Requirements with automated verification | 4 (incl. `bash -n`) |
+| Manual-only | 1 (SMTP to real inbox) |
+
+**Commands run:** `grep` / `pytest` (19 passed) / `bash -n` — all green.
+
+---
+
 ## Validation Sign-Off
 
-- [ ] `nyquist_compliant: true` when phase execute complete
+- [x] `nyquist_compliant: true` when phase execute complete
 
-**Approval:** pending
+**Approval:** automated verification complete; SMTP smoke remains operator manual-only.

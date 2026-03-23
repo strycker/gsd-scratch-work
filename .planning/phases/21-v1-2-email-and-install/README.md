@@ -8,4 +8,5 @@
 | `21-v1-2-email-and-install-01-PLAN.md` | Executable plan for `$gsd:execute-phase 21` |
 
 **Requirements:** EMAIL-10, INSTALL-20  
-**Next:** `$gsd:execute-phase 21`
+**Summary:** `21-SUMMARY.md`  
+**Next:** `$gsd:plan-phase 22` (DATA-11)

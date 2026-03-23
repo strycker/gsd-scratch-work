@@ -54,6 +54,7 @@ Total: 213 passed, 8 skipped (HDBSCAN optional) — ✅ all passing (Python 3.11
 - ✅ yfinance: SPY, GLD, TLT, USO, QQQ, IWM, VNQ, AGG (8 ETFs)
 - ✅ Grok baseline labels: `data/grok_quarter_classifications_20260216.pickle`
 - ✅ SSL fix for curl_cffi (macOS/proxy environments)
+- ✅ **FRED + macOS:** `fredapi` uses `urllib` without a CA bundle; ingestion patches `fredapi.fred.urlopen` to use **certifi** (see `fred.ssl_verify` in `config/settings.yaml`) so you don’t get `CERTIFICATE_VERIFY_FAILED: unable to get local issuer certificate` on Python.org/macOS builds with an incomplete trust store.
 - ✅ Publication-lag shift for GDP (+1Q) and GNP (+1Q)
 
 ### Feature Engineering

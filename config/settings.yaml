@@ -25,7 +25,13 @@ data:
 # ── FRED series ───────────────────────────────────────────────────────────────
 # shift: true → series is lagged one quarter to account for publication delay.
 # GDP and GNP are released after the quarter ends — shifting prevents look-ahead.
+#
+# SSL: fredapi uses urllib without a CA bundle. On macOS, Python often hits
+# CERTIFICATE_VERIFY_FAILED — we patch urlopen to use certifi's bundle when
+# ssl_verify is true (default). Set ssl_verify: false only for local debugging
+# (disables TLS verification; insecure).
 fred:
+  ssl_verify: true
   series:
     GDP:
       name:  "fred_gdp"

@@ -38,6 +38,7 @@ Predict market conditions, optimal portfolios, and stock picks by:
 - **Python 3.10+** — check with `python3 --version`
 - **Git** — to clone the repo
 - **FRED API key** — free at [fred.stlouisfed.org/docs/api/api_key.html](https://fred.stlouisfed.org/docs/api/api_key.html)
+- **macOS + FRED TLS** — if you see `CERTIFICATE_VERIFY_FAILED` on FRED fetches, the pipeline uses **certifi** for those calls (`fred.ssl_verify` in `config/settings.yaml`); details in [STATE.md](STATE.md) (Data Ingestion).
 - **Conda / Miniconda recommended** — the repo ships with a `py310` conda workflow and a pytest wrapper that avoids PATH/shebang mismatches.
 
 ### Quick Start (automated)
