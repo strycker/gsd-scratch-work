@@ -469,7 +469,15 @@ def write_weekly_report_md(
         lines.append("Transition probabilities not available.")
     lines.append("")
 
-    # Optional tactics section (Phase 10A)
+    if cfg is None:
+        try:
+            from trading_crab_lib.config import load
+
+            cfg = load()
+        except Exception:
+            cfg = {}
+
+    # Optional tactics section (Phase 10A / Phase 20 enrich)
     from trading_crab_lib import OUTPUT_DIR  # local import to avoid circulars
 
     tactics_path = OUTPUT_DIR / "reports" / "tactics_signals.parquet"
@@ -488,18 +496,37 @@ def write_weekly_report_md(
                 lines.append(f"- **Swing-trade candidates:** {', '.join(swing)}")
             if stand_aside:
                 lines.append(f"- **Stand-aside:** {', '.join(stand_aside)}")
+            tact_cfg = (cfg or {}).get("tactics") or {}
+            if tact_cfg.get("weekly_report_enrich") and (
+                "entry_bias_score" in tac.columns or "soft_stop_z" in tac.columns
+            ):
+                lines.append("")
+                lines.append("*Enriched (TACTICS-10):*")
+                if "entry_bias_score" in tac.columns:
+                    sub = tac.dropna(subset=["entry_bias_score"]).copy()
+                    if not sub.empty:
+                        sub = sub.sort_values("entry_bias_score", ascending=False)
+                        top = sub.head(3)
+                        parts = [
+                            f"{r['asset']} ({float(r['entry_bias_score']):+.2f})"
+                            for _, r in top.iterrows()
+                        ]
+                        lines.append(f"- **Top entry bias (score):** {', '.join(parts)}")
+                if "soft_stop_z" in tac.columns:
+                    subz = tac.dropna(subset=["soft_stop_z"]).copy()
+                    if not subz.empty:
+                        subz["abs_z"] = subz["soft_stop_z"].abs()
+                        topz = subz.sort_values("abs_z", ascending=False).head(3)
+                        parts_z = [
+                            f"{r['asset']} (z={float(r['soft_stop_z']):+.2f})"
+                            for _, r in topz.iterrows()
+                        ]
+                        lines.append(f"- **Largest soft-stop |z| (distance from rolling mean):** {', '.join(parts_z)}")
             lines.append("")
         except Exception:
             # Do not let a malformed tactics file break the report.
             pass
 
-    if cfg is None:
-        try:
-            from trading_crab_lib.config import load
-
-            cfg = load()
-        except Exception:
-            cfg = {}
     _append_diagnostics_section(lines, cfg)
 
     text = "\n".join(lines)

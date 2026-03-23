@@ -35,8 +35,8 @@ Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md
 
 ### 4. Tactics
 
-- [ ] **TACTICS-10** — Strategy vs tactics classification  
-  Classify assets/templates into buy-and-hold vs swing vs stand-aside using multi-horizon volatility, trend, correlations; weekly-entry bias; soft stops (e.g. anchored VWAP ideas) — no mandatory auto-execution.
+- [x] **TACTICS-10** — Strategy vs tactics classification  
+  Classify assets/templates into buy-and-hold vs swing vs stand-aside using multi-horizon volatility, trend, correlations; weekly-entry bias; soft stops (e.g. anchored VWAP ideas) — no mandatory auto-execution. **Completed in Phase 20** — `src/trading_crab_lib/tactics.py` (`classification_version` v1 vs v1_2, `vol_aggregate`, `entry_bias_score`, `soft_stop_z`, `as_of` / `quarter_end`); artifact **`outputs/reports/tactics_signals.parquet`** (extra columns); optional weekly enrich via `tactics.weekly_report_enrich`.
 
 ### 5. Email & ops
 
@@ -83,7 +83,7 @@ These requirements make **`gsd-tools stats` / `validate health` / plan–summary
 | DATA-10 | Phase 17 | Complete |
 | SIGNAL-10, SIGNAL-11 | Phase 18 | Complete |
 | MODEL-10, MODEL-11 | Phase 19 | Complete |
-| TACTICS-10 | Phase 20 | Not started |
+| TACTICS-10 | Phase 20 | Complete |
 | EMAIL-10, INSTALL-20 | Phase 21 | Not started |
 | DATA-11 | Phase 22 | Not started |
 | CLOSURE-01 | Phase 23 | Not started |

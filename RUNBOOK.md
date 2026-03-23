@@ -159,7 +159,7 @@ Core **end-to-end “weekly product”** path is usually steps **1–7** (ingest
 | Step | Name | Main outputs |
 |------|------|----------------|
 | **8** | diagnostics | `outputs/reports/diagnostics/ratios_current.parquet`, `rrg_current.parquet` (config in `diagnostics.*`); optional PNGs `outputs/plots/08_diagnostics_*.png` with **`--plots`** |
-| **9** | tactics | `outputs/reports/tactics_signals.parquet` (and related tactics config in `settings.yaml`) |
+| **9** | tactics | `outputs/reports/tactics_signals.parquet` — per-asset `tactics_label`, vol/trend/corr metrics, **`as_of`**, **`quarter_end`**, **`last_price`**, **`entry_bias_score`**, **`soft_stop_z`** (Phase 20); **`tactics.classification_version`** (`v1` \| `v1_2`), **`vol_aggregate`**, **`weekly_report_enrich`** in `settings.yaml` |
 
 **Step 8 prerequisite:** ETF **prices** must exist (`data/raw/asset_prices.parquet` from step **6** or a prior run). Ratio **trigger** rules and `rrg_lookback` live under **`config/settings.yaml` → `diagnostics`**.
 
@@ -207,4 +207,6 @@ Maps **`.planning/v1.0-MILESTONE-AUDIT.md`** integration / ops bullets to this f
 
 ---
 
-*Last updated with Phase 19 (MODEL-10/11 — boosted hyperparameters, `current_regime_gb.pkl`, GB interpret tree).*
+*Last updated with Phase 20 (TACTICS-10 — multi-horizon tactics v1_2, entry bias, soft-stop proxy, weekly report enrich).*
+
+**Quick test (tactics only):** `PYTHONPATH=src python -m pytest tests/test_tactics.py -q`

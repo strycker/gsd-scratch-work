@@ -516,12 +516,23 @@ diagnostics:
     - SPY
     - VT
 
-# ── Tactics (Phase 10A) ────────────────────────────────────────────────────────
+# ── Tactics (Phase 10A / Phase 20 TACTICS-10) ──────────────────────────────────
 tactics:
+  # v1 = legacy labels; v1_2 = multi-horizon vol aggregate + shortest-window slope
+  classification_version: "v1"
+  vol_aggregate: "max" # max | median | mean — used when classification_version is v1_2
   vol_windows: [5, 20, 60]
   vol_bands:
     low: 0.05
     high: 0.25
-  trend_windows: [20, 60]
+  trend_windows: [5, 20, 60]
   trend_min_slope: 0.0
   corr_lookback: 60
+  min_corr_spy: null # set e.g. 0.1 to stand_aside when corr to SPY below threshold
+  entry_bias:
+    short_slope_window: 5
+    long_slope_window: 20
+  soft_stop_proxy:
+    enabled: true
+    window: 20
+  weekly_report_enrich: false # true → top entry_bias_score lines in weekly Tactics section

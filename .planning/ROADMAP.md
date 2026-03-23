@@ -14,7 +14,7 @@
 - [ ] **Phase 17: v1.2 — Expanded macro & yield data** — **DATA-10**
 - [x] **Phase 18: v1.2 — Signal & diagnostic layer** — **SIGNAL-10**, **SIGNAL-11**
 - [x] **Phase 19: v1.2 — Boosted models & interpretability trees** — **MODEL-10**, **MODEL-11**
-- [ ] **Phase 20: v1.2 — Tactics classification** — **TACTICS-10**
+- [x] **Phase 20: v1.2 — Tactics classification** — **TACTICS-10**
 - [ ] **Phase 21: v1.2 — Email delivery & install hardening** — **EMAIL-10**, **INSTALL-20**
 - [ ] **Phase 22: v1.2 — Providers & ETF universe** — **DATA-11**
 
@@ -115,9 +115,9 @@
 | Phase | Name | Plans Complete | Status | Notes |
 |-------|------|----------------|--------|-------|
 | 17 | Expanded macro & yield data | 0/? | Not started | |
-| 18 | Signal & diagnostic layer | 0/? | Not started | |
-| 19 | Boosted models & trees | 0/? | Not started | |
-| 20 | Tactics classification | 0/? | Not started | |
+| 18 | Signal & diagnostic layer | 1/? | Complete | |
+| 19 | Boosted models & trees | 1/? | Complete | |
+| 20 | Tactics classification | 1/1 | Complete | TACTICS-10 |
 | 21 | Email & install | 0/? | Not started | |
 | 22 | Providers & universe | 0/? | Not started | |
 | 23 | v1.0 plan ↔ summary parity | 0/? | Not started | CLOSURE-01 |
