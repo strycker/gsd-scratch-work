@@ -40,11 +40,11 @@ Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md
 
 ### 5. Email & ops
 
-- [ ] **EMAIL-10** — SMTP weekly report delivery  
-  Optional send of `weekly_report.md` (or derived HTML/text) using local untracked config; no secrets in git.
+- [x] **EMAIL-10** — SMTP weekly report delivery  
+  Optional send of `weekly_report.md` (or derived HTML/text) using local untracked config; no secrets in git. **Completed in Phase 21** — `trading_crab_lib/email.py`, `run_pipeline.py` / `scripts/run_weekly_report.py` `--send-email`, **`RUNBOOK.md`** section *SMTP / weekly email (EMAIL-10)*, `config/email.example.yaml` → `email.local.yaml`.
 
-- [ ] **INSTALL-20** — Setup helper for new secrets & env  
-  Scripts/docs to scaffold `.env`, email config templates, smoke checks (extends v1 installer story without duplicating v1 **INSTALL-10** scope).
+- [x] **INSTALL-20** — Setup helper for new secrets & env  
+  Scripts/docs to scaffold `.env`, email config templates, smoke checks (extends v1 installer story without duplicating v1 **INSTALL-10** scope). **Completed in Phase 21** — **`scripts/setup.sh`** scaffolds `email.local.yaml`; **`scripts/README.md`** Happy path; **`tests/test_gitignore_secrets.py`**.
 
 ### 6. v1.0 planning evidence closure (GSD hygiene for phases 1–16)
 
@@ -84,7 +84,7 @@ These requirements make **`gsd-tools stats` / `validate health` / plan–summary
 | SIGNAL-10, SIGNAL-11 | Phase 18 | Complete |
 | MODEL-10, MODEL-11 | Phase 19 | Complete |
 | TACTICS-10 | Phase 20 | Complete |
-| EMAIL-10, INSTALL-20 | Phase 21 | Not started |
+| EMAIL-10, INSTALL-20 | Phase 21 | Complete |
 | DATA-11 | Phase 22 | Not started |
 | CLOSURE-01 | Phase 23 | Not started |
 | CLOSURE-02 | Phase 24 | Not started |

@@ -15,7 +15,7 @@
 - [x] **Phase 18: v1.2 — Signal & diagnostic layer** — **SIGNAL-10**, **SIGNAL-11**
 - [x] **Phase 19: v1.2 — Boosted models & interpretability trees** — **MODEL-10**, **MODEL-11**
 - [x] **Phase 20: v1.2 — Tactics classification** — **TACTICS-10**
-- [ ] **Phase 21: v1.2 — Email delivery & install hardening** — **EMAIL-10**, **INSTALL-20**
+- [x] **Phase 21: v1.2 — Email delivery & install hardening** — **EMAIL-10**, **INSTALL-20**
 - [ ] **Phase 22: v1.2 — Providers & ETF universe** — **DATA-11**
 
 **v1.0 GSD / evidence closure (stats tool showed “missing plans/summaries” for shipped phases):**
@@ -118,7 +118,7 @@
 | 18 | Signal & diagnostic layer | 1/? | Complete | |
 | 19 | Boosted models & trees | 1/? | Complete | |
 | 20 | Tactics classification | 1/1 | Complete | TACTICS-10 |
-| 21 | Email & install | 0/1 | Planned | EMAIL-10, INSTALL-20 |
+| 21 | Email & install | 1/1 | Complete | EMAIL-10, INSTALL-20 |
 | 22 | Providers & universe | 0/? | Not started | |
 | 23 | v1.0 plan ↔ summary parity | 0/? | Not started | CLOSURE-01 |
 | 24 | v1.0 brownfield READMEs | 0/? | Not started | CLOSURE-02 |

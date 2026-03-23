@@ -185,11 +185,30 @@ python run_pipeline.py --steps 8,9 --plots
 
 ---
 
+## SMTP / weekly email (EMAIL-10)
+
+Optional delivery of **`outputs/reports/weekly_report.md`** (or **`email_body.txt`**) via **SMTP**. Secrets live only in **`config/email.local.yaml`** (gitignored); scaffold from **`config/email.example.yaml`** — `bash scripts/setup.sh` copies the example when the local file is missing (same pattern as **`scripts/install_trading_crab.sh`**).
+
+| Piece | Location |
+|-------|----------|
+| Send helpers | `src/trading_crab_lib/email.py` — `load_email_config`, `build_weekly_email_body`, `send_weekly_email` |
+| Config template | `config/email.example.yaml` |
+| Gitignore contract | `tests/test_gitignore_secrets.py` |
+
+**CLI (after `weekly_report.md` exists):**
+
+- **`python run_pipeline.py --steps 2,3,4,5,6,7 --weekly-report --send-email`** (adjust `--steps` if checkpoints already fresh; add `--market-code grok` if you use that workflow).
+- Or **`python scripts/run_weekly_report.py --send-email`** — runs the weekly pipeline slice, archives the report, then sends (see [`scripts/README.md`](scripts/README.md)).
+
+If `email.local.yaml` is missing or incomplete, send is skipped with a logged warning — no crash.
+
+---
+
 ## Environment-only: email and setup (REPORT-03 / INSTALL-10)
 
 - **File-based outputs** (`outputs/reports/*.csv`, `*.md`, parquets) do **not** require SMTP or secrets.
-- **Email delivery** (REPORT-03) needs local credentials — do not commit them; use `.env` / installer docs.
-- See **[`scripts/README.md`](scripts/README.md)** for setup scripts, env checks, and smoke workflows referenced by INSTALL-10.
+- **Email delivery** (REPORT-03) needs local credentials — do not commit them; use `.env` / **`config/email.local.yaml`** / installer docs.
+- See **[`scripts/README.md`](scripts/README.md)** for setup scripts (including **Happy path (new machine)**), env checks, and smoke workflows referenced by INSTALL-10.
 
 ---
 
@@ -207,6 +226,6 @@ Maps **`.planning/v1.0-MILESTONE-AUDIT.md`** integration / ops bullets to this f
 
 ---
 
-*Last updated with Phase 20 (TACTICS-10 — multi-horizon tactics v1_2, entry bias, soft-stop proxy, weekly report enrich).*
+*Last updated with Phase 21 (EMAIL-10 / INSTALL-20 — `setup.sh` email scaffold, RUNBOOK SMTP section, `test_gitignore_secrets.py`).*
 
-**Quick test (tactics only):** `PYTHONPATH=src python -m pytest tests/test_tactics.py -q`
+**Quick tests:** `PYTHONPATH=src python -m pytest tests/test_tactics.py tests/test_gitignore_secrets.py -q`

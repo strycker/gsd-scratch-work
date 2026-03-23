@@ -12,6 +12,7 @@
 #   3. Installs pinned dependencies from requirements.txt (or requirements-dev.txt)
 #   4. Optionally installs k-means-constrained (for balanced clustering)
 #   5. Copies .env.example → .env if .env is missing
+#   5b. Copies config/email.example.yaml → email.local.yaml if missing (SMTP weekly report)
 #   6. Creates runtime output directories (data/, outputs/)
 #   7. Prints a quick-start reminder
 
@@ -123,6 +124,25 @@ else
   yellow "    Get a free key at: https://fred.stlouisfed.org/docs/api/api_key.html"
 fi
 
+# ── 5b. Email config (optional SMTP — EMAIL-10) ───────────────────────────────
+
+step "Optional: SMTP config for weekly report email"
+
+mkdir -p "$REPO_ROOT/config"
+EMAIL_LOCAL="$REPO_ROOT/config/email.local.yaml"
+EMAIL_EXAMPLE="$REPO_ROOT/config/email.example.yaml"
+
+if [[ -f "$EMAIL_LOCAL" ]]; then
+  yellow "  config/email.local.yaml already exists — skipping"
+elif [[ -f "$EMAIL_EXAMPLE" ]]; then
+  cp "$EMAIL_EXAMPLE" "$EMAIL_LOCAL"
+  green "  Copied config/email.example.yaml → config/email.local.yaml"
+  yellow "  ACTION REQUIRED: edit config/email.local.yaml with SMTP host, username, password, addresses."
+  yellow "    Gmail: use an app password — https://support.google.com/accounts/answer/185833"
+else
+  yellow "  config/email.example.yaml not found — skipping email scaffold"
+fi
+
 # ── 6. Runtime directories ────────────────────────────────────────────────────
 
 step "Creating runtime directories"
@@ -165,6 +185,10 @@ echo "       python run_pipeline.py --refresh --recompute --plots --market-code 
 echo ""
 echo "  Or run individual steps:"
 echo "       python run_pipeline.py --steps 3,4,5,6,7 --plots --market-code grok"
+echo ""
+echo "  Optional — weekly email (after config/email.local.yaml is filled):"
+echo "       python scripts/run_weekly_report.py --send-email"
+echo "    or: python run_pipeline.py --steps 2,3,4,5,6,7 --weekly-report --send-email --market-code grok"
 echo ""
 if [[ "$DEV_MODE" == true ]]; then
   echo "  Run tests:"

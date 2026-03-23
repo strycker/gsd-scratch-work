@@ -1,5 +1,16 @@
 # Scripts
 
+## Happy path (new machine) — INSTALL-20
+
+1. **`bash scripts/setup.sh`** (or `bash scripts/setup.sh --dev`) — creates `.venv/`, installs deps, copies **`.env.example` → `.env`**, **`config/email.example.yaml` → `config/email.local.yaml`** when missing, creates `data/` and `outputs/` trees.
+2. **Edit secrets (untracked):** set `FRED_API_KEY` in `.env`; set SMTP fields in `config/email.local.yaml` (see comments in that file).
+3. **`source .venv/bin/activate`**
+4. **Run the weekly report and optional email:**
+   - First time / full refresh: `python scripts/run_weekly_report.py --full --send-email` (needs network for ingest + SMTP).
+   - With cached checkpoints: `python scripts/run_weekly_report.py --send-email` (still needs SMTP to send).
+
+Prerequisites for `--send-email`: valid `config/email.local.yaml`; prior successful run must have produced `outputs/reports/weekly_report.md` (the script runs the pipeline first).
+
 ## run_weekly_report.py
 
 Single entry point for the **weekly regime + recommendation report**.
