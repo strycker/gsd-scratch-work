@@ -18,6 +18,7 @@ Out of scope: auto-trading, intraday execution, new pipeline step numbers (remai
 - **Weekly-entry bias** — Derived from **alignment of short vs long trend slopes** (e.g. additional short `trend_windows` entry) as a numeric `entry_bias_score` in `[-1, 1]` or discrete `favorable|neutral|unfavorable`; documented in YAML.
 - **Soft-stop proxy** — **No volume-based VWAP** unless price data extended; use **z-score of last close vs rolling mean** over configurable window (`soft_stop_proxy` block) — informational only.
 - **As-of / quarter** — Add `as_of` (last bar timestamp) and `quarter_end` (calendar quarter end string or timestamp) derived from the price panel index — satisfies ROADMAP “keyed by ETF and date/quarter” at **snapshot** granularity (one row per ETF per run).
+- **Rollout** — Default `classification_version: "v1"` preserves legacy label buckets; **`v1_2`** opt-in for multi-horizon aggregate classification once tests pin expected behavior.
 
 ## Claude's discretion
 
