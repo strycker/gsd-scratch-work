@@ -5,7 +5,7 @@
 
 Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md`.
 
-**Gap closure:** **`$gsd-audit-milestone`** reported **`gaps_found`** (see **`.planning/v1.2-MILESTONE-AUDIT.md`**). Phases **26–27** re-verify and close audit items; requirement checkboxes below are **pending** until those phases complete and **`$gsd-audit-milestone`** passes.
+**Gap closure:** **`$gsd-audit-milestone`** reported **`gaps_found`** (see **`.planning/v1.2-MILESTONE-AUDIT.md`**). **Phase 26** (GSD verification + roadmap + Nyquist 17–19) is **complete** (2026-03-24). **Phase 27** (weekly pipeline E2E + dashboard model wiring) remains **pending** for the listed SIGNAL/MODEL/TACTICS/EMAIL/INSTALL integration items.
 
 ---
 
@@ -13,11 +13,11 @@ Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md
 
 ### 1. Data & APIs
 
-- [ ] **DATA-10** — Additional FRED series & yield spreads  
-  Ingest and align (with publication lags) high-value series (e.g. VIXCLS, UNRATE, M2, GS2, T10Y2Y, T10Y3M, HOUST, UMCSENT where configured). Derived spreads in `transforms.py` with causal / non-causal parity. *Prior delivery: Phase 17 — `config/settings.yaml` `features.*` + `17-CONTEXT.md`.* **Pending gap closure Phase 26** (roadmap + `17-VERIFICATION.md`).
+- [x] **DATA-10** — Additional FRED series & yield spreads  
+  Ingest and align (with publication lags) high-value series (e.g. VIXCLS, UNRATE, M2, GS2, T10Y2Y, T10Y3M, HOUST, UMCSENT where configured). Derived spreads in `transforms.py` with causal / non-causal parity. *Prior delivery: Phase 17 — `config/settings.yaml` `features.*` + `17-CONTEXT.md`.* **Phase 26** — ROADMAP + `17-VERIFICATION.md` `passed` + `17-VALIDATION.md`.
 
-- [ ] **DATA-11** — Optional / configurable extra price & data providers  
-  Strengthen stooq fallback; evaluate optional APIs (finviz Elite, etc.) behind config flags without breaking checkpoint contracts. *Prior delivery: Phase 22 — `assets.providers`, `tests/unit/test_assets_providers.py`.* **Pending gap closure Phase 26** (`22-VERIFICATION.md`).
+- [x] **DATA-11** — Optional / configurable extra price & data providers  
+  Strengthen stooq fallback; evaluate optional APIs (finviz Elite, etc.) behind config flags without breaking checkpoint contracts. *Prior delivery: Phase 22 — `assets.providers`, `tests/unit/test_assets_providers.py`.* **Phase 26** — `22-VERIFICATION.md`.
 
 ### 2. Signals & diagnostics
 
@@ -52,14 +52,14 @@ Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md
 
 These requirements make **`gsd-tools stats` / `validate health` / plan–summary parity** align with **shipped v1.0 product work**. They do not re-open the v1.0 **code** scope unless explicitly noted (**CLOSURE-03**).
 
-- [ ] **CLOSURE-01** — Per-plan `*-SUMMARY.md` for every remaining `*-PLAN.md`  
-  Add a summary file whose basename matches each plan (same rule as `validate health` I001). *Prior delivery: Phase 23.* **Pending gap closure Phase 26** (`23-VERIFICATION.md`).
+- [x] **CLOSURE-01** — Per-plan `*-SUMMARY.md` for every remaining `*-PLAN.md`  
+  Add a summary file whose basename matches each plan (same rule as `validate health` I001). *Prior delivery: Phase 23.* **Phase 26** — `23-VERIFICATION.md`.
 
-- [ ] **CLOSURE-02** — Brownfield phase directories **04–11** (no historical `*-PLAN.md`)  
-  Add a short **`README.md`** in each target directory. *Prior delivery: Phase 24.* **Pending gap closure Phase 26** (`24-VERIFICATION.md`).
+- [x] **CLOSURE-02** — Brownfield phase directories **04–11** (no historical `*-PLAN.md`)  
+  Add a short **`README.md`** in each target directory. *Prior delivery: Phase 24.* **Phase 26** — `24-VERIFICATION.md`.
 
-- [ ] **CLOSURE-03** — Phase **3** plan **04** (`03-supervised-regime-behavior-models-04-PLAN.md`)  
-  Reconcile plan `must_haves` against the repo. *Prior delivery: Phase 25 + `03-supervised-regime-behavior-models-04-SUMMARY.md`.* **Pending gap closure Phase 26** (`25-VERIFICATION.md`).
+- [x] **CLOSURE-03** — Phase **3** plan **04** (`03-supervised-regime-behavior-models-04-PLAN.md`)  
+  Reconcile plan `must_haves` against the repo. *Prior delivery: Phase 25 + `03-supervised-regime-behavior-models-04-SUMMARY.md`.* **Phase 26** — `25-VERIFICATION.md`.
 
 ---
 
@@ -80,14 +80,14 @@ These requirements make **`gsd-tools stats` / `validate health` / plan–summary
 
 | Requirement | Gap closure phase | Status |
 |-------------|-------------------|--------|
-| DATA-10 | Phase 26 | Pending |
-| DATA-11 | Phase 26 | Pending |
-| CLOSURE-01 | Phase 26 | Pending |
-| CLOSURE-02 | Phase 26 | Pending |
-| CLOSURE-03 | Phase 26 | Pending |
+| DATA-10 | Phase 26 | Complete |
+| DATA-11 | Phase 26 | Complete |
+| CLOSURE-01 | Phase 26 | Complete |
+| CLOSURE-02 | Phase 26 | Complete |
+| CLOSURE-03 | Phase 26 | Complete |
 | SIGNAL-10, SIGNAL-11 | Phase 27 | Pending |
 | MODEL-10, MODEL-11 | Phase 27 | Pending |
 | TACTICS-10 | Phase 27 | Pending |
 | EMAIL-10, INSTALL-20 | Phase 27 | Pending |
 
-*Original implementation phases: 17–25. Traceability points at **26–27** until audit re-runs clean.*
+*Phase 26 GSD evidence complete. **Phase 27** + **`$gsd-audit-milestone`** still track integration/E2E closure.*

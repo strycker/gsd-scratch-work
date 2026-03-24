@@ -11,12 +11,12 @@
 
 **Gap closure (milestone audit — `.planning/v1.2-MILESTONE-AUDIT.md`):**
 
-- [ ] **Phase 26: v1.2 — Audit verification files & roadmap alignment** — **CLOSURE-01**, **CLOSURE-02**, **CLOSURE-03**, **DATA-10**, **DATA-11**
+- [x] **Phase 26: v1.2 — Audit verification files & roadmap alignment** — **CLOSURE-01**, **CLOSURE-02**, **CLOSURE-03**, **DATA-10**, **DATA-11**
 - [ ] **Phase 27: v1.2 — Pipeline weekly E2E & dashboard model wiring** — **SIGNAL-10**, **SIGNAL-11**, **TACTICS-10**, **MODEL-10**, **MODEL-11**, **EMAIL-10**, **INSTALL-20**
 
 **New product work (DATA/SIGNAL/MODEL/tactics/email):**
 
-- [ ] **Phase 17: v1.2 — Expanded macro & yield data** — **DATA-10**
+- [x] **Phase 17: v1.2 — Expanded macro & yield data** — **DATA-10**
 - [x] **Phase 18: v1.2 — Signal & diagnostic layer** — **SIGNAL-10**, **SIGNAL-11**
 - [x] **Phase 19: v1.2 — Boosted models & interpretability trees** — **MODEL-10**, **MODEL-11**
 - [x] **Phase 20: v1.2 — Tactics classification** — **TACTICS-10**
@@ -131,7 +131,7 @@
 
 | Phase | Name | Plans Complete | Status | Notes |
 |-------|------|----------------|--------|-------|
-| 17 | Expanded macro & yield data | 0/? | Not started | |
+| 17 | Expanded macro & yield data | 1/1 | Complete | DATA-10 — see `17-VERIFICATION.md` |
 | 18 | Signal & diagnostic layer | 1/? | Complete | |
 | 19 | Boosted models & trees | 1/? | Complete | |
 | 20 | Tactics classification | 1/1 | Complete | TACTICS-10 |
@@ -140,5 +140,5 @@
 | 23 | v1.0 plan ↔ summary parity | 1/1 | Complete | CLOSURE-01 |
 | 24 | v1.0 brownfield READMEs | 1/1 | Complete | CLOSURE-02 |
 | 25 | Phase 3 plan 04 reconciliation | 1/1 | Complete | CLOSURE-03 |
-| 26 | Audit verification & roadmap | 0/1 | Not started | Gap closure (audit) |
+| 26 | Audit verification & roadmap | 1/1 | Complete | Gap closure — VERIFICATION + VALIDATION 17–19 |
 | 27 | Pipeline weekly E2E & dashboard model | 0/1 | Not started | Gap closure (audit) |

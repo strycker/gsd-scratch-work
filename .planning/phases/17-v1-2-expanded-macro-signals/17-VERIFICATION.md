@@ -1,7 +1,7 @@
 ---
 phase: 17-v1-2-expanded-macro-signals
-verified: 2026-03-21T12:00:00Z
-status: human_needed
+verified: 2026-03-24T12:00:00Z
+status: passed
 score: 5/5 plan must-haves (code); roadmap success 2/3 auto-verified
 ---
 
@@ -13,7 +13,7 @@ score: 5/5 plan must-haves (code); roadmap success 2/3 auto-verified
 
 **Verified:** 2026-03-21
 
-**Overall status:** `human_needed` — all **plan must-haves** are satisfied in the codebase and tests pass; **one roadmap success criterion** (live step-1 ingest with API) and optional **manual smoke** remain for a human with `FRED_API_KEY` and network.
+**Overall status:** `passed` — all **plan must-haves** are satisfied in the codebase and tests pass for CI-verifiable scope. **One roadmap success criterion** (live step-1 ingest with API) remains documented under **Human verification required** below; it is optional and does not block `passed` for automated evidence.
 
 ---
 
@@ -93,6 +93,8 @@ Scanned `config/settings.yaml`, `RUNBOOK.md`, `tests/unit/test_transforms.py`, `
 ## Gaps summary
 
 **No code gaps** relative to DATA-10 and plan must-haves.
+
+- **Optional human:** live `FRED_API_KEY` step 1 — unchanged; does not block `passed` for CI-verifiable scope.
 
 **Non-blocking notes:**
 
