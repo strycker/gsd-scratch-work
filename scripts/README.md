@@ -9,6 +9,8 @@
    - First time / full refresh: `python scripts/run_weekly_report.py --full --send-email` (needs network for ingest + SMTP).
    - With cached checkpoints: `python scripts/run_weekly_report.py --send-email` (still needs SMTP to send).
 
+The script runs **`2–6, 8–9, 7`** (or **`1–6, 8–9, 7`** with `--full`) so **Diagnostics** and **Tactics** run before the dashboard writes **`weekly_report.md`**. See **[`RUNBOOK.md`](../RUNBOOK.md)** — *Extended pipeline: steps 8 and 9*.
+
 Prerequisites for `--send-email`: valid `config/email.local.yaml`; prior successful run must have produced `outputs/reports/weekly_report.md` (the script runs the pipeline first).
 
 ## repair_macro_raw.py
@@ -28,8 +30,8 @@ Single entry point for the **weekly regime + recommendation report**.
 **Usage (from repo root):**
 
 ```bash
-python scripts/run_weekly_report.py                    # steps 2–7 (cached ingest)
-python scripts/run_weekly_report.py --full             # steps 1–7 (full refresh)
+python scripts/run_weekly_report.py                    # steps 2–6, 8–9, 7 (cached ingest)
+python scripts/run_weekly_report.py --full             # steps 1–6, 8–9, 7 (full refresh)
 python scripts/run_weekly_report.py --plots            # also save figures
 python scripts/run_weekly_report.py --verbose          # DEBUG logging
 python scripts/run_weekly_report.py --send-email       # also send via SMTP (see config/email.example.yaml)
@@ -37,7 +39,7 @@ python scripts/run_weekly_report.py --send-email       # also send via SMTP (see
 
 **Outputs:**
 
-- Runs the pipeline (steps 2–7 by default, or 1–7 with `--full`).
+- Runs the pipeline (steps **2–6, 8–9, 7** by default, or **1–6, 8–9, 7** with `--full`).
 - Copies `outputs/reports/weekly_report.md` → `outputs/reports/weekly_YYYY-MM-DD.md`.
 - Writes `outputs/reports/email_body.txt` (plain text for email paste or sendmail).
 - With `--send-email`, sends the weekly report via SMTP using `config/email.local.yaml` (based on `config/email.example.yaml`).

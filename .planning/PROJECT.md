@@ -142,7 +142,7 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 **Target features:** See **`.planning/REQUIREMENTS.md`** — product: **DATA-10/11**, **SIGNAL-10/11**, **MODEL-10/11**, **TACTICS-10**, **EMAIL-10**, **INSTALL-20**; v1.0 GSD closure: **CLOSURE-01..03** (phases **23–25**). Roadmap phases **17–27** in **`.planning/ROADMAP.md`** (**26–27** = gap closure from **`v1.2-MILESTONE-AUDIT.md`**).
 
-**Next step:** **`$gsd-plan-phase 27`** (gap closure — weekly E2E / dashboard model) then **`$gsd-execute-phase 27`**.
+**Next step:** **`$gsd-audit-milestone`** — confirm v1.2 gap-closure phases **26–27**; then **`$gsd-complete-milestone v1.2`** if audit passes.
 
 ---
 

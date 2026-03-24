@@ -113,6 +113,17 @@ for e in mc:
 | `--refresh` | Re-scrape multpl + FRED (slow); step 1–2 use fresh raw where applicable |
 | `--recompute` | Rebuild features from **cached** raw — use after editing `config/settings.yaml` feature lists or transforms without re-scraping |
 | `--refresh-assets` | Re-fetch ETF prices (step **6**) only |
+| `--refresh-preservation` | Force-overwrite **preservation** secondaries (`macro_raw_secondary`, `features_secondary`, `features_supervised_secondary`) even if they already exist |
+
+### Preservation secondaries (checkpoints)
+
+Steps **1–2** also maintain wide parquet snapshots under `data/checkpoints/` so later steps that drop sparse columns in memory do not remove your audit trail of raw / engineered columns. **`CheckpointManager.clear_all()`** does **not** delete these three; remove them explicitly (e.g. `CheckpointManager().clear("macro_raw_secondary")`) if you need to reclaim space. See **`CLAUDE.md` → Checkpoint system** for update rules (`--refresh`, `--recompute`, partial macro repair).
+
+### Asset prices & providers (DATA-11)
+
+Price-source toggles live in **`config/settings.yaml`** under **`assets.providers`** (`yfinance`, `stooq`, `openbb`). Optional installs: `pip install -e ".[data-extras]"` (adds **pandas-datareader** for stooq and **openbb** for the OpenBB path). If you add or remove tickers under **`assets.etfs`**, re-run ingestion with **`--refresh`** (or **`--refresh-assets`** when only prices need updating) so **`data/raw/asset_prices.parquet`** and the **`asset_prices`** checkpoint stay aligned with the configured universe.
+
+**Finviz** (including Elite) is a screener — it does **not** expose historical ETF OHLCV for this ingestion path; we do not use it here.
 
 Checkpoints and manifests live under **`data/checkpoints/`**. The `CheckpointManager` tracks freshness; stale parquets can still be **semantically** wrong if you changed:
 
@@ -154,7 +165,11 @@ Structured CV metrics: **`outputs/reports/model_metrics/`** (includes `gb` rows 
 
 ## Extended pipeline: steps 8 and 9
 
-Core **end-to-end “weekly product”** path is usually steps **1–7** (ingest → dashboard). **Steps 8 and 9** add artifacts some report sections and diagnostics consume:
+Core **end-to-end “weekly product”** path is usually steps **1–7** (ingest → dashboard). **Steps 8 and 9** add artifacts the weekly report’s **Diagnostics** and **Tactics** sections consume.
+
+**Execution order (Phase 27):** When you pass **`--steps`** that include **7** together with **8** and/or **9**, **`run_pipeline.py`** runs **8** and **9** *before* **7** so a single invocation can refresh `weekly_report.md` with same-run diagnostics and tactics. (Numeric sort alone would run step **7** first and leave those sections empty.) **`scripts/run_weekly_report.py`** defaults to **2–6, 8–9, 7** (or **1–6, 8–9, 7** with `--full`).
+
+**Live regime model:** **`config/settings.yaml` → `dashboard.regime_model`** is **`rf`** (default, `current_regime.pkl`) or **`gb`** when **`current_regime_gb.pkl`** exists; missing GB pickle falls back to RF with a log warning.
 
 | Step | Name | Main outputs |
 |------|------|----------------|
@@ -163,7 +178,7 @@ Core **end-to-end “weekly product”** path is usually steps **1–7** (ingest
 
 **Step 8 prerequisite:** ETF **prices** must exist (`data/raw/asset_prices.parquet` from step **6** or a prior run). Ratio **trigger** rules and `rrg_lookback` live under **`config/settings.yaml` → `diagnostics`**.
 
-The weekly markdown report **may** include a **Tactics** block when `tactics_signals.parquet` exists, and a **Diagnostics** block when `diagnostics.weekly_report_include` is true and the diagnostics parquets exist (typically after step **8**). Re-run step **7** after step **8** if you need `weekly_report.md` to pick up the new section.
+The weekly markdown report **may** include a **Tactics** block when `tactics_signals.parquet` exists, and a **Diagnostics** block when `diagnostics.weekly_report_include` is true and the diagnostics parquets exist (typically after step **8**). If you run **7** only (without **8**/**9** in the same `--steps`), re-run **7** after **8**/**9** — or use **`--steps`** that include **7** together with **8** and/or **9** so the runner orders **8**/**9** before **7** automatically.
 
 For a full extended run:
 
@@ -197,7 +212,7 @@ Optional delivery of **`outputs/reports/weekly_report.md`** (or **`email_body.tx
 
 **CLI (after `weekly_report.md` exists):**
 
-- **`python run_pipeline.py --steps 2,3,4,5,6,7 --weekly-report --send-email`** (adjust `--steps` if checkpoints already fresh; add `--market-code grok` if you use that workflow).
+- **`python run_pipeline.py --steps 2,3,4,5,6,8,9,7 --weekly-report --send-email`** (or **8,9,7** only if upstream steps are fresh; **7** runs last so the report includes diagnostics/tactics; add `--market-code grok` if you use that workflow).
 - Or **`python scripts/run_weekly_report.py --send-email`** — runs the weekly pipeline slice, archives the report, then sends (see [`scripts/README.md`](scripts/README.md)).
 
 If `email.local.yaml` is missing or incomplete, send is skipped with a logged warning — no crash.

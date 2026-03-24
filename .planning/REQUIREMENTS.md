@@ -5,7 +5,7 @@
 
 Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md`.
 
-**Gap closure:** **`$gsd-audit-milestone`** reported **`gaps_found`** (see **`.planning/v1.2-MILESTONE-AUDIT.md`**). **Phase 26** (GSD verification + roadmap + Nyquist 17–19) is **complete** (2026-03-24). **Phase 27** (weekly pipeline E2E + dashboard model wiring) remains **pending** for the listed SIGNAL/MODEL/TACTICS/EMAIL/INSTALL integration items.
+**Gap closure:** **`$gsd-audit-milestone`** reported **`gaps_found`** (see **`.planning/v1.2-MILESTONE-AUDIT.md`**). **Phases 26–27** are **complete** (2026-03): **26** = GSD verification; **27** = `run_pipeline` step order **8/9** before **7**, **`dashboard.regime_model`**, **`scripts/run_weekly_report.py`** **2–6, 8–9, 7**, docs + tests. Re-run **`$gsd-audit-milestone`** to confirm milestone audit **passed**.
 
 ---
 
@@ -21,32 +21,32 @@ Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md
 
 ### 2. Signals & diagnostics
 
-- [ ] **SIGNAL-10** — Ratio & trigger diagnostics  
-  Config-driven cross-asset ratios (e.g. Oil:Gold, Oil:Bonds, Bonds:Gold, Lumber:Gold proxy, narrative “Saylor↔Schiff-style” views). Surface as parquet + plots/tables before promoting to model features. *Prior delivery: Phase 18.* **Pending gap closure Phase 27** (weekly E2E vs step 8).
+- [x] **SIGNAL-10** — Ratio & trigger diagnostics  
+  Config-driven cross-asset ratios (e.g. Oil:Gold, Oil:Bonds, Bonds:Gold, Lumber:Gold proxy, narrative “Saylor↔Schiff-style” views). Surface as parquet + plots/tables before promoting to model features. *Prior delivery: Phase 18.* **Phase 27** — same-run weekly + step order **8** before **7**.
 
-- [ ] **SIGNAL-11** — Relative rotation / RS-style diagnostics  
-  RS-ratio / RS-momentum vs benchmark(s); machine-readable artifacts and notebook/report hooks. *Prior delivery: Phase 18.* **Pending gap closure Phase 27**.
+- [x] **SIGNAL-11** — Relative rotation / RS-style diagnostics  
+  RS-ratio / RS-momentum vs benchmark(s); machine-readable artifacts and notebook/report hooks. *Prior delivery: Phase 18.* **Phase 27** — same-run weekly + step order **8** before **7**.
 
 ### 3. Models
 
-- [ ] **MODEL-10** — Gradient-boosted classifiers/regressors  
-  Sklearn `GradientBoostingClassifier` alongside RF/DT for current regime and forward horizons; same causal-feature and TimeSeriesSplit discipline; `boosted_*` hyperparameters from `settings.yaml`. *Prior delivery: Phase 19.* **Pending gap closure Phase 27** (dashboard vs training path).
+- [x] **MODEL-10** — Gradient-boosted classifiers/regressors  
+  Sklearn `GradientBoostingClassifier` alongside RF/DT for current regime and forward horizons; same causal-feature and TimeSeriesSplit discipline; `boosted_*` hyperparameters from `settings.yaml`. *Prior delivery: Phase 19.* **Phase 27** — optional **`dashboard.regime_model: gb`** for live scoring.
 
-- [ ] **MODEL-11** — Interpretability trees on boosted feature importances  
-  Shallow `DecisionTreeClassifier` on top‑K features from the GB model; `current_regime_tree_gb.txt`. *Prior delivery: Phase 19.* **Pending gap closure Phase 27**.
+- [x] **MODEL-11** — Interpretability trees on boosted feature importances  
+  Shallow `DecisionTreeClassifier` on top‑K features from the GB model; `current_regime_tree_gb.txt`. *Prior delivery: Phase 19.* **Phase 27** — **`dashboard.regime_model`** chooses RF vs GB for dashboard.
 
 ### 4. Tactics
 
-- [ ] **TACTICS-10** — Strategy vs tactics classification  
-  Classify assets/templates into buy-and-hold vs swing vs stand-aside using multi-horizon volatility, trend, correlations; weekly-entry bias; soft stops (e.g. anchored VWAP ideas) — no mandatory auto-execution. *Prior delivery: Phase 20.* **Pending gap closure Phase 27** (weekly E2E vs step 9).
+- [x] **TACTICS-10** — Strategy vs tactics classification  
+  Classify assets/templates into buy-and-hold vs swing vs stand-aside using multi-horizon volatility, trend, correlations; weekly-entry bias; soft stops (e.g. anchored VWAP ideas) — no mandatory auto-execution. *Prior delivery: Phase 20.* **Phase 27** — step **9** before **7** in combined runs.
 
 ### 5. Email & ops
 
-- [ ] **EMAIL-10** — SMTP weekly report delivery  
-  Optional send of `weekly_report.md` (or derived HTML/text) using local untracked config; no secrets in git. *Prior delivery: Phase 21.* **Pending gap closure Phase 27** (`run_weekly_report.py` + same-run diagnostics/tactics).
+- [x] **EMAIL-10** — SMTP weekly report delivery  
+  Optional send of `weekly_report.md` (or derived HTML/text) using local untracked config; no secrets in git. *Prior delivery: Phase 21.* **Phase 27** — `run_weekly_report.py` runs **8–9** before **7**.
 
-- [ ] **INSTALL-20** — Setup helper for new secrets & env  
-  Scripts/docs to scaffold `.env`, email config templates, smoke checks (extends v1 installer story without duplicating v1 **INSTALL-10** scope). *Prior delivery: Phase 21.* **Pending gap closure Phase 27**.
+- [x] **INSTALL-20** — Setup helper for new secrets & env  
+  Scripts/docs to scaffold `.env`, email config templates, smoke checks (extends v1 installer story without duplicating v1 **INSTALL-10** scope). *Prior delivery: Phase 21.* **Phase 27** — `scripts/README.md` updated for weekly step order.
 
 ### 6. v1.0 planning evidence closure (GSD hygiene for phases 1–16)
 
@@ -85,9 +85,9 @@ These requirements make **`gsd-tools stats` / `validate health` / plan–summary
 | CLOSURE-01 | Phase 26 | Complete |
 | CLOSURE-02 | Phase 26 | Complete |
 | CLOSURE-03 | Phase 26 | Complete |
-| SIGNAL-10, SIGNAL-11 | Phase 27 | Pending |
-| MODEL-10, MODEL-11 | Phase 27 | Pending |
-| TACTICS-10 | Phase 27 | Pending |
-| EMAIL-10, INSTALL-20 | Phase 27 | Pending |
+| SIGNAL-10, SIGNAL-11 | Phase 27 | Complete |
+| MODEL-10, MODEL-11 | Phase 27 | Complete |
+| TACTICS-10 | Phase 27 | Complete |
+| EMAIL-10, INSTALL-20 | Phase 27 | Complete |
 
-*Phase 26 GSD evidence complete. **Phase 27** + **`$gsd-audit-milestone`** still track integration/E2E closure.*
+*v1.2 requirement rows **Complete**; run **`$gsd-audit-milestone`** to confirm audit YAML.*

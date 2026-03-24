@@ -23,6 +23,7 @@ Run:
     python pipelines/07_dashboard.py
 """
 
+import logging
 import sys
 import pickle
 from pathlib import Path
@@ -39,6 +40,7 @@ load_portfolio = crab.load_portfolio
 setup_logging = crab.setup_logging
 
 from trading_crab_lib.prediction import predict_current
+from trading_crab_lib.prediction.dashboard_model import resolve_current_regime_model_path
 from trading_crab_lib.asset_returns import rank_assets_by_regime
 from trading_crab_lib.reporting import (
     asset_signals,
@@ -86,10 +88,15 @@ def load_regime_names() -> dict[int, str]:
 def main() -> None:
     setup_logging()
     cfg = load()
+    log = logging.getLogger(__name__)
 
-    # Load current-regime model
+    # Load current-regime model (RF or GB per dashboard.regime_model)
     model_dir = OUTPUT_DIR / "models"
-    with open(model_dir / "current_regime.pkl", "rb") as f:
+    model_path = resolve_current_regime_model_path(cfg, model_dir, log)
+    if not model_path.exists():
+        print(f"ERROR: {model_path} not found — run step 5 first.")
+        sys.exit(1)
+    with open(model_path, "rb") as f:
         current_model = pickle.load(f)
 
     # Use causal features for live scoring — same as training in step 5

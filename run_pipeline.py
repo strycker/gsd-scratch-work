@@ -46,6 +46,8 @@ RunConfig passed through every module.
 
   --steps 1,3,5        Run only the listed step numbers (comma-separated integers).
                        Example: --steps 3,4,5,6,7 skips ingestion and features.
+                       If 7 is listed together with 8 and/or 9, steps 8 and 9 run before 7
+                       so weekly_report.md can include diagnostics and tactics in one run.
                        Valid values: 1 2 3 4 5 6 7 8 9
 
   --no-constrained     Skip the k-means-constrained package even if installed.
@@ -80,6 +82,12 @@ RunConfig passed through every module.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Step 5 automatically saves the predicted current-regime labels as the
   "market_code_predicted" checkpoint every time it runs.  No flag needed.
+
+  --refresh-preservation
+                       Force-overwrite preservation secondaries (macro_raw_secondary,
+                       features_secondary, features_supervised_secondary) even when
+                       they already exist. Default: update only when missing or when
+                       --refresh / --recompute would rewrite the primary checkpoint.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  COMMON WORKFLOWS
@@ -169,6 +177,7 @@ from trading_crab_lib.email import (
     load_email_config,
     send_weekly_email,
 )
+from trading_crab_lib.checkpoints import preservation_checkpoint_should_write
 
 log = logging.getLogger(__name__)
 
@@ -344,6 +353,7 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
         missing = sorted(required_for_step2 - set(combined.columns))
         repaired_cols: list[str] = []
         dirty = False
+        partial_merge_written = False
         if missing:
             combined, repaired_cols = _repair_macro_raw_missing_columns(
                 combined, required_for_step2, cm
@@ -372,6 +382,7 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
             added = set(combined.columns) - before_merge_cols
             if added:
                 dirty = True
+                partial_merge_written = True
                 # Persist partial merge so data/raw/macro_raw.parquet and the checkpoint
                 # are not left stale if we later fall through to full fetch or exit early.
                 combined.to_parquet(raw_path)
@@ -397,12 +408,22 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
                 combined.to_parquet(raw_path)
                 cm.save(combined, "macro_raw")
                 log.info("Step 1: wrote updated macro_raw → %s", raw_path)
+            # Seed preservation snapshot on cache hit (not after partial column repair —
+            # those paths skip secondary so a full --refresh can repopulate later).
+            if (
+                not partial_merge_written
+                and not cm.exists("macro_raw_secondary")
+            ):
+                cm.save(combined, "macro_raw_secondary", preservation=True)
+                log.info(
+                    "Step 1: seeded preservation macro_raw_secondary from cached macro"
+                )
             _sync_etf_prices_cache(cfg, run_cfg, cm)
             return
 
         log.warning(
             "Step 1: macro_raw still missing required columns (%d) after partial merge — "
-            "full FRED + multpl fetch. Missing: %s",
+            "full FRED + multpl fetch (all multpl series in config). Missing: %s",
             len(missing),
             missing,
         )
@@ -437,6 +458,21 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
     raw_dir.mkdir(parents=True, exist_ok=True)
     combined.to_parquet(raw_dir / "macro_raw.parquet")
     cm.save(combined, "macro_raw")
+
+    if preservation_checkpoint_should_write(
+        "macro_raw_secondary",
+        cm,
+        refresh_preservation=run_cfg.refresh_preservation_checkpoints,
+        refresh_source=run_cfg.refresh_source_datasets,
+        recompute_derived=run_cfg.recompute_derived_datasets,
+    ):
+        cm.save(combined, "macro_raw_secondary", preservation=True)
+        log.info("Step 1: saved preservation checkpoint macro_raw_secondary")
+    else:
+        log.info(
+            "Step 1: macro_raw_secondary unchanged "
+            "(exists; use --refresh or --refresh-preservation to overwrite)"
+        )
 
     _sync_etf_prices_cache(cfg, run_cfg, cm)
 
@@ -493,6 +529,28 @@ def step2_features(cfg: dict, run_cfg: RunConfig) -> None:
                 )
                 have_files = True
         if have_files:
+            import pandas as pd
+
+            if feats_path.exists() and not cm.exists("features_secondary"):
+                cm.save(
+                    pd.read_parquet(feats_path),
+                    "features_secondary",
+                    preservation=True,
+                )
+                log.info(
+                    "Step 2: seeded preservation checkpoint features_secondary from %s",
+                    feats_path.name,
+                )
+            if sup_path.exists() and not cm.exists("features_supervised_secondary"):
+                cm.save(
+                    pd.read_parquet(sup_path),
+                    "features_supervised_secondary",
+                    preservation=True,
+                )
+                log.info(
+                    "Step 2: seeded preservation checkpoint features_supervised_secondary from %s",
+                    sup_path.name,
+                )
             log.info("Step 2: using cached features checkpoint")
             return
 
@@ -523,6 +581,30 @@ def step2_features(cfg: dict, run_cfg: RunConfig) -> None:
     log.info(
         "Step 2: wrote features.parquet (centered) and features_supervised.parquet (causal)"
     )
+
+    _pc_kw = dict(
+        refresh_preservation=run_cfg.refresh_preservation_checkpoints,
+        refresh_source=run_cfg.refresh_source_datasets,
+        recompute_derived=run_cfg.recompute_derived_datasets,
+    )
+    if preservation_checkpoint_should_write("features_secondary", cm, **_pc_kw):
+        cm.save(features, "features_secondary", preservation=True)
+        log.info("Step 2: saved preservation checkpoint features_secondary")
+    else:
+        log.info(
+            "Step 2: features_secondary unchanged "
+            "(exists; use --recompute or --refresh-preservation to overwrite)"
+        )
+    if preservation_checkpoint_should_write(
+        "features_supervised_secondary", cm, **_pc_kw
+    ):
+        cm.save(features_sup, "features_supervised_secondary", preservation=True)
+        log.info("Step 2: saved preservation checkpoint features_supervised_secondary")
+    else:
+        log.info(
+            "Step 2: features_supervised_secondary unchanged "
+            "(exists; use --recompute or --refresh-preservation to overwrite)"
+        )
 
     if run_cfg.generate_plots:
         feat_only = features.drop(columns=["market_code"], errors="ignore")
@@ -1028,10 +1110,12 @@ def step7_dashboard(cfg: dict, run_cfg: RunConfig) -> None:
     import pickle
     import yaml
 
+    from trading_crab_lib.prediction.dashboard_model import resolve_current_regime_model_path
+
     model_dir = OUTPUT_DIR / "models"
-    current_model_path = model_dir / "current_regime.pkl"
+    current_model_path = resolve_current_regime_model_path(cfg, model_dir, log)
     if not current_model_path.exists():
-        log.warning("Step 7: current_regime.pkl not found — run step 5 first")
+        log.warning("Step 7: %s not found — run step 5 first", current_model_path.name)
         return
 
     with open(current_model_path, "rb") as f:
@@ -1272,6 +1356,29 @@ STEPS: dict[int, tuple[str, callable]] = {
 }
 
 
+def resolve_pipeline_step_order(requested: set[int]) -> list[int]:
+    """
+    Return step numbers to run in pipeline order.
+
+    When step 7 is requested together with step 8 and/or 9, run 8 and 9 *before* 7
+    so ``weekly_report.md`` can include diagnostics and tactics from the same run.
+    Otherwise preserve numeric sort (legacy behavior).
+    """
+    if 7 not in requested or not ({8, 9} & requested):
+        return sorted(requested)
+    before = [s for s in sorted(requested) if s < 7]
+    mid: list[int] = []
+    if 8 in requested:
+        mid.append(8)
+    if 9 in requested:
+        mid.append(9)
+    out = before + mid
+    if 7 in requested:
+        out.append(7)
+    out.extend(s for s in sorted(requested) if s > 9)
+    return out
+
+
 # ── Weekly report helpers (archive + email) ────────────────────────────────────
 
 def archive_weekly_report(reports_dir: Path | None = None) -> None:
@@ -1312,6 +1419,14 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Re-scrape multpl.com + re-hit FRED API")
     p.add_argument("--recompute", action="store_true",
                    help="Recompute features from cached raw data")
+    p.add_argument(
+        "--refresh-preservation",
+        action="store_true",
+        help=(
+            "Overwrite preservation secondary checkpoints (macro_raw_secondary, "
+            "features_secondary, features_supervised_secondary) even if they exist."
+        ),
+    )
     p.add_argument("--refresh-assets", action="store_true",
                    help=(
                        "Re-fetch ETF prices from yfinance (step 6). "
@@ -1403,8 +1518,11 @@ def main() -> None:
 
     save_market_code = getattr(args, "save_market_code", False)
 
+    step_order = resolve_pipeline_step_order(requested)
+    log.info("Step execution order: %s", step_order)
+
     print(f"\nTrading-Crab pipeline  [{run_cfg}]")
-    print(f"Steps to run: {sorted(requested)}")
+    print(f"Steps to run: {step_order}")
     if run_cfg.market_code_source:
         print(f"market_code source: {run_cfg.market_code_source}")
     print()
@@ -1414,7 +1532,7 @@ def main() -> None:
     (OUTPUT_DIR / "models").mkdir(parents=True, exist_ok=True)
     (OUTPUT_DIR / "reports").mkdir(parents=True, exist_ok=True)
 
-    for step_num in sorted(requested):
+    for step_num in step_order:
         label, fn = STEPS[step_num]
         print(f"── Step {step_num}: {label} ──")
         try:

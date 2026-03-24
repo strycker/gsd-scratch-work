@@ -12,7 +12,7 @@
 **Gap closure (milestone audit — `.planning/v1.2-MILESTONE-AUDIT.md`):**
 
 - [x] **Phase 26: v1.2 — Audit verification files & roadmap alignment** — **CLOSURE-01**, **CLOSURE-02**, **CLOSURE-03**, **DATA-10**, **DATA-11**
-- [ ] **Phase 27: v1.2 — Pipeline weekly E2E & dashboard model wiring** — **SIGNAL-10**, **SIGNAL-11**, **TACTICS-10**, **MODEL-10**, **MODEL-11**, **EMAIL-10**, **INSTALL-20**
+- [x] **Phase 27: v1.2 — Pipeline weekly E2E & dashboard model wiring** — **SIGNAL-10**, **SIGNAL-11**, **TACTICS-10**, **MODEL-10**, **MODEL-11**, **EMAIL-10**, **INSTALL-20**
 
 **New product work (DATA/SIGNAL/MODEL/tactics/email):**
 
@@ -141,4 +141,4 @@
 | 24 | v1.0 brownfield READMEs | 1/1 | Complete | CLOSURE-02 |
 | 25 | Phase 3 plan 04 reconciliation | 1/1 | Complete | CLOSURE-03 |
 | 26 | Audit verification & roadmap | 1/1 | Complete | Gap closure — VERIFICATION + VALIDATION 17–19 |
-| 27 | Pipeline weekly E2E & dashboard model | 0/1 | Not started | Gap closure (audit) |
+| 27 | Pipeline weekly E2E & dashboard model | 1/1 | Complete | Gap closure — step order, regime_model, tests |

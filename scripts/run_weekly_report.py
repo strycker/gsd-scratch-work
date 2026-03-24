@@ -2,9 +2,12 @@
 """
 Weekly report runner — one command to run the pipeline and archive the report.
 
+Steps run in pipeline order **2–6, then 8–9 (diagnostics + tactics), then 7** so
+``weekly_report.md`` can include Diagnostics and Tactics sections in the same run.
+
 Usage (from repo root):
-  python scripts/run_weekly_report.py              # steps 2–7 (cached ingest)
-  python scripts/run_weekly_report.py --full      # steps 1–7 (full refresh)
+  python scripts/run_weekly_report.py              # steps 2–6, 8–9, 7 (cached ingest)
+  python scripts/run_weekly_report.py --full      # steps 1–6, 8–9, 7 (full refresh)
   python scripts/run_weekly_report.py --plots     # also generate figures
   python scripts/run_weekly_report.py --verbose   # DEBUG logging
 
@@ -58,12 +61,15 @@ def archive_weekly_report(reports_dir: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Run Trading-Crab pipeline for weekly report (steps 2–7 or 1–7).",
+        description=(
+            "Run Trading-Crab pipeline through diagnostics/tactics, then weekly report "
+            "(steps 2–9 ending with 7, or 1–9 with --full)."
+        ),
     )
     parser.add_argument(
         "--full",
         action="store_true",
-        help="Run steps 1–7 (full ingest refresh). Default is 2–7 (cached ingest).",
+        help="Run steps 1–6, 8–9, 7 (full ingest). Default is 2–6, 8–9, 7 (cached ingest).",
     )
     parser.add_argument("--plots", action="store_true", help="Generate and save figures.")
     parser.add_argument("--verbose", action="store_true", help="Set logging to DEBUG.")
@@ -74,7 +80,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    steps = "1,2,3,4,5,6,7" if args.full else "2,3,4,5,6,7"
+    steps = "1,2,3,4,5,6,8,9,7" if args.full else "2,3,4,5,6,8,9,7"
     argv = [sys.executable, str(REPO_ROOT / "run_pipeline.py"), "--steps", steps]
     if args.plots:
         argv.append("--plots")

@@ -13,6 +13,12 @@ data:
   # --refresh / --refresh-assets / --recompute to force.
   checkpoint_max_age_days: 21
 
+  # Preservation secondaries (see trading_crab_lib.checkpoints.PRESERVATION_CHECKPOINT_NAMES):
+  # macro_raw_secondary, features_secondary, features_supervised_secondary hold wide
+  # snapshots so downstream dropna(axis=1) in memory does not erase column history.
+  # Updated on full --refresh / --recompute (or first run / --refresh-preservation);
+  # skipped on partial macro repair. clear_all() keeps these files.
+
   # Remove the most-recent quarter from consideration for prediction/training
   # when it contains NaN in any feature column.  This happens naturally at
   # quarter-end because centered np.gradient cannot compute derivatives for
@@ -384,7 +390,16 @@ prediction:
 
 # ── Asset classes ─────────────────────────────────────────────────────────────
 # Phase 4 (v1.1): expanded ETF universe + portfolio templates.
+# Phase 22 (DATA-11): optional price providers — toggles match legacy “all on” behavior.
 assets:
+  providers:
+    yfinance: true   # batch + per-ticker Yahoo via curl_cffi
+    stooq: true      # pandas-datareader / stooq.pl (no API key)
+    openbb: true     # optional: pip install openbb
+
+  # ETF universe — single source for step 1 ingestion and step 6 returns / dashboard.
+  # Adding or removing tickers changes expected asset_prices columns; re-run step 1 with
+  # --refresh (or equivalent) so checkpoints and parquet stay aligned.
   etfs:
     # Core / broad
     - SPY    # S&P 500
@@ -449,6 +464,8 @@ assets:
 
 # ── Dashboard ─────────────────────────────────────────────────────────────────
 dashboard:
+  # Live regime for dashboard / weekly report: "rf" (default) or "gb" when current_regime_gb.pkl exists
+  regime_model: rf
   signal_thresholds:
     green:  0.05   # median quarterly return > +5% → GREEN (legacy dashboard)
     yellow: 0.00   # median quarterly return > 0%  → YELLOW
