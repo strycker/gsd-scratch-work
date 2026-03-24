@@ -5,7 +5,7 @@
 
 Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md`.
 
-**Gap closure:** **`$gsd-audit-milestone`** reported **`gaps_found`** (see **`.planning/v1.2-MILESTONE-AUDIT.md`**). **Phases 26–27** are **complete** (2026-03): **26** = GSD verification; **27** = `run_pipeline` step order **8/9** before **7**, **`dashboard.regime_model`**, **`scripts/run_weekly_report.py`** **2–6, 8–9, 7**, docs + tests. Re-run **`$gsd-audit-milestone`** to confirm milestone audit **passed**.
+**Gap closure:** **`$gsd-audit-milestone`** — **`.planning/v1.2-MILESTONE-AUDIT.md`** **`passed`** (2026-03-24). **Phases 26–27** are **complete** (2026-03): **26** = GSD verification + **`26-VERIFICATION.md`**; **27** = `run_pipeline` step order **8/9** before **7**, **`dashboard.regime_model`**, **`scripts/run_weekly_report.py`** **2–6, 8–9, 7**, docs + tests.
 
 ---
 
@@ -90,4 +90,4 @@ These requirements make **`gsd-tools stats` / `validate health` / plan–summary
 | TACTICS-10 | Phase 27 | Complete |
 | EMAIL-10, INSTALL-20 | Phase 27 | Complete |
 
-*v1.2 requirement rows **Complete**; run **`$gsd-audit-milestone`** to confirm audit YAML.*
+*v1.2 requirement rows **Complete**; milestone audit **`passed`** (see **`.planning/v1.2-MILESTONE-AUDIT.md`**).*
