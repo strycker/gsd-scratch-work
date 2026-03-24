@@ -3,11 +3,16 @@
 ## Milestones
 
 - ✅ **v1.0 — Core pipeline + planning evidence** — Phases 1–16 (shipped 2026-03-20) — [full roadmap](milestones/v1.0-ROADMAP.md) · [requirements](milestones/v1.0-REQUIREMENTS.md) · [audit](milestones/v1.0-MILESTONE-AUDIT.md)
-- 🚧 **v1.2 — Tactics, triggers & expanded signals** — Phases 17–25 (in planning / execution)
+- 🚧 **v1.2 — Tactics, triggers & expanded signals** — Phases 17–27 (in planning / execution; **26–27** = gap closure from `v1.2-MILESTONE-AUDIT.md`)
 
 ---
 
 ## Phases (v1.2 — current)
+
+**Gap closure (milestone audit — `.planning/v1.2-MILESTONE-AUDIT.md`):**
+
+- [ ] **Phase 26: v1.2 — Audit verification files & roadmap alignment** — **CLOSURE-01**, **CLOSURE-02**, **CLOSURE-03**, **DATA-10**, **DATA-11**
+- [ ] **Phase 27: v1.2 — Pipeline weekly E2E & dashboard model wiring** — **SIGNAL-10**, **SIGNAL-11**, **TACTICS-10**, **MODEL-10**, **MODEL-11**, **EMAIL-10**, **INSTALL-20**
 
 **New product work (DATA/SIGNAL/MODEL/tactics/email):**
 
@@ -108,6 +113,18 @@
   2. **`03-supervised-regime-behavior-models-04-SUMMARY.md`** exists (executed, waived, or split follow-up).
   3. **`03-*-VERIFICATION.md`** / **`03-VALIDATION.md`** updated if product state changed.
 
+### Phase 26: v1.2 — Audit verification files & roadmap alignment
+**Goal:** Close GSD **verification** gaps from **`v1.2-MILESTONE-AUDIT.md`**: add `*-VERIFICATION.md` for phases **21–25**; reconcile **ROADMAP** Phase **17** checkbox / Progress row with shipped **DATA-10** work; set **`17-VERIFICATION.md`** frontmatter to **`passed`** when evidence is complete; optionally add **`*-VALIDATION.md`** skeletons for phases **17–19** (Nyquist parity) or document waivers.  
+**Depends on:** Existing SUMMARY/VALIDATION artifacts in phases 21–25.  
+**Requirements:** CLOSURE-01, CLOSURE-02, CLOSURE-03, DATA-10, DATA-11  
+**Gap closure:** Audit — missing phase VERIFICATION files; roadmap drift; Nyquist files for 17–19.
+
+### Phase 27: v1.2 — Pipeline weekly E2E & dashboard model wiring
+**Goal:** Close **integration / flow** gaps: ensure a single run can produce **Diagnostics** + **Tactics** in **`weekly_report.md`** (step order, optional second pass of step **7**, or documented contract); extend **`scripts/run_weekly_report.py`** to include steps **8–9** and a final report pass when appropriate; resolve **RF vs GB** for dashboard/step-7 scoring via **config + docs** (or explicit waiver).  
+**Depends on:** Phase 26 optional (docs can land in parallel).  
+**Requirements:** SIGNAL-10, SIGNAL-11, TACTICS-10, MODEL-10, MODEL-11, EMAIL-10, INSTALL-20  
+**Gap closure:** Audit — step 7 vs 8/9 ordering; weekly script scope; boosted model not on live dashboard path.
+
 ---
 
 ## Progress
@@ -123,3 +140,5 @@
 | 23 | v1.0 plan ↔ summary parity | 1/1 | Complete | CLOSURE-01 |
 | 24 | v1.0 brownfield READMEs | 1/1 | Complete | CLOSURE-02 |
 | 25 | Phase 3 plan 04 reconciliation | 1/1 | Complete | CLOSURE-03 |
+| 26 | Audit verification & roadmap | 0/1 | Not started | Gap closure (audit) |
+| 27 | Pipeline weekly E2E & dashboard model | 0/1 | Not started | Gap closure (audit) |

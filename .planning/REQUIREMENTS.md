@@ -5,59 +5,61 @@
 
 Prior milestone: **v1.0** archived at `.planning/milestones/v1.0-REQUIREMENTS.md`.
 
+**Gap closure:** **`$gsd-audit-milestone`** reported **`gaps_found`** (see **`.planning/v1.2-MILESTONE-AUDIT.md`**). Phases **26–27** re-verify and close audit items; requirement checkboxes below are **pending** until those phases complete and **`$gsd-audit-milestone`** passes.
+
 ---
 
 ## v1.2 — Tactics, triggers & expanded signals
 
 ### 1. Data & APIs
 
-- [x] **DATA-10** — Additional FRED series & yield spreads  
-  Ingest and align (with publication lags) high-value series (e.g. VIXCLS, UNRATE, M2, GS2, T10Y2Y, T10Y3M, HOUST, UMCSENT where configured). Derived spreads in `transforms.py` with causal / non-causal parity. **Completed in Phase 17** — see `config/settings.yaml` `features.*` + `17-CONTEXT.md`.
+- [ ] **DATA-10** — Additional FRED series & yield spreads  
+  Ingest and align (with publication lags) high-value series (e.g. VIXCLS, UNRATE, M2, GS2, T10Y2Y, T10Y3M, HOUST, UMCSENT where configured). Derived spreads in `transforms.py` with causal / non-causal parity. *Prior delivery: Phase 17 — `config/settings.yaml` `features.*` + `17-CONTEXT.md`.* **Pending gap closure Phase 26** (roadmap + `17-VERIFICATION.md`).
 
-- [x] **DATA-11** — Optional / configurable extra price & data providers
-  Strengthen stooq fallback; evaluate optional APIs (finviz Elite, etc.) behind config flags without breaking checkpoint contracts. **Done in Phase 22** — `config/settings.yaml` **`assets.providers`**, per-ticker stooq after partial Yahoo failure, **`tests/unit/test_assets_providers.py`**, [`22-SUMMARY.md`](phases/22-v1-2-providers-universe/22-SUMMARY.md).
+- [ ] **DATA-11** — Optional / configurable extra price & data providers  
+  Strengthen stooq fallback; evaluate optional APIs (finviz Elite, etc.) behind config flags without breaking checkpoint contracts. *Prior delivery: Phase 22 — `assets.providers`, `tests/unit/test_assets_providers.py`.* **Pending gap closure Phase 26** (`22-VERIFICATION.md`).
 
 ### 2. Signals & diagnostics
 
-- [x] **SIGNAL-10** — Ratio & trigger diagnostics  
-  Config-driven cross-asset ratios (e.g. Oil:Gold, Oil:Bonds, Bonds:Gold, Lumber:Gold proxy, narrative “Saylor↔Schiff-style” views). Surface as parquet + plots/tables before promoting to model features. **Completed in Phase 18** — `diagnostics.trigger_defaults`, `compute_ratios_diagnostics`, plots `08_diagnostics_*.png`.
+- [ ] **SIGNAL-10** — Ratio & trigger diagnostics  
+  Config-driven cross-asset ratios (e.g. Oil:Gold, Oil:Bonds, Bonds:Gold, Lumber:Gold proxy, narrative “Saylor↔Schiff-style” views). Surface as parquet + plots/tables before promoting to model features. *Prior delivery: Phase 18.* **Pending gap closure Phase 27** (weekly E2E vs step 8).
 
-- [x] **SIGNAL-11** — Relative rotation / RS-style diagnostics  
-  RS-ratio / RS-momentum vs benchmark(s); machine-readable artifacts and notebook/report hooks. **Completed in Phase 18** — `rrg_current.parquet`, `notebooks/08_diagnostics.ipynb`, weekly report **Diagnostics** section.
+- [ ] **SIGNAL-11** — Relative rotation / RS-style diagnostics  
+  RS-ratio / RS-momentum vs benchmark(s); machine-readable artifacts and notebook/report hooks. *Prior delivery: Phase 18.* **Pending gap closure Phase 27**.
 
 ### 3. Models
 
-- [x] **MODEL-10** — Gradient-boosted classifiers/regressors  
-  Sklearn `GradientBoostingClassifier` alongside RF/DT for current regime and forward horizons; same causal-feature and TimeSeriesSplit discipline; `boosted_*` hyperparameters from `settings.yaml`. **Completed in Phase 19** — see `make_gradient_boosting_classifier`, `current_regime_gb.pkl`.
+- [ ] **MODEL-10** — Gradient-boosted classifiers/regressors  
+  Sklearn `GradientBoostingClassifier` alongside RF/DT for current regime and forward horizons; same causal-feature and TimeSeriesSplit discipline; `boosted_*` hyperparameters from `settings.yaml`. *Prior delivery: Phase 19.* **Pending gap closure Phase 27** (dashboard vs training path).
 
-- [x] **MODEL-11** — Interpretability trees on boosted feature importances  
-  Shallow `DecisionTreeClassifier` on top‑K features from the GB model; `current_regime_tree_gb.txt`. **Completed in Phase 19**.
+- [ ] **MODEL-11** — Interpretability trees on boosted feature importances  
+  Shallow `DecisionTreeClassifier` on top‑K features from the GB model; `current_regime_tree_gb.txt`. *Prior delivery: Phase 19.* **Pending gap closure Phase 27**.
 
 ### 4. Tactics
 
-- [x] **TACTICS-10** — Strategy vs tactics classification  
-  Classify assets/templates into buy-and-hold vs swing vs stand-aside using multi-horizon volatility, trend, correlations; weekly-entry bias; soft stops (e.g. anchored VWAP ideas) — no mandatory auto-execution. **Completed in Phase 20** — `src/trading_crab_lib/tactics.py` (`classification_version` v1 vs v1_2, `vol_aggregate`, `entry_bias_score`, `soft_stop_z`, `as_of` / `quarter_end`); artifact **`outputs/reports/tactics_signals.parquet`** (extra columns); optional weekly enrich via `tactics.weekly_report_enrich`.
+- [ ] **TACTICS-10** — Strategy vs tactics classification  
+  Classify assets/templates into buy-and-hold vs swing vs stand-aside using multi-horizon volatility, trend, correlations; weekly-entry bias; soft stops (e.g. anchored VWAP ideas) — no mandatory auto-execution. *Prior delivery: Phase 20.* **Pending gap closure Phase 27** (weekly E2E vs step 9).
 
 ### 5. Email & ops
 
-- [x] **EMAIL-10** — SMTP weekly report delivery  
-  Optional send of `weekly_report.md` (or derived HTML/text) using local untracked config; no secrets in git. **Completed in Phase 21** — `trading_crab_lib/email.py`, `run_pipeline.py` / `scripts/run_weekly_report.py` `--send-email`, **`RUNBOOK.md`** section *SMTP / weekly email (EMAIL-10)*, `config/email.example.yaml` → `email.local.yaml`.
+- [ ] **EMAIL-10** — SMTP weekly report delivery  
+  Optional send of `weekly_report.md` (or derived HTML/text) using local untracked config; no secrets in git. *Prior delivery: Phase 21.* **Pending gap closure Phase 27** (`run_weekly_report.py` + same-run diagnostics/tactics).
 
-- [x] **INSTALL-20** — Setup helper for new secrets & env  
-  Scripts/docs to scaffold `.env`, email config templates, smoke checks (extends v1 installer story without duplicating v1 **INSTALL-10** scope). **Completed in Phase 21** — **`scripts/setup.sh`** scaffolds `email.local.yaml`; **`scripts/README.md`** Happy path; **`tests/test_gitignore_secrets.py`**.
+- [ ] **INSTALL-20** — Setup helper for new secrets & env  
+  Scripts/docs to scaffold `.env`, email config templates, smoke checks (extends v1 installer story without duplicating v1 **INSTALL-10** scope). *Prior delivery: Phase 21.* **Pending gap closure Phase 27**.
 
 ### 6. v1.0 planning evidence closure (GSD hygiene for phases 1–16)
 
 These requirements make **`gsd-tools stats` / `validate health` / plan–summary parity** align with **shipped v1.0 product work**. They do not re-open the v1.0 **code** scope unless explicitly noted (**CLOSURE-03**).
 
-- [x] **CLOSURE-01** — Per-plan `*-SUMMARY.md` for every remaining `*-PLAN.md`  
-  Add a summary file whose basename matches each plan (same rule as `validate health` I001). **Completed in Phase 23** — six `*-01-SUMMARY.md` files beside the plan; see [`phases/23-v1-0-plan-summary-parity/23-SUMMARY.md`](phases/23-v1-0-plan-summary-parity/23-SUMMARY.md). Phase-level `NN-SUMMARY.md` remains canonical where linked.
+- [ ] **CLOSURE-01** — Per-plan `*-SUMMARY.md` for every remaining `*-PLAN.md`  
+  Add a summary file whose basename matches each plan (same rule as `validate health` I001). *Prior delivery: Phase 23.* **Pending gap closure Phase 26** (`23-VERIFICATION.md`).
 
-- [x] **CLOSURE-02** — Brownfield phase directories **04–11** (no historical `*-PLAN.md`)  
-  Add a short **`README.md`** in each of: `04-regime-conditional-etf-portfolio-behavior`, `05-recommendations-machine-readable-outputs`, `07-portfolio-and-email-integration`, `09-tactics-and-diagnostics`, `10-tactics-install`, `11-core-cleanup` (and **`06`**, **`08`** if not fully covered by **CLOSURE-01**) stating: work was delivered under v1.0; primary evidence is `*-VERIFICATION.md` / `*-VALIDATION.md` + `RUNBOOK.md` / pipeline entrypoints. **Completed in Phase 24** — see [`phases/24-v1-0-brownfield-phase-readmes/24-SUMMARY.md`](phases/24-v1-0-brownfield-phase-readmes/24-SUMMARY.md).
+- [ ] **CLOSURE-02** — Brownfield phase directories **04–11** (no historical `*-PLAN.md`)  
+  Add a short **`README.md`** in each target directory. *Prior delivery: Phase 24.* **Pending gap closure Phase 26** (`24-VERIFICATION.md`).
 
-- [x] **CLOSURE-03** — Phase **3** plan **04** (`03-supervised-regime-behavior-models-04-PLAN.md`)  
-  Reconcile plan `must_haves` against the repo (`trading_crab_lib`, `pipelines/05_predict.py`, `outputs/reports/model_metrics/*`, tests). **Either:** implement/polish remaining gaps and update **VERIFICATION**/**VALIDATION**, **or** document a **signed waiver** (deferred items, rationale, optional follow-up REQ) in a new **`03-supervised-regime-behavior-models-04-SUMMARY.md`** plus a short note in **VERIFICATION**. **Completed in Phase 25** — see [`phases/03-supervised-regime-behavior-models/03-supervised-regime-behavior-models-04-SUMMARY.md`](phases/03-supervised-regime-behavior-models/03-supervised-regime-behavior-models-04-SUMMARY.md) and [`phases/25-v1-0-phase3-plan04-reconciliation/25-SUMMARY.md`](phases/25-v1-0-phase3-plan04-reconciliation/25-SUMMARY.md).
+- [ ] **CLOSURE-03** — Phase **3** plan **04** (`03-supervised-regime-behavior-models-04-PLAN.md`)  
+  Reconcile plan `must_haves` against the repo. *Prior delivery: Phase 25 + `03-supervised-regime-behavior-models-04-SUMMARY.md`.* **Pending gap closure Phase 26** (`25-VERIFICATION.md`).
 
 ---
 
@@ -76,14 +78,16 @@ These requirements make **`gsd-tools stats` / `validate health` / plan–summary
 
 ## Traceability
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| DATA-10 | Phase 17 | Complete |
-| SIGNAL-10, SIGNAL-11 | Phase 18 | Complete |
-| MODEL-10, MODEL-11 | Phase 19 | Complete |
-| TACTICS-10 | Phase 20 | Complete |
-| EMAIL-10, INSTALL-20 | Phase 21 | Complete |
-| DATA-11 | Phase 22 | Done |
-| CLOSURE-01 | Phase 23 | Done |
-| CLOSURE-02 | Phase 24 | Done |
-| CLOSURE-03 | Phase 25 | Done |
+| Requirement | Gap closure phase | Status |
+|-------------|-------------------|--------|
+| DATA-10 | Phase 26 | Pending |
+| DATA-11 | Phase 26 | Pending |
+| CLOSURE-01 | Phase 26 | Pending |
+| CLOSURE-02 | Phase 26 | Pending |
+| CLOSURE-03 | Phase 26 | Pending |
+| SIGNAL-10, SIGNAL-11 | Phase 27 | Pending |
+| MODEL-10, MODEL-11 | Phase 27 | Pending |
+| TACTICS-10 | Phase 27 | Pending |
+| EMAIL-10, INSTALL-20 | Phase 27 | Pending |
+
+*Original implementation phases: 17–25. Traceability points at **26–27** until audit re-runs clean.*
