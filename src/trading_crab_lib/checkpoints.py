@@ -62,6 +62,17 @@ log = logging.getLogger(__name__)
 
 CHECKPOINT_DIR = DATA_DIR / "checkpoints"
 
+# Secondary snapshots written only from step 1 / step 2. Downstream steps that
+# drop columns in-memory never touch these. clear_all() skips them; delete
+# explicitly with clear("macro_raw_secondary") etc. if needed.
+PRESERVATION_CHECKPOINT_NAMES: frozenset[str] = frozenset(
+    {
+        "macro_raw_secondary",
+        "features_secondary",
+        "features_supervised_secondary",
+    }
+)
+
 
 def _config_hash() -> str:
     """MD5 of settings.yaml — used to detect config changes that invalidate checkpoints."""
@@ -86,7 +97,11 @@ class CheckpointManager:
 
     # ── DataFrame checkpoints ─────────────────────────────────────────────
 
-    def save(self, df: pd.DataFrame, name: str) -> Path:
+    def exists(self, name: str) -> bool:
+        """Return True if {name}.parquet exists under the checkpoint directory."""
+        return (self.dir / f"{name}.parquet").exists()
+
+    def save(self, df: pd.DataFrame, name: str, *, preservation: bool = False) -> Path:
         """Persist a DataFrame to {name}.parquet and write metadata."""
         parquet_path = self.dir / f"{name}.parquet"
         meta_path = self.dir / f"{name}.meta.json"
@@ -103,6 +118,8 @@ class CheckpointManager:
             "index_start": str(df.index[0]) if len(df) else None,
             "index_end": str(df.index[-1]) if len(df) else None,
         }
+        if preservation:
+            meta["preservation"] = True
         meta_path.write_text(json.dumps(meta, indent=2))
 
         log.info(
@@ -174,10 +191,20 @@ class CheckpointManager:
                 log.info("Cleared checkpoint: %s", p.name)
 
     def clear_all(self) -> None:
-        """Delete all checkpoints in the checkpoint directory."""
-        for f in self.dir.iterdir():
-            f.unlink()
-        log.info("All checkpoints cleared")
+        """Delete all checkpoints except preservation secondaries (macro_raw_secondary, …)."""
+        n = 0
+        for parquet_path in sorted(self.dir.glob("*.parquet")):
+            name = parquet_path.stem
+            if name in PRESERVATION_CHECKPOINT_NAMES:
+                log.debug("clear_all: skipping preservation checkpoint %s", name)
+                continue
+            parquet_path.unlink()
+            n += 1
+            meta_path = self.dir / f"{name}.meta.json"
+            if meta_path.exists():
+                meta_path.unlink()
+                n += 1
+        log.info("Cleared %d checkpoint file(s) (preservation secondaries kept)", n)
 
     def list(self) -> list[dict]:
         """Return a list of checkpoint metadata dicts, sorted by creation time."""
@@ -226,3 +253,34 @@ class CheckpointManager:
 
     def model_exists(self, name: str) -> bool:
         return (self.dir / f"{name}.pkl").exists()
+
+
+def preservation_checkpoint_should_write(
+    name: str,
+    cm: CheckpointManager,
+    *,
+    refresh_preservation: bool,
+    refresh_source: bool,
+    recompute_derived: bool,
+) -> bool:
+    """
+    Whether to overwrite a preservation secondary checkpoint.
+
+    Secondaries are updated when missing, when --refresh-preservation is set,
+    when --refresh updates raw ingest (macro_raw_secondary), or when
+    --recompute updates derived features (features_*_secondary).
+    """
+    if name not in PRESERVATION_CHECKPOINT_NAMES:
+        raise ValueError(
+            f"Not a preservation checkpoint: {name!r} "
+            f"(expected one of {sorted(PRESERVATION_CHECKPOINT_NAMES)})"
+        )
+    if refresh_preservation:
+        return True
+    if not cm.exists(name):
+        return True
+    if name == "macro_raw_secondary" and refresh_source:
+        return True
+    if name in ("features_secondary", "features_supervised_secondary") and recompute_derived:
+        return True
+    return False

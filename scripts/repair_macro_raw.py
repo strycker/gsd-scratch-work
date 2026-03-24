@@ -2,6 +2,8 @@
 """
 Merge missing macro_raw columns into ``data/raw/macro_raw.parquet`` using FRED/multpl.
 
+Partial multpl uses **subset scraping** (only URLs for missing column names), not the full 46-series scrape.
+
 Use when step 1 logs "cached macro_raw missing … trying partial FRED/multpl merge"
 but you want to persist the repair without a full ``--refresh`` ingest, or to
 retry a targeted merge after fixing network/credentials.

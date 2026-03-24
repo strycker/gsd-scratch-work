@@ -145,6 +145,13 @@ class TestApplyGapFill:
         apply_gap_fill(df)
         pd.testing.assert_series_equal(df["x"], original_vals)
 
+    def test_single_non_nan_value_does_not_crash(self, quarterly_index):
+        """np.gradient needs ≥2 points; sparse columns must not raise."""
+        vals = np.array([np.nan] * 19 + [1.0])
+        df = pd.DataFrame({"x": vals}, index=quarterly_index)
+        result = apply_gap_fill(df)
+        assert len(result) == 20
+
 
 # ── apply_derivatives ──────────────────────────────────────────────────────
 

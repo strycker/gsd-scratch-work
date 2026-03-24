@@ -82,17 +82,42 @@ def _parse_series(raw_rows: list, short_name: str, value_type: str) -> pd.Series
     )
 
 
-def fetch_all(cfg: dict) -> pd.DataFrame:
+def fetch_all(cfg: dict, *, columns: set[str] | None = None) -> pd.DataFrame:
     """
-    Scrape every dataset in cfg["multpl"]["datasets"].
+    Scrape datasets from cfg["multpl"]["datasets"].
+
+    Parameters
+    ----------
+    cfg
+        Loaded settings (``multpl.datasets`` list of ``[short_name, …]``).
+    columns
+        If set, only scrape rows whose **short_name** is in this set (partial
+        ingest for ``macro_partial.merge_missing_macro_columns``). If ``None``,
+        scrape all configured series (default).
 
     Returns:
-        DataFrame indexed by quarter-end dates, columns = short_names.
+        DataFrame indexed by quarter-end dates, columns = short_names scraped.
     """
     datasets: list = cfg.get("multpl", {}).get("datasets", [])
     if not datasets:
         log.warning("No multpl datasets configured — skipping")
         return pd.DataFrame()
+
+    if columns is not None:
+        want = frozenset(columns)
+        datasets = [e for e in datasets if e[0] in want]
+        if not datasets:
+            log.warning(
+                "multpl: no datasets match requested columns %s — skipping scrape",
+                sorted(want),
+            )
+            return pd.DataFrame()
+        log.info(
+            "multpl subset: scraping %d dataset(s) (of %d configured) for %s",
+            len(datasets),
+            len(cfg.get("multpl", {}).get("datasets", [])),
+            sorted(want),
+        )
 
     series_list: list[pd.Series] = []
 

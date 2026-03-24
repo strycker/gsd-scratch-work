@@ -39,8 +39,9 @@ def test_merge_missing_calls_only_multpl_when_only_multpl_gap(
         fred_calls["n"] += 1
         return pd.DataFrame({"fred_aaa": [9.0, 9.0]}, index=idx)
 
-    def fake_multpl(_cfg):
+    def fake_multpl(_cfg, *, columns=None):
         multpl_calls["n"] += 1
+        assert columns == {"sp500"}
         return pd.DataFrame({"sp500": [100.0, 101.0]}, index=idx)
 
     monkeypatch.setattr(
@@ -72,7 +73,7 @@ def test_merge_missing_calls_fred_when_only_fred_gap(
         fred_calls["n"] += 1
         return pd.DataFrame({"fred_aaa": [3.0, 4.0]}, index=idx)
 
-    def fake_multpl(_cfg):
+    def fake_multpl(_cfg, *, columns=None):
         multpl_calls["n"] += 1
         return pd.DataFrame(index=idx)
 

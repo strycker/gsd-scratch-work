@@ -127,7 +127,14 @@ def _compute_derivatives(
     causal=True: backward (right-aligned) rolling window — only past observations
         contribute to smoothing at each point.  Required for supervised-learning
         features and live scoring so no future information leaks into the model.
+
+    With fewer than two valid points, ``numpy.gradient`` is undefined; return
+    zeros so gap-fill / derivatives do not crash on sparse columns.
     """
+    if len(series) < 2:
+        z = pd.Series(0.0, index=series.index, dtype="float64")
+        return z, z, z
+
     center = not causal
     smoothed = series.rolling(window=window, min_periods=1, center=center).mean()
     x = _dates_to_daynum(series.index) - _dates_to_daynum(series.index).min()

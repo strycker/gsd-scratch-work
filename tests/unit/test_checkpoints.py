@@ -10,7 +10,10 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from trading_crab_lib.checkpoints import CheckpointManager
+from trading_crab_lib.checkpoints import (
+    CheckpointManager,
+    preservation_checkpoint_should_write,
+)
 
 
 @pytest.fixture
@@ -87,6 +90,66 @@ class TestClear:
         cm.save(sample_df, "b")
         cm.clear_all()
         assert list(cm.dir.iterdir()) == []
+
+    def test_clear_all_keeps_preservation_secondaries(self, cm, sample_df):
+        cm.save(sample_df, "a")
+        cm.save(sample_df, "macro_raw_secondary", preservation=True)
+        cm.clear_all()
+        assert (cm.dir / "macro_raw_secondary.parquet").exists()
+        assert not (cm.dir / "a.parquet").exists()
+
+
+# ── preservation secondaries ─────────────────────────────────────────────
+
+class TestPreservation:
+    def test_exists(self, cm, sample_df):
+        assert not cm.exists("x")
+        cm.save(sample_df, "x")
+        assert cm.exists("x")
+
+    def test_save_preservation_meta_flag(self, cm, sample_df):
+        cm.save(sample_df, "macro_raw_secondary", preservation=True)
+        meta = (cm.dir / "macro_raw_secondary.meta.json").read_text()
+        assert '"preservation": true' in meta
+
+    def test_should_write_when_missing(self, cm, sample_df):
+        assert preservation_checkpoint_should_write(
+            "macro_raw_secondary",
+            cm,
+            refresh_preservation=False,
+            refresh_source=False,
+            recompute_derived=False,
+        )
+
+    def test_should_not_overwrite_when_exists(self, cm, sample_df):
+        cm.save(sample_df, "macro_raw_secondary", preservation=True)
+        assert not preservation_checkpoint_should_write(
+            "macro_raw_secondary",
+            cm,
+            refresh_preservation=False,
+            refresh_source=False,
+            recompute_derived=False,
+        )
+
+    def test_should_overwrite_on_refresh_source(self, cm, sample_df):
+        cm.save(sample_df, "macro_raw_secondary", preservation=True)
+        assert preservation_checkpoint_should_write(
+            "macro_raw_secondary",
+            cm,
+            refresh_preservation=False,
+            refresh_source=True,
+            recompute_derived=False,
+        )
+
+    def test_features_secondary_on_recompute(self, cm, sample_df):
+        cm.save(sample_df, "features_secondary", preservation=True)
+        assert preservation_checkpoint_should_write(
+            "features_secondary",
+            cm,
+            refresh_preservation=False,
+            refresh_source=False,
+            recompute_derived=True,
+        )
 
 
 # ── list / summary ─────────────────────────────────────────────────────────

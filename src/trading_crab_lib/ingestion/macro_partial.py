@@ -76,10 +76,10 @@ def merge_missing_macro_columns(
         from trading_crab_lib.ingestion import multpl as multpl_module
 
         log.info(
-            "Partial macro ingest: scraping multpl (%d missing column names)",
+            "Partial macro ingest: scraping multpl for %d missing column(s) only (not full universe)",
             len(need_multpl),
         )
-        mdf = multpl_module.fetch_all(cfg)
+        mdf = multpl_module.fetch_all(cfg, columns=set(need_multpl))
         for col in sorted(need_multpl):
             if col not in mdf.columns:
                 log.warning("multpl scrape did not produce expected column %r", col)

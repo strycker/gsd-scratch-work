@@ -45,6 +45,11 @@ class RunConfig:
     # - opt-in : allow fallback to features.parquet (non-causal), with a loud warning
     allow_noncausal_features: bool = False
 
+    # Overwrite preservation secondaries (macro_raw_secondary, features_secondary, …)
+    # even if they already exist. Default: only create/update when missing or when
+    # --refresh / --recompute would update the corresponding primary checkpoint.
+    refresh_preservation_checkpoints: bool = False
+
     # Drop trailing quarters with NaN features before training / predicting.
     # Mirrors config setting data.drop_incomplete_tail (CLI: --no-drop-tail).
     # The most-recent quarter typically has NaN in derivative columns because
@@ -81,6 +86,9 @@ class RunConfig:
             allow_noncausal_features=getattr(args, "allow_noncausal_features", False),
             market_code_source=getattr(args, "market_code", None),
             drop_incomplete_tail=not getattr(args, "no_drop_tail", False),
+            refresh_preservation_checkpoints=getattr(
+                args, "refresh_preservation", False
+            ),
         )
 
     def apply_logging(self) -> None:
@@ -104,6 +112,8 @@ class RunConfig:
             flags.append("refresh-assets")
         if self.allow_noncausal_features:
             flags.append("allow-noncausal-features")
+        if self.refresh_preservation_checkpoints:
+            flags.append("refresh-preservation")
         if self.market_code_source:
             flags.append(f"market_code={self.market_code_source}")
         return f"RunConfig({', '.join(flags) or 'defaults'})"

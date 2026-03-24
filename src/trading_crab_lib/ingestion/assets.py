@@ -14,12 +14,18 @@ Fallback chain (tried in order, stopping at first success)
 5. Empty DataFrame                    — triggers macro-proxy fallback in
                                         asset_returns.compute_proxy_returns()
 
+Provider toggles (config)
+-------------------------
+``cfg["assets"]["providers"]`` may set ``yfinance``, ``stooq``, ``openbb`` booleans
+(default **true** each). Disabled sources are skipped; missing optional libraries log
+a warning and do not abort the pipeline.
+
 Install optional fallback libraries
 -------------------------------------
-    pip install pandas-datareader     # enables Phase 3 (stooq)
-    pip install openbb                # enables Phase 4 (OpenBB)
-    # or together:
-    pip install "market-regime[data-extras]"
+    pip install pandas-datareader     # enables stooq
+    pip install openbb                # enables OpenBB
+    # or (this repo):
+    pip install "trading-crab-lib[data-extras]"
 
 Notes on sources that are NOT suitable for historical ETF prices
 ----------------------------------------------------------------
@@ -63,6 +69,17 @@ if TYPE_CHECKING:
     from trading_crab_lib.checkpoints import CheckpointManager
 
 log = logging.getLogger(__name__)
+
+
+def _provider_flags(cfg: dict) -> dict[str, bool]:
+    """Defaults preserve pre–Phase-22 behavior (all providers enabled)."""
+    p = cfg.get("assets", {}).get("providers") or {}
+    return {
+        "yfinance": bool(p.get("yfinance", True)),
+        "stooq": bool(p.get("stooq", True)),
+        "openbb": bool(p.get("openbb", True)),
+    }
+
 
 # ── Error signature detection ──────────────────────────────────────────────────
 
@@ -383,13 +400,13 @@ def fetch_all(cfg: dict) -> pd.DataFrame:
     macOS Keychain or system trust store; there is no reliable runtime way to inject
     a custom CA, so verification is always skipped.
 
-    Phase 1  — batch yf.download() with verify=False curl_cffi session
-               (one HTTP request for all tickers — avoids rate limiting)
-    Phase 2  — per-ticker yf.Ticker(session=...).history() with same session,
-               for any tickers missing from the batch result
-    Phase 3  — stooq via pandas-datareader
-    Phase 4  — OpenBB
-    Phase 5  — empty DataFrame → caller uses macro-proxy returns
+    When ``cfg["assets"]["providers"]`` entries are false, that source is skipped.
+
+    1. yfinance — batch ``yf.download`` then per-ticker retry (if enabled)
+    2. stooq — for tickers still missing after Yahoo (per-ticker), then bulk stooq
+       for all tickers only if **nothing** was fetched yet (legacy path)
+    3. OpenBB — bulk for all tickers only if still empty
+    4. empty DataFrame → caller uses macro-proxy returns
 
     Returns:
         DataFrame indexed by quarter-end dates, one column per ticker.
@@ -401,6 +418,7 @@ def fetch_all(cfg: dict) -> pd.DataFrame:
         log.warning("No asset tickers configured — skipping")
         return pd.DataFrame()
 
+    flags = _provider_flags(cfg)
     start = cfg["data"]["start_date"]
     end = cfg["data"]["end_date"] or str(date.today())
 
@@ -412,63 +430,91 @@ def fetch_all(cfg: dict) -> pd.DataFrame:
         ", ".join(tickers),
     )
 
-    # Always use verify=False — see module docstring for rationale.
-    session = _ssl_bypass_curl_session()
+    results: dict[str, pd.Series] = {}
 
-    # ── Phase 1: batch download ────────────────────────────────────────────────
-    results, _ = _batch_yfinance(tickers, start, end, session=session)
+    # ── Yahoo Finance: batch + per-ticker ─────────────────────────────────────
+    if flags["yfinance"]:
+        session = _ssl_bypass_curl_session()
+        batch, _ = _batch_yfinance(tickers, start, end, session=session)
+        results.update(batch)
+        missing = [t for t in tickers if t not in results]
+        if missing:
+            log.info(
+                "Phase 2: fetching %d/%d missing ticker(s) individually ...",
+                len(missing),
+                len(tickers),
+            )
+            recovered = _fetch_missing_with_ssl_bypass(missing, start, end)
+            results.update(recovered)
+            still_missing = [t for t in missing if t not in recovered]
+            if still_missing:
+                log.warning("Could not fetch via Yahoo: %s", still_missing)
+    else:
+        log.info("assets.providers.yfinance is false — skipping Yahoo Finance")
 
-    # ── Phase 2: per-ticker retry for any missing tickers ─────────────────────
-    missing = [t for t in tickers if t not in results]
-    if missing:
+    # ── stooq: per-ticker for any still missing (partial Yahoo failure) ────────
+    still_missing = [t for t in tickers if t not in results]
+    if flags["stooq"] and still_missing:
         log.info(
-            "Phase 2: fetching %d/%d missing ticker(s) individually ...",
-            len(missing), len(tickers),
+            "Trying stooq per missing ticker (%d): %s ...",
+            len(still_missing),
+            ", ".join(still_missing),
         )
-        recovered = _fetch_missing_with_ssl_bypass(missing, start, end)
-        results.update(recovered)
-        still_missing = [t for t in missing if t not in recovered]
-        if still_missing:
-            log.warning("Could not fetch: %s", still_missing)
+        for t in still_missing:
+            try:
+                s = _fetch_ticker_stooq(t, start, end)
+                if not s.empty:
+                    results[t] = s
+            except ImportError:
+                log.warning(
+                    "pandas-datareader not installed — stooq unavailable.  "
+                    "Run: pip install pandas-datareader"
+                )
+                break
+            except Exception as exc:
+                log.warning("stooq failed for %s: %s", t, exc)
 
-    series_list = list(results.values())
-
-    # ── Phase 3: stooq via pandas-datareader ──────────────────────────────────
-    if not series_list:
-        log.info("Trying stooq fallback (free, no API key) ...")
+    # ── stooq bulk: only when nothing fetched yet (Yahoo + per-ticker stooq empty)
+    if not results and flags["stooq"]:
+        log.info("Trying stooq fallback (bulk, all tickers) ...")
         series_list = _fetch_tickers_stooq(tickers, start, end)
+        for s in series_list:
+            if s.name:
+                results[str(s.name)] = s
         if series_list:
-            log.info("stooq fallback succeeded (%d/%d tickers)", len(series_list), len(tickers))
+            log.info("stooq bulk succeeded (%d/%d tickers)", len(series_list), len(tickers))
         else:
             log.warning(
                 "stooq returned no data.  "
-                "Install pandas-datareader to enable this fallback: pip install pandas-datareader"
+                "Install pandas-datareader: pip install pandas-datareader"
             )
 
-    # ── Phase 4: OpenBB ───────────────────────────────────────────────────────
-    if not series_list:
+    # ── OpenBB bulk when still empty ──────────────────────────────────────────
+    if not results and flags["openbb"]:
         log.info("Trying OpenBB fallback ...")
         series_list = _fetch_tickers_openbb(tickers, start, end)
+        for s in series_list:
+            if s.name:
+                results[str(s.name)] = s
         if series_list:
             log.info("OpenBB fallback succeeded (%d/%d tickers)", len(series_list), len(tickers))
         else:
             log.warning(
-                "OpenBB returned no data.  "
-                "Install openbb to enable this fallback: pip install openbb\n"
+                "OpenBB returned no data.  Install: pip install openbb\n"
                 "Falling back to macro-data proxy returns (see asset_returns.compute_proxy_returns)."
             )
 
-    # ── Phase 5: empty → macro proxy returns computed by caller ───────────────
-    if not series_list:
+    if not results:
         log.error(
-            "All price data sources failed.  "
+            "All price data sources failed (or all disabled).  "
             "The pipeline will use macro-data proxy returns (compute_proxy_returns) instead.  "
             "To reuse a previously fetched checkpoint, run without --refresh-assets:\n"
             "  python run_pipeline.py --steps 6"
         )
         return pd.DataFrame()
 
-    df = pd.concat(series_list, axis=1)
+    ordered = [results[t] for t in tickers if t in results]
+    df = pd.concat(ordered, axis=1)
     df.index.name = "date"
 
     log.info(

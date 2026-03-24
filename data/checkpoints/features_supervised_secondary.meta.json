@@ -1,6 +1,6 @@
 {
-  "name": "features",
-  "created": "2026-03-24T16:41:06.825942",
+  "name": "features_supervised_secondary",
+  "created": "2026-03-24T16:41:07.463733",
   "config_hash": "74741373",
   "rows": 305,
   "columns": 91,
@@ -98,5 +98,6 @@
     "market_code"
   ],
   "index_start": "1950-03-31 00:00:00",
-  "index_end": "2026-03-31 00:00:00"
+  "index_end": "2026-03-31 00:00:00",
+  "preservation": true
 }

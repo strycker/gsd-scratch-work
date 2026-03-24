@@ -200,6 +200,13 @@ tracking creation timestamp and config hash. Pass `--refresh` or `--recompute` t
 force regeneration. This is the most important usability feature for day-to-day
 development — scraping 46 URLs every run is ~10 minutes.
 
+**Preservation secondaries** (`macro_raw_secondary`, `features_secondary`,
+`features_supervised_secondary`) are wide snapshots written from steps 1–2 so
+downstream `dropna(axis=1)` in memory does not erase column history. They update
+when missing, on `--refresh` / `--recompute` (or `--refresh-preservation` to force),
+and are **skipped** after partial macro column repair; `CheckpointManager.clear_all()`
+keeps them unless you `clear()` them by name.
+
 ### Global runtime flags (`RunConfig`)
 All runtime behaviour is controlled by a `RunConfig` dataclass (not hardcoded in
 modules). Construct it once in `run_pipeline.py` or any pipeline step, and pass it
@@ -392,6 +399,7 @@ ground truth.  Items marked ✓ are verified as matching in `src/`.  Items marke
 
 ### Checkpoint files
 - Stored under `data/checkpoints/{name}.parquet` (DataFrames) or `{name}.pkl` (models)
+- Preservation secondaries: see **Checkpoint system** above; names in `PRESERVATION_CHECKPOINT_NAMES` (`trading_crab_lib.checkpoints`).
 - Always prefer parquet over pickle for DataFrames (smaller, typed, readable)
 - Pickle only for sklearn models (no parquet-serializable alternative)
 - Never commit data files — `data/` and `outputs/` are in `.gitignore`
