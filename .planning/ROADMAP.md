@@ -22,7 +22,7 @@
 
 - [x] **Phase 23: v1.2 — v1.0 plan ↔ summary parity** — **CLOSURE-01**
 - [x] **Phase 24: v1.2 — v1.0 brownfield phase READMEs** — **CLOSURE-02**
-- [ ] **Phase 25: v1.2 — Phase 3 plan 04 reconciliation** — **CLOSURE-03**
+- [x] **Phase 25: v1.2 — Phase 3 plan 04 reconciliation** — **CLOSURE-03**
 
 ---
 
@@ -122,4 +122,4 @@
 | 22 | Providers & universe | 1/1 | Complete | DATA-11 |
 | 23 | v1.0 plan ↔ summary parity | 1/1 | Complete | CLOSURE-01 |
 | 24 | v1.0 brownfield READMEs | 1/1 | Complete | CLOSURE-02 |
-| 25 | Phase 3 plan 04 reconciliation | 0/? | Not started | CLOSURE-03 |
+| 25 | Phase 3 plan 04 reconciliation | 1/1 | Complete | CLOSURE-03 |

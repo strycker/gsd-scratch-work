@@ -56,8 +56,8 @@ These requirements make **`gsd-tools stats` / `validate health` / plan–summary
 - [x] **CLOSURE-02** — Brownfield phase directories **04–11** (no historical `*-PLAN.md`)  
   Add a short **`README.md`** in each of: `04-regime-conditional-etf-portfolio-behavior`, `05-recommendations-machine-readable-outputs`, `07-portfolio-and-email-integration`, `09-tactics-and-diagnostics`, `10-tactics-install`, `11-core-cleanup` (and **`06`**, **`08`** if not fully covered by **CLOSURE-01**) stating: work was delivered under v1.0; primary evidence is `*-VERIFICATION.md` / `*-VALIDATION.md` + `RUNBOOK.md` / pipeline entrypoints. **Completed in Phase 24** — see [`phases/24-v1-0-brownfield-phase-readmes/24-SUMMARY.md`](phases/24-v1-0-brownfield-phase-readmes/24-SUMMARY.md).
 
-- [ ] **CLOSURE-03** — Phase **3** plan **04** (`03-supervised-regime-behavior-models-04-PLAN.md`)  
-  Reconcile plan `must_haves` against the repo (`trading_crab_lib`, `pipelines/05_predict.py`, `outputs/reports/model_metrics/*`, tests). **Either:** implement/polish remaining gaps and update **VERIFICATION**/**VALIDATION**, **or** document a **signed waiver** (deferred items, rationale, optional follow-up REQ) in a new **`03-supervised-regime-behavior-models-04-SUMMARY.md`** plus a short note in **VERIFICATION**.
+- [x] **CLOSURE-03** — Phase **3** plan **04** (`03-supervised-regime-behavior-models-04-PLAN.md`)  
+  Reconcile plan `must_haves` against the repo (`trading_crab_lib`, `pipelines/05_predict.py`, `outputs/reports/model_metrics/*`, tests). **Either:** implement/polish remaining gaps and update **VERIFICATION**/**VALIDATION**, **or** document a **signed waiver** (deferred items, rationale, optional follow-up REQ) in a new **`03-supervised-regime-behavior-models-04-SUMMARY.md`** plus a short note in **VERIFICATION**. **Completed in Phase 25** — see [`phases/03-supervised-regime-behavior-models/03-supervised-regime-behavior-models-04-SUMMARY.md`](phases/03-supervised-regime-behavior-models/03-supervised-regime-behavior-models-04-SUMMARY.md) and [`phases/25-v1-0-phase3-plan04-reconciliation/25-SUMMARY.md`](phases/25-v1-0-phase3-plan04-reconciliation/25-SUMMARY.md).
 
 ---
 
@@ -86,4 +86,4 @@ These requirements make **`gsd-tools stats` / `validate health` / plan–summary
 | DATA-11 | Phase 22 | Done |
 | CLOSURE-01 | Phase 23 | Done |
 | CLOSURE-02 | Phase 24 | Done |
-| CLOSURE-03 | Phase 25 | Not started |
+| CLOSURE-03 | Phase 25 | Done |

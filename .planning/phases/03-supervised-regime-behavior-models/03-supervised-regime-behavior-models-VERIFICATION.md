@@ -40,8 +40,10 @@ human_verification:
 
 **Phase Goal:** Train, validate, and report on supervised models that turn regimes into real-time and forward-looking signals for regimes and ETF/portfolio behavior.
 **Verified:** 2026-03-16T00:00:00Z  
-**Status:** human_needed  
+**Status:** complete — automated must-haves satisfied; **Human Verification Required** below remains for judgment on real-data performance and economics (not blocking GSD CLOSURE-03).  
 **Re-verification:** No — initial verification
+
+**CLOSURE-03 (2026-03-23):** Plan-04 reconciliation — [`03-supervised-regime-behavior-models-04-SUMMARY.md`](./03-supervised-regime-behavior-models-04-SUMMARY.md).
 
 ## Goal Achievement
 
@@ -73,7 +75,7 @@ human_verification:
 | `pipelines/05_predict.py`       | `src/trading_crab_lib/prediction/classifier.py` | `from trading_crab_lib.prediction.classifier import train_current_regime, train_forward_classifiers` | ✓ WIRED  | Step 5 uses the centralized helpers on causal features (when available) and persists model bundles to `outputs/models/`. |
 | `tests/test_models_regime.py`   | `src/trading_crab_lib/prediction/classifier.py` | `from trading_crab_lib.prediction.classifier import FoldReport, train_current_regime, train_forward_classifiers` | ✓ WIRED  | Regime tests import and exercise the supervised helpers directly on synthetic data. |
 | `tests/test_models_behavior.py` | `src/trading_crab_lib/prediction.py`          | `from trading_crab_lib.prediction import make_behavior_labels, train_forward_behavior_models` | ✓ WIRED  | Behavior tests exercise the behavior helpers exposed from the prediction module. |
-| `tests/test_models_reporting.py`| `src/trading_crab_lib/prediction/classifier.py` | `from trading_crab_lib.prediction.classifier import model_metrics_summary` | ✓ WIRED  | Reporting tests cover regime metrics aggregation; behavior metrics flattener lives in `prediction.py` and is not yet under test. |
+| `tests/test_models_reporting.py`| `src/trading_crab_lib/prediction/classifier.py` | `from trading_crab_lib.prediction.classifier import model_metrics_summary` | ✓ WIRED  | Regime metrics aggregation + **`test_model_metrics_artifacts_schema_and_behavior_coverage`** validates `write_model_metrics_artifacts` output (including behavior coverage) against `outputs/reports/model_metrics/` schemas. |
 
 ### Requirements Coverage (MODEL-01 – MODEL-04)
 
