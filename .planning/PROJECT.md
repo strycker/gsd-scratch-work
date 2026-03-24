@@ -106,9 +106,15 @@ These are **hypotheses** to be validated as the pipeline solidifies. They will b
 
 These constitute the **baseline capabilities** that v1 will refine and productize.
 
-#### Active (to validate in v1.2+)
+#### Active (next milestone)
 
-- [ ] Deeper tactics classification, richer cross-asset signals, and optional first-class email automation (see **v1.2** milestone).
+- [ ] Priorities TBD — open **`$gsd-new-milestone`** (see **Deferred** in **`milestones/v1.2-REQUIREMENTS.md`** for ideas: HMM, empirical forward probabilities, macrotrends backfill, etc.).
+
+#### Validated (shipped — v1.2)
+
+- ✓ Expanded FRED macro + yield spreads; optional data providers; preservation secondaries — **v1.2**
+- ✓ Ratio/RRG diagnostics; tactics classification; boosted models + configurable live regime model (**RF/GB**) — **v1.2**
+- ✓ Weekly pipeline ordering (**8 → 9 → 7**) and `run_weekly_report.py` alignment with diagnostics/tactics — **v1.2**
 
 #### Validated (shipped — v1.0)
 
@@ -131,30 +137,30 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 | Focus on ETF-level portfolios only (no individual stocks) | Simpler, more robust universe; aligns with available data and reduces overfitting risk. | **Locked for v1** |
 | Allow bitcoin exposure only via ETF wrappers | Avoid operational/security complexity of direct crypto while still capturing the macro signal. | **Locked for v1** |
 | Weekly report cadence | Matches the regime/quarterly focus; avoids false precision from daily/intraday noise. | **Locked for v1** |
+| v1.2 boosted models + `dashboard.regime_model` | RF remains default; GB selectable for live scoring with explicit pickle resolution. | **Shipped v1.2** |
+| v1.2 step order for weekly E2E | When steps **7+8+9** run together, order **8 → 9 → 7** so `weekly_report.md` can include diagnostics/tactics. | **Shipped v1.2** |
 
 ---
 
 ## Milestone model (aligned with GSD)
 
-## Current Milestone: v1.2 — Tactics, Triggers & Expanded Signals
+## Current position
 
-**Goal:** Deepen regime-aware analysis into **actionable tactics**—more macro and cross-asset signals, stronger models (boosted + interpretable trees), richer diagnostics, optional email delivery, and safer optional data providers.
+**v1.2 — Tactics, triggers & expanded signals** is **shipped** (**2026-03-24**, git tag **`v1.2`**). Archives: **`.planning/milestones/v1.2-ROADMAP.md`**, **`v1.2-REQUIREMENTS.md`**, **`v1.2-MILESTONE-AUDIT.md`**. Ledger: **`.planning/MILESTONES.md`**.
 
-**Target features:** See **`.planning/REQUIREMENTS.md`** — product: **DATA-10/11**, **SIGNAL-10/11**, **MODEL-10/11**, **TACTICS-10**, **EMAIL-10**, **INSTALL-20**; v1.0 GSD closure: **CLOSURE-01..03** (phases **23–25**). Roadmap phases **17–27** in **`.planning/ROADMAP.md`** (**26–27** = gap closure from **`v1.2-MILESTONE-AUDIT.md`**).
-
-**Next step:** **`$gsd-audit-milestone`** — confirm v1.2 gap-closure phases **26–27**; then **`$gsd-complete-milestone v1.2`** if audit passes.
+**Next step:** **`$gsd-new-milestone`** — define the next milestone’s goals, requirements, and roadmap.
 
 ---
 
 ### v1.0 — Core pipeline + planning evidence (**shipped**)
 
-**Status:** ✅ **Complete** — **2026-03-20** (git tag **`v1.0`**). Full roadmap, requirements, and audit: **`.planning/milestones/v1.0-ROADMAP.md`**, **`v1.0-REQUIREMENTS.md`**, **`v1.0-MILESTONE-AUDIT.md`**. Ledger: **`.planning/MILESTONES.md`**.
+**Status:** ✅ **Complete** — **2026-03-20** (git tag **`v1.0`**). **`.planning/milestones/v1.0-ROADMAP.md`**, **`v1.0-REQUIREMENTS.md`**, **`v1.0-MILESTONE-AUDIT.md`**.
 
-### v1.2 — narrative themes (detail in REQUIREMENTS)
+### v1.2 — Tactics, triggers & expanded signals (**shipped**)
 
-Product questions v1.2 keeps answering: *Is now a good time to invest (vs cash)? In what sleeves? What tactics on what horizon? What plots/trees/triggers deserve human review?* — all mapped to REQ-IDs above.
+**Status:** ✅ **Complete** — **2026-03-24** (git tag **`v1.2`**). Expanded signals, diagnostics, boosted models + interpretability, tactics, email/install hardening, GSD gap-closure (**26–27**), and pipeline weekly E2E wiring.
 
 ---
 
-*Last updated: 2026-03-24 — v1.2 roadmap includes **17–27** (gap closure phases **26–27** after milestone audit)*
+*Last updated: 2026-03-24 — after **`$gsd-complete-milestone v1.2`***
 
