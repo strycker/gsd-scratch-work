@@ -52,7 +52,11 @@ class TestArchiveWeeklyReport:
 # ── CLI argv (subprocess args) ────────────────────────────────────────────────
 
 class TestScriptArgv:
-    def test_default_argv_includes_steps_2_through_7(self):
+    # Pipeline order: steps 8–9 (tactics / weekly e2e) run before 7 (dashboard) per run_weekly_report.py
+    _STEPS_DEFAULT = "2,3,4,5,6,8,9,7"
+    _STEPS_FULL = "1,2,3,4,5,6,8,9,7"
+
+    def test_default_argv_includes_steps_2_through_6_8_9_then_7(self):
         with patch("run_weekly_report.subprocess.run") as m:
             m.return_value = MagicMock(returncode=0)
             with patch("sys.argv", ["run_weekly_report.py"]):
@@ -62,9 +66,9 @@ class TestScriptArgv:
             argv = m.call_args[0][0]
             assert "--steps" in argv
             idx = argv.index("--steps")
-            assert argv[idx + 1] == "2,3,4,5,6,7"
+            assert argv[idx + 1] == self._STEPS_DEFAULT
 
-    def test_full_argv_includes_steps_1_through_7(self):
+    def test_full_argv_includes_steps_1_through_6_8_9_then_7(self):
         with patch("run_weekly_report.subprocess.run") as m:
             m.return_value = MagicMock(returncode=0)
             with patch("sys.argv", ["run_weekly_report.py", "--full"]):
@@ -73,7 +77,7 @@ class TestScriptArgv:
             argv = m.call_args[0][0]
             assert "--steps" in argv
             idx = argv.index("--steps")
-            assert argv[idx + 1] == "1,2,3,4,5,6,7"
+            assert argv[idx + 1] == self._STEPS_FULL
 
     def test_plots_and_verbose_passed_through(self):
         with patch("run_weekly_report.subprocess.run") as m:
@@ -84,7 +88,7 @@ class TestScriptArgv:
             argv = m.call_args[0][0]
             assert "--plots" in argv
             assert "--verbose" in argv
-            assert argv[argv.index("--steps") + 1] == "1,2,3,4,5,6,7"
+            assert argv[argv.index("--steps") + 1] == self._STEPS_FULL
 
     def test_returns_nonzero_when_pipeline_fails(self):
         with patch("run_weekly_report.subprocess.run") as m:

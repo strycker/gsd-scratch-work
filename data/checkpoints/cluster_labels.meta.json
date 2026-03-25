@@ -1,8 +1,8 @@
 {
   "name": "cluster_labels",
-  "created": "2026-03-24T16:41:16.323191",
+  "created": "2026-03-25T16:28:50.582254",
   "config_hash": "74741373",
-  "rows": 304,
+  "rows": 305,
   "columns": 3,
   "col_names": [
     "cluster",
@@ -10,5 +10,5 @@
     "market_code"
   ],
   "index_start": "1950-03-31 00:00:00",
-  "index_end": "2025-12-31 00:00:00"
+  "index_end": "2026-03-31 00:00:00"
 }

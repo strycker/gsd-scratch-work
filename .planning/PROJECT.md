@@ -106,9 +106,13 @@ These are **hypotheses** to be validated as the pipeline solidifies. They will b
 
 These constitute the **baseline capabilities** that v1 will refine and productize.
 
-#### Active (next milestone)
+#### Active (next milestone) — v1.3
 
-- [ ] Priorities TBD — open **`$gsd-new-milestone`** (see **Deferred** in **`milestones/v1.2-REQUIREMENTS.md`** for ideas: HMM, empirical forward probabilities, macrotrends backfill, etc.).
+- [ ] **Consolidation & OSS library** — see **Current Milestone: v1.3** below.
+
+#### Deferred (post-v1.3 / future)
+
+- Ideas from **`milestones/v1.2-REQUIREMENTS.md`**: HMM / temporal clustering, full broker execution, empirical forward probabilities, macrotrends backfill, etc. — not part of v1.3 unless pulled in explicitly.
 
 #### Validated (shipped — v1.2)
 
@@ -144,11 +148,25 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 ## Milestone model (aligned with GSD)
 
+## Current Milestone: v1.3 — Consolidation, submodule parity & PyPI
+
+**Goal:** Complete outstanding planning hygiene, reconcile the canonical repo with three read-only submodule mirrors so this tree is the **superset**, and publish **`trading-crab-lib`** (from `src/` only) as **public OSS** on PyPI with a credible consumer story.
+
+**Target features:**
+
+- Close **GSD I001** gaps: add **hybrid** `*-SUMMARY.md` files (as-built + plan fidelity + delta-from-plan) for every plan missing a summary; no reopened code scope unless a delta exposes a defect.
+- **Analyze & compare** root vs `trading-crab-lib-repo-copy`, `claude-scratch-work-repo-copy`, and `trading-crab-repo-copy` (local mirrors only; **read-only** except `git pull` refresh). Prefer the **more complete / better-tested** implementation when repos diverge; **confirm with owner** before replacing code. Primary merge order: **lib → claude-scratch → trading-crab**, refined by dependency/risk.
+- **PyPI:** single package **`trading-crab-lib`** from `src/`; pipelines/notebooks remain **repo-only**. Target **Python 3.10–3.14**; semantic versioning and changelog discipline for OSS.
+- **Simplify root:** prune redundant notebooks, scratch paths, and duplicate **root** docs — **do not** prune `legacy/` or submodule trees.
+- **Documentation for humans & AI:** extensive **Google-style** docstrings, file-level “why” paragraphs, and short rationale before major blocks throughout `src/trading_crab_lib/` (and aligned root docs where helpful).
+
+**Research:** **`.planning/research/SUMMARY.md`** (2026-03-25) — stack, features/architecture, pitfalls.
+
 ## Current position
 
 **v1.2 — Tactics, triggers & expanded signals** is **shipped** (**2026-03-24**, git tag **`v1.2`**). Archives: **`.planning/milestones/v1.2-ROADMAP.md`**, **`v1.2-REQUIREMENTS.md`**, **`v1.2-MILESTONE-AUDIT.md`**. Ledger: **`.planning/MILESTONES.md`**.
 
-**Next step:** **`$gsd-new-milestone`** — define the next milestone’s goals, requirements, and roadmap.
+**v1.3 — Consolidation & PyPI** is **in definition** — domain research complete; **next:** scoped **`REQUIREMENTS.md`** + **`$gsd-discuss-phase`** / **`$gsd-plan-phase`** starting at phase **28**.
 
 ---
 
@@ -162,5 +180,5 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 ---
 
-*Last updated: 2026-03-24 — after **`$gsd-complete-milestone v1.2`***
+*Last updated: 2026-03-25 — v1.3 milestone opened; domain research in **`.planning/research/`***
 

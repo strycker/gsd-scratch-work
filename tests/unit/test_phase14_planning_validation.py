@@ -46,7 +46,7 @@ def test_roadmap_phase1_lists_01_null_plans_not_phase3() -> None:
 def test_state_points_at_phase14_not_stale_phase3() -> None:
     md = (ROOT / ".planning" / "STATE.md").read_text(encoding="utf-8")
     assert "Current Phase: 03" not in md
-    # Mid–v1.0 audit: 14–16; after `$gsd-complete-milestone v1.0`: v1.2 + current_phase null.
+    # Mid–v1.0 audit: 14–16; after v1.0: v1.2 + current_phase null. v1.3+ uses gsd_state_version + narrative **Phase:** (no YAML current_phase).
     acceptable = (
         "current_phase: 14" in md
         or 'current_phase: "14"' in md
@@ -59,8 +59,9 @@ def test_state_points_at_phase14_not_stale_phase3() -> None:
         or "current_phase: 20" in md
         or "current_phase: 21" in md
         or "current_phase: 22" in md
+        or "milestone: v1.3" in md
     )
-    assert acceptable, "STATE.md should not be stuck on early phases; expected 14–22, or null (between milestones)"
+    assert acceptable, "STATE.md should not be stuck on early phases; expected 14–22, null (v1.2–), or v1.3+ milestone"
 
 
 def test_early_verification_bodies_use_trading_crab_lib_paths() -> None:

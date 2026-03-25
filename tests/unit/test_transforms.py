@@ -137,6 +137,8 @@ class TestApplyGapFill:
         result = apply_gap_fill(df)
         # market_code NaN at index 1 should NOT be touched by gap fill
         assert np.isnan(result["market_code"].iloc[1])
+        # x should still fill using row 0 and 2 even though market_code was NaN on row 1
+        assert not np.isnan(result["x"].iloc[1])
 
     def test_does_not_mutate_input(self, quarterly_index):
         vals = np.array([1.0, np.nan, 3.0] + [4.0] * 17)
@@ -174,6 +176,17 @@ class TestApplyDerivatives:
         result = apply_derivatives(df)
         assert "market_code_d1" not in result.columns
         assert "market_code_d2" not in result.columns
+
+    def test_sparse_market_code_does_not_skip_derivatives(self, quarterly_index):
+        """Overlay labels must not define derivative support (regression: PCA n_samples≈4 bug)."""
+        mc = np.full(20, np.nan)
+        mc[[5, 6, 7]] = [0.0, 1.0, 2.0]  # only 3 labeled quarters
+        df = pd.DataFrame(
+            {"x": np.linspace(1, 20, 20), "market_code": mc},
+            index=quarterly_index,
+        )
+        result = apply_derivatives(df, window=1)
+        assert result["x_d1"].notna().sum() >= 15
 
     def test_linear_series_has_constant_d1(self, quarterly_index):
         """Derivative of a linear series should be roughly constant."""

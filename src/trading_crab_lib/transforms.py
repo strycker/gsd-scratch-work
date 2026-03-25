@@ -159,14 +159,14 @@ def _fill_column(df: pd.DataFrame, col: str, window: int) -> pd.Series:
     Bernstein polynomial is fitted through the boundary values and their
     smoothed derivatives.  Leading/trailing gaps use a Taylor expansion.
 
-    market_code is optional: when present, valid rows are those where both
-    the feature column and market_code are non-NaN.  When absent, valid rows
-    are those where the feature column itself is non-NaN.
+    Valid rows for interpolation are determined by the feature column only.
+
+    **Do not** gate on ``market_code``: it is an optional label overlay (grok /
+    clustered / predicted) that may be sparse or realigned across runs. Coupling
+    gap-fill support to ``market_code`` caused almost-all-NaN features and PCA
+    failures when switching ``--market-code`` sources between pipeline runs.
     """
-    if "market_code" in df.columns:
-        valid = df[[col, "market_code"]].dropna()
-    else:
-        valid = df[[col]].dropna()
+    valid = df[[col]].dropna()
     if valid.empty:
         return df[col]
 
@@ -242,10 +242,8 @@ def apply_derivatives(
     df = df.copy()
     feature_cols = [c for c in df.columns if c != "market_code"]
     for col in feature_cols:
-        if "market_code" in df.columns:
-            valid = df[[col, "market_code"]].dropna()
-        else:
-            valid = df[[col]].dropna()
+        # Use feature column only for support — see _fill_column docstring on market_code.
+        valid = df[[col]].dropna()
         if valid.empty:
             continue
         d1, d2, d3 = _compute_derivatives(valid[col], window=window, causal=causal)
