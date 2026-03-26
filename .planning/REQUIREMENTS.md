@@ -1,7 +1,7 @@
 # Trading-Crab — Requirements (v1.3 + v1.4)
 
 **Milestone (shipped):** v1.3 — Consolidation, submodule parity & PyPI  
-**Milestone (shipped):** v1.4 — Audit gap closure (phases **35–36**; see **`.planning/v1.3-MILESTONE-AUDIT.md`**)  
+**Milestone (shipped):** v1.4 — Audit gap closure (phases **35–36**; see **`.planning/v1.4-MILESTONE-AUDIT.md`**)  
 **Research:** `.planning/research/SUMMARY.md` (2026-03-25)
 
 **Archived:** v1.0 / v1.2 — `.planning/milestones/v1.*-REQUIREMENTS.md`

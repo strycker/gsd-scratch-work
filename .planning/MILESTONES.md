@@ -1,5 +1,21 @@
 # Milestones
 
+## v1.3 Consolidation, submodule parity & PyPI (Shipped: 2026-03-26)
+
+**Phases completed:** 7 phases (28–34), 7 plans
+
+**Archives:** `.planning/milestones/v1.3-ROADMAP.md`, `v1.3-REQUIREMENTS.md`, `v1.3-MILESTONE-AUDIT.md`
+
+**Key accomplishments:**
+
+- **GSD-10 / I001:** Hybrid `*-SUMMARY.md` beside remaining v1.2 plans; **`validate health`** clean for listed paths (**Phase 28**).
+- **SYNC-10 / SYNC-11:** Submodule comparison matrix + ordered unification blueprint (read-only mirrors) ( **29–30** ).
+- **PKG-10 / PKG-11:** `paths.py` consumer-safe workspace API; PyPI release story (**LICENSE**, **`docs/RELEASING.md`**, **`scripts/build_dist.sh`**) (**31–32**).
+- **PRUNE-10:** Root inventory and redundancy removal outside `legacy/` / mirrors (**33**).
+- **DOCS-10:** Google-style docstrings + file-level “why” across `src/trading_crab_lib/` (**34**).
+
+---
+
 ## v1.2 Tactics, triggers & expanded signals (Shipped: 2026-03-24)
 
 **Phases completed:** 11 phases, 11 plans

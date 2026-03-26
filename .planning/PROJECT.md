@@ -98,7 +98,7 @@ These are **hypotheses** to be validated as the pipeline solidifies. They will b
 
 #### Validated
 
-- The existing `legacy/` implementation and `src/market_regime/` package already:
+- The existing `legacy/` implementation and `src/trading_crab_lib/` package already:
   - Ingest key macro series (multpl + FRED) and ETF prices.
   - Engineer features via log transforms, Bernstein gap filling, and smoothed derivatives.
   - Perform PCA + clustering and regime profiling.
@@ -106,13 +106,17 @@ These are **hypotheses** to be validated as the pipeline solidifies. They will b
 
 These constitute the **baseline capabilities** that v1 will refine and productize.
 
-#### Active (next milestone) — v1.3
+#### Active (next)
 
-- [ ] **Consolidation & OSS library** — see **Current Milestone: v1.3** below.
+- (none — define in **`$gsd-new-milestone`** or **PROJECT.md** when v1.5 scope is chosen)
 
 #### Deferred (post-v1.3 / future)
 
 - Ideas from **`milestones/v1.2-REQUIREMENTS.md`**: HMM / temporal clustering, full broker execution, empirical forward probabilities, macrotrends backfill, etc. — not part of v1.3 unless pulled in explicitly.
+
+#### Validated (shipped — v1.3)
+
+- ✓ GSD I001 hybrid summaries; submodule matrix + merge blueprint; PyPI-safe paths + release engineering; root prune; library docstring pass — **v1.3** (see **`.planning/milestones/v1.3-REQUIREMENTS.md`**)
 
 #### Validated (shipped — v1.2)
 
@@ -143,30 +147,20 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 | Weekly report cadence | Matches the regime/quarterly focus; avoids false precision from daily/intraday noise. | **Locked for v1** |
 | v1.2 boosted models + `dashboard.regime_model` | RF remains default; GB selectable for live scoring with explicit pickle resolution. | **Shipped v1.2** |
 | v1.2 step order for weekly E2E | When steps **7+8+9** run together, order **8 → 9 → 7** so `weekly_report.md` can include diagnostics/tactics. | **Shipped v1.2** |
+| v1.3 consolidation + PyPI | Submodule mirrors compared; `trading_crab_lib` paths + release docs; root prune; docstring pass. | **Shipped v1.3** |
+| v1.4 audit gap closure | **28-VERIFICATION** parity; root **`trading_crab_lib`** onboarding + Phase **34** Nyquist. | **Shipped v1.4** |
 
 ---
 
 ## Milestone model (aligned with GSD)
 
-## Current Milestone: v1.3 — Consolidation, submodule parity & PyPI
-
-**Goal:** Complete outstanding planning hygiene, reconcile the canonical repo with three read-only submodule mirrors so this tree is the **superset**, and publish **`trading-crab-lib`** (from `src/` only) as **public OSS** on PyPI with a credible consumer story.
-
-**Target features:**
-
-- Close **GSD I001** gaps: add **hybrid** `*-SUMMARY.md` files (as-built + plan fidelity + delta-from-plan) for every plan missing a summary; no reopened code scope unless a delta exposes a defect.
-- **Analyze & compare** root vs `trading-crab-lib-repo-copy`, `claude-scratch-work-repo-copy`, and `trading-crab-repo-copy` (local mirrors only; **read-only** except `git pull` refresh). Prefer the **more complete / better-tested** implementation when repos diverge; **confirm with owner** before replacing code. Primary merge order: **lib → claude-scratch → trading-crab**, refined by dependency/risk.
-- **PyPI:** single package **`trading-crab-lib`** from `src/`; pipelines/notebooks remain **repo-only**. Target **Python 3.10–3.14**; semantic versioning and changelog discipline for OSS.
-- **Simplify root:** prune redundant notebooks, scratch paths, and duplicate **root** docs — **do not** prune `legacy/` or submodule trees.
-- **Documentation for humans & AI:** extensive **Google-style** docstrings, file-level “why” paragraphs, and short rationale before major blocks throughout `src/trading_crab_lib/` (and aligned root docs where helpful).
-
-**Research:** **`.planning/research/SUMMARY.md`** (2026-03-25) — stack, features/architecture, pitfalls.
-
 ## Current position
 
-**v1.2 — Tactics, triggers & expanded signals** is **shipped** (**2026-03-24**, git tag **`v1.2`**). Archives: **`.planning/milestones/v1.2-ROADMAP.md`**, **`v1.2-REQUIREMENTS.md`**, **`v1.2-MILESTONE-AUDIT.md`**. Ledger: **`.planning/MILESTONES.md`**.
+**v1.3 — Consolidation, submodule parity & PyPI** is **shipped** (**2026-03-26**, git tag **`v1.3`**). Archives: **`.planning/milestones/v1.3-ROADMAP.md`**, **`v1.3-REQUIREMENTS.md`**, **`v1.3-MILESTONE-AUDIT.md`**.
 
-**v1.3 — Consolidation & PyPI** is **in definition** — domain research complete; **next:** scoped **`REQUIREMENTS.md`** + **`$gsd-discuss-phase`** / **`$gsd-plan-phase`** starting at phase **28**.
+**v1.4 — Audit gap closure** (phases **35–36**) is **shipped** — **AUDIT-10**, **DOC-ALIGN-10**; see **`.planning/v1.4-MILESTONE-AUDIT.md`**. Ledger: **`.planning/MILESTONES.md`**.
+
+**Next:** define **v1.5** (or next product milestone) via **`$gsd-new-milestone`** when ready.
 
 ---
 
@@ -178,7 +172,15 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 **Status:** ✅ **Complete** — **2026-03-24** (git tag **`v1.2`**). Expanded signals, diagnostics, boosted models + interpretability, tactics, email/install hardening, GSD gap-closure (**26–27**), and pipeline weekly E2E wiring.
 
+### v1.3 — Consolidation, submodule parity & PyPI (**shipped**)
+
+**Status:** ✅ **Complete** — **2026-03-26** (git tag **`v1.3`**). Phases **28–34**: I001 summaries, mirror matrix + blueprint, consumer paths, PyPI story, root prune, `src/trading_crab_lib` documentation pass.
+
+### v1.4 — Audit gap closure (**shipped**)
+
+**Status:** ✅ **Complete** — **2026-03-26**. Formal **28-VERIFICATION**; root doc import alignment (**`trading_crab_lib`**); Phase **34** Nyquist closure.
+
 ---
 
-*Last updated: 2026-03-25 — v1.3 milestone opened; domain research in **`.planning/research/`***
+*Last updated: 2026-03-26 — **v1.3** archived; **v1.4** gap-closure shipped*
 
