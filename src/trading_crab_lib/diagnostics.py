@@ -6,6 +6,8 @@ Outputs are consumed by ``reporting`` (embedded in markdown reports) and are
 deterministic given price history — they do not drive model training.
 """
 
+# Interpretation: z-scores and RRG quadrants describe *relative* positioning — not causal macro forecasts.
+
 from __future__ import annotations
 
 from typing import Any

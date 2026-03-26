@@ -50,4 +50,5 @@ progress:
 ## Accumulated context
 
 - **v1.3** / **v1.4** — **shipped** and **archived** (2026-03-26).
+- **2026-03-26 housekeeping** — Import examples and notebooks aligned to **`trading_crab_lib`**; **`v1.5-CLEANUP-BACKLOG.md`** captures follow-ups for the next milestone.
 - **Submodules (read-only):** `trading-crab-lib-repo-copy`, `claude-scratch-work-repo-copy`, `trading-crab-repo-copy`.

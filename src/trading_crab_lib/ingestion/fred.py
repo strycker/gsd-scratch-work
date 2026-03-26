@@ -10,6 +10,9 @@ marked ``shift: true`` are shifted forward one quarter so values align with when
 they would have been known — avoiding look-ahead bias in supervised models.
 """
 
+# Replication: quarterly series use quarter-end (QE) last() resample — aligns all
+# FRED columns to the same calendar grid as multpl.com inputs before merging.
+
 from __future__ import annotations
 
 import logging
@@ -62,6 +65,8 @@ def _fetch_one(fred: Fred, series_id: str, start: str, end: str, shift: bool) ->
     raw = fred.get_series(series_id, observation_start=start, observation_end=end)
     quarterly = raw.resample("QE").last()
     if shift:
+        # shift(+1): the first print of Q GDP typically lands after Q ends — at quarter
+        # t you act as if you only observe that GDP in quarter t+1 (conservative).
         quarterly = quarterly.shift(1)  # lag one quarter — data known next quarter
     return quarterly
 

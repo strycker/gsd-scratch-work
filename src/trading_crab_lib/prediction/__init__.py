@@ -9,6 +9,8 @@ This package provides two layers of API:
   and `run_pipeline.py`.
 """
 
+# Wrappers below keep older call sites working; classifier.py holds the canonical implementations.
+
 from __future__ import annotations
 
 from typing import Any

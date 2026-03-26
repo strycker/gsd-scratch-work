@@ -11,6 +11,13 @@ Run:
     python pipelines/01_ingest.py --refresh
 """
 
+# Step 1 builds the *wide* quarterly macro table + ETF prices. Everything downstream
+# assumes a common DatetimeIndex (quarter-end) and honest publication timing on FRED.
+#
+# Economist view: this step assembles a panel of macro and market state variables
+# (growth, inflation, rates, credit, equity valuation) at the same quarterly frequency.
+# ETF prices are cached here so step 6 does not re-hit Yahoo unless --refresh-assets.
+
 from __future__ import annotations
 
 import argparse

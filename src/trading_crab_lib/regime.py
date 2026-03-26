@@ -196,6 +196,7 @@ def build_forward_window_probabilities(
     regimes = sorted(labels.unique())
 
     rows: list[dict[str, int | float]] = []
+    # Count-based "reach" probabilities — frequentist complement to model-based forward classifiers in step 5.
     for horizon in horizons:
         if horizon < 1:
             continue

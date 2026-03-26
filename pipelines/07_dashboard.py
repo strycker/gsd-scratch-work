@@ -23,6 +23,9 @@ Run:
     python pipelines/07_dashboard.py
 """
 
+# Human-facing synthesis — not used to fit models; keep recommendations traceable to upstream artifacts.
+# Blended portfolio weights regimes by predicted probability — a simple way to express forecast uncertainty in allocation.
+
 import logging
 import pickle
 import sys

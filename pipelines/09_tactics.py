@@ -9,6 +9,8 @@ Run:
     python pipelines/09_tactics.py
 """
 
+# Tactics = position-sizing style hints from volatility/trend — orthogonal to regime labels but uses the same price history.
+
 from __future__ import annotations
 
 import logging

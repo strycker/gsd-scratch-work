@@ -5,6 +5,8 @@ Secrets live only in ``config/email.local.yaml`` (gitignored). Sending is
 opt-in; failures are logged and must not abort the pipeline.
 """
 
+# Delivery is side-channel: report content is identical whether or not email runs.
+
 from __future__ import annotations
 
 import logging

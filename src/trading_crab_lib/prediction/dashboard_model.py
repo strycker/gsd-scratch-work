@@ -35,6 +35,7 @@ def resolve_current_regime_model_path(
 
     rf_path = model_dir / "current_regime.pkl"
     gb_path = model_dir / "current_regime_gb.pkl"
+    # RF is default production model; GB is optional — both trained on same features, different bias–variance tradeoff.
 
     if regime_model == "gb" and gb_path.exists():
         if log:

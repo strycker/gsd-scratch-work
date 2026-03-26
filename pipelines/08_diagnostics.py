@@ -5,9 +5,13 @@ This step is intentionally conservative: it only reads existing checkpoints
 and ETF prices to compute diagnostic artifacts. It does not alter regimes,
 features, or recommendations.
 
+RRG-style output places each ETF vs a benchmark in momentum/value space — common in relative-rotation analysis.
+
 Run:
     python pipelines/08_diagnostics.py
 """
+
+# No mutation of training data — pure reporting layer on top of cached prices.
 
 from __future__ import annotations
 

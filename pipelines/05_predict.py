@@ -19,6 +19,9 @@ Run:
     python pipelines/05_predict.py
 """
 
+# Supervised step: maps *observable* causal features → regime — this is the tradable layer.
+# RandomForest captures nonlinear interactions; decision tree is for narrative; forward models are binary "hit regime j in h quarters".
+
 import argparse
 import pickle
 import sys

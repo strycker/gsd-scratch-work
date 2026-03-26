@@ -51,7 +51,13 @@ from trading_crab_lib.transforms import trim_incomplete_tail
 
 log = logging.getLogger(__name__)
 
+# Figure map (functions below): raw coverage → feature EDA → clustering (PCA/elbow)
+# → regime narrative (timeline, transitions, profiles) → supervised (importance,
+# forward probs) → assets (returns heatmaps) → diagnostics (ratios, RRG). Filenames
+# use step_NN_* for traceability in outputs/plots/.
+
 # ── Color palette ──────────────────────────────────────────────────────────────
+# Fixed palette keeps regime colors stable across runs so PDFs and slides are comparable year to year.
 CUSTOM_COLORS: list[str] = ["#0000d0", "#d00000", "#f48c06", "#8338ec", "#50a000"]
 REGIME_CMAP = mcolors.ListedColormap(CUSTOM_COLORS)
 

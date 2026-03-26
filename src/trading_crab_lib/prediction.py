@@ -26,6 +26,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 log = logging.getLogger(__name__)
 
+# Legacy shim: prefer importing from trading_crab_lib.prediction.classifier for new code — same economics, richer API.
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 

@@ -64,6 +64,9 @@ def resolve_library_paths(*, package_file: Path | None = None) -> LibraryPaths:
     pkg_file = (package_file or Path(__file__)).resolve()
     package_dir = pkg_file.parent
 
+    # Env-first: supports CI, Docker, and "pip install then point at a project tree"
+    # without editable installs. Economists can treat TRADING_CRAB_ROOT as "where
+    # my config and data live" on any machine.
     root_s = os.environ.get("TRADING_CRAB_ROOT", "").strip()
     cfg_s = os.environ.get("TRADING_CRAB_CONFIG", "").strip()
     data_s = os.environ.get("TRADING_CRAB_DATA", "").strip()
@@ -73,6 +76,7 @@ def resolve_library_paths(*, package_file: Path | None = None) -> LibraryPaths:
     all_granular = all(granular)
 
     if root_s:
+        # Whole-tree override: one variable, default subdirs config/data/outputs.
         root = Path(root_s).expanduser().resolve()
         config_dir = Path(cfg_s).expanduser().resolve() if cfg_s else root / "config"
         data_dir = Path(data_s).expanduser().resolve() if data_s else root / "data"
@@ -85,6 +89,7 @@ def resolve_library_paths(*, package_file: Path | None = None) -> LibraryPaths:
         )
 
     if any_granular:
+        # Partial granular paths are forbidden — avoids ambiguous "half outside" layouts.
         if not all_granular:
             raise RuntimeError(
                 "Partial TRADING_CRAB_CONFIG / TRADING_CRAB_DATA / TRADING_CRAB_OUTPUT "
@@ -103,6 +108,8 @@ def resolve_library_paths(*, package_file: Path | None = None) -> LibraryPaths:
             output_dir=output_dir,
         )
 
+    # Editable install / repo checkout: walk upward until we see config/settings.yaml.
+    # This ties the installed package back to a checkout that still has config/ at repo root.
     p = package_dir
     for _ in range(_MAX_WALK):
         settings_yaml = p / "config" / "settings.yaml"

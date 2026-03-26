@@ -278,6 +278,8 @@ python pipelines/07_dashboard.py
 jupyter lab notebooks/
 ```
 
+Notebook imports use the installable package **`trading_crab_lib`** — see [`notebooks/README.md`](notebooks/README.md) for prerequisites and fork notes.
+
 ### Feature Artifacts & Contracts
 
 Step 2 produces two feature variants from the `macro_raw` checkpoint:

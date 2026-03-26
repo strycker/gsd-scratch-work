@@ -148,5 +148,5 @@ bash scripts/check_env.sh
 **What it does:**
 
 - Prints the `python` and `pytest` executables and versions in use.
-- Verifies that `market_regime` can be imported.
+- Verifies that `trading_crab_lib` can be imported.
 - Runs a tiny pytest smoke test (`test_current_regime_models_and_probabilities`).

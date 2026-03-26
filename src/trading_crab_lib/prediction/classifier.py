@@ -9,6 +9,9 @@ The top-level :mod:`trading_crab_lib.prediction` package re-exports stable names
 ``run_pipeline.py`` and tests.
 """
 
+# Econometric note: TimeSeriesSplit walks forward in time — train on past, test on
+# future folds — so accuracy is not inflated by random shuffling (no peeking ahead).
+
 from __future__ import annotations
 
 import copy
@@ -267,6 +270,7 @@ def train_forward_classifiers(
             ...
         }
     """
+    # Each horizon shifts labels backward so the model predicts future regime from *current* features (no future X).
     if features.empty:
         raise ValueError("features must be non-empty")
     if len(features) != len(regimes):
@@ -503,6 +507,7 @@ def train_forward_behavior_models(
           "cv_scores": {}   # reserved for future extension
         }
     """
+    # Regime enters as a feature so the model can interact macro state with "which playbook" (conditional asset behavior).
     if features.empty:
         raise ValueError("features must be non-empty")
     if not horizons:

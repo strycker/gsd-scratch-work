@@ -4,6 +4,8 @@ Writes JSON/Parquet artifacts under ``outputs/reports/model_metrics/`` for dashb
 and regression checks (multiclass Brier score, per-bin calibration, fold summaries).
 """
 
+# Offline audit trail: same models as step 5, extra tables for calibration — not used to train.
+
 from __future__ import annotations
 
 import json

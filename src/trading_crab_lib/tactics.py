@@ -6,6 +6,8 @@ and classifies each asset into ``buy_hold`` / ``swing`` / ``stand_aside`` using
 layer, not by regime clustering.
 """
 
+# Short-horizon risk/positioning overlay: same ETF prices as step 6, different objective function than regime clustering.
+
 from __future__ import annotations
 
 import numpy as np

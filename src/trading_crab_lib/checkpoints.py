@@ -66,6 +66,9 @@ CHECKPOINT_DIR = DATA_DIR / "checkpoints"
 # Secondary snapshots written only from step 1 / step 2. Downstream steps that
 # drop columns in-memory never touch these. clear_all() skips them; delete
 # explicitly with clear("macro_raw_secondary") etc. if needed.
+# Preservation copies survive clear_all(): analysts keep a wide column history even
+# when a downstream step uses dropna(axis=1) in memory and would otherwise lose
+# traceability of which series existed at ingest time.
 PRESERVATION_CHECKPOINT_NAMES: frozenset[str] = frozenset(
     {
         "macro_raw_secondary",
@@ -107,6 +110,7 @@ class CheckpointManager:
         parquet_path = self.dir / f"{name}.parquet"
         meta_path = self.dir / f"{name}.meta.json"
 
+        # Parquet keeps dtypes stable across pandas versions; meta.json is for humans and is_fresh().
         df.to_parquet(parquet_path)
 
         meta = {
@@ -179,6 +183,7 @@ class CheckpointManager:
             )
             return False
 
+        # require_config_match: feature lists / dates in YAML change → old parquet may be wrong geometry.
         if require_config_match and meta.get("config_hash") != _config_hash():
             log.info("Checkpoint config mismatch: %s — settings.yaml changed", name)
             return False

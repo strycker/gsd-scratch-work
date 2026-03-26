@@ -9,6 +9,9 @@ Uses **lxml** CSS selectors (``#datatable``) to match the legacy scraper. A
 fixed rate limit applies between requests (see ``RATE_LIMIT_SECONDS``).
 """
 
+# multpl.com publishes long-history U.S. market ratios (CAPE, yields, etc.) as HTML
+# tables — not an official API; scraping is brittle and must stay rate-limited.
+
 from __future__ import annotations
 
 import logging

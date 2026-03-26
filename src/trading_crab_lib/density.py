@@ -33,6 +33,8 @@ Usage
     labels = fit_dbscan(pca_df, eps=1.0, min_samples=5)
 """
 
+# Exploration only — default production path remains KMeans + balanced_k in clustering.py.
+
 from __future__ import annotations
 
 import logging

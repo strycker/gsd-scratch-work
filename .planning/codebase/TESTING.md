@@ -141,7 +141,7 @@ pytest tests/ --cov --cov-report=term-missing
   - Example: empty input guards in `tests/unit/test_density.py`
 
 Additional notes:
-- Tests generally import the package directly as `market_regime.*`. The repo also sets `pythonpath = ["src"]` for pytest in `pyproject.toml`, but several tests additionally do a manual `sys.path.insert(...)`.
+- Tests generally import the package directly as `trading_crab_lib.*`. The repo also sets `pythonpath = ["src"]` for pytest in `pyproject.toml`, but several tests additionally do a manual `sys.path.insert(...)`.
   - Example: `sys.path.insert(0, ...)` in `tests/unit/test_checkpoints.py` and `tests/unit/test_transforms.py`
 
 ---

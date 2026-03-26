@@ -61,15 +61,24 @@ def add_cross_ratios(df: pd.DataFrame) -> pd.DataFrame:
             "or check config/settings.yaml multpl.datasets and fred.series."
         )
     df = df.copy()
+    # --- Cross-asset ratios (levels) — interpret as valuation / macro stress signals ---
+    # div_yield2: dividend yield (flow/price); high when equities are cheap vs cash flows.
     df["div_yield2"] = df["dividend"] / df["sp500"]
+    # price_div: price per unit dividend; inverse of yield-style exposure.
     df["price_div"] = df["sp500"] / df["dividend"]
+    # price_gdp: equity index scaled by nominal GDP — rough "market cap to economy" lens.
     df["price_gdp"] = df["sp500"] / df["gdp"]
+    # price_gdp2 / price_gnp2: same idea using BEA FRED national accounts (fred_*).
     df["price_gdp2"] = df["sp500"] / df["fred_gdp"]
     df["price_gnp2"] = df["sp500"] / df["fred_gnp"]
+    # div_minus_baa: equity yield minus Baa corporate yield — ERP-style spread in yield units.
     df["div_minus_baa"] = df["div_yield"] - df["fred_baa"] / 100.0
+    # credit_spread: Baa−AAA corporate spread — default-risk / liquidity stress proxy.
     df["credit_spread"] = (df["fred_baa"] - df["fred_aaa"]) / 100.0
+    # real_price*: nominal equity deflated by CPI variants — removes broad price level.
     df["real_price2"] = df["sp500"] / df["cpi"]
     df["real_price3"] = df["sp500"] / df["fred_cpi"]
+    # real_price_gdp2: inflation-adjusted index vs GDP (real equity to economy).
     df["real_price_gdp2"] = df["sp500_adj"] / df["gdp"]
     return df
 
@@ -84,6 +93,8 @@ def add_yield_curve_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     df = df.copy()
     cols = set(df.columns)
+    # Yield curve spreads (Treasury term structure): often inverted before recessions
+    # (long < short). Units match FRED — typically percent per annum on the raw series.
     if {"fred_gs10", "fred_gs2"} <= cols:
         df["yc_10y_2y"] = df["fred_gs10"] - df["fred_gs2"]
     if {"fred_gs10", "fred_tb3ms"} <= cols:
@@ -98,6 +109,7 @@ def add_yield_curve_features(df: pd.DataFrame) -> pd.DataFrame:
 
 def apply_log_transforms(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     """Add log_{col} columns for each col in `columns` that exists in df."""
+    # Log stabilizes variance on levels that grow exponentially (indices, nominal GDP).
     df = df.copy()
     for col in columns:
         if col not in df.columns:
@@ -112,6 +124,7 @@ def apply_log_transforms(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 
 def select_features(df: pd.DataFrame, feature_list: list[str]) -> pd.DataFrame:
     """Keep only the columns in feature_list (plus market_code if present)."""
+    # Feature lists in YAML define the econometric spec — changing them changes PCA geometry and invalidates old regime names.
     keep = [c for c in feature_list if c in df.columns]
     missing = set(feature_list) - set(df.columns)
     if missing:

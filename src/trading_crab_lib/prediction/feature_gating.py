@@ -5,6 +5,9 @@ supervised training. Opt-in ``--allow-noncausal-features`` may fall back to
 ``features.parquet`` with a loud warning when the supervised file is missing.
 """
 
+# Causal = each quarter's feature vector uses only data observable by that quarter-end (no future smoothing).
+# Non-causal = centered derivatives; fine for clustering labels, inflates supervised accuracy if used for training.
+
 from __future__ import annotations
 
 import logging

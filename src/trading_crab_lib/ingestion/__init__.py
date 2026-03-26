@@ -4,3 +4,5 @@ Import concrete modules explicitly, e.g. ``from trading_crab_lib.ingestion impor
 or ``from trading_crab_lib.ingestion.fred import fetch_all``. The parent package
 also exposes ``trading_crab_lib.ingestion`` via lazy loading.
 """
+
+# Data sources span: official macro API (FRED), scraped HTML (multpl), market prices (yfinance), optional labels (grok).

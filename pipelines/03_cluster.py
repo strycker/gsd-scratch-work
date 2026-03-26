@@ -16,6 +16,9 @@ Run:
     python pipelines/03_cluster.py [--force]
 """
 
+# Labels are *unsupervised* — interpret clusters as economic regimes only after step 4 naming.
+# PCA+k-means partitions the PC space; silhouette picks k under a cap — economic meaning is post-hoc via profiles.
+
 from __future__ import annotations
 
 import argparse

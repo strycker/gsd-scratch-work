@@ -13,6 +13,9 @@ Run:
     python pipelines/04_regime_label.py
 """
 
+# Connects machine IDs to human language (stagflation, etc.) — edit regime_labels.yaml after review.
+# Transition and forward-window tables are *empirical* Markov-style summaries — not model-based forecasts.
+
 import sys
 from pathlib import Path
 

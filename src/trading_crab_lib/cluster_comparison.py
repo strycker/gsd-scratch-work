@@ -41,6 +41,8 @@ Usage
     importances = extract_rf_feature_importances(model_path, feature_names)
 """
 
+# Compares alternative clusterings and RF feature ranks — use before changing settings.yaml feature lists.
+
 from __future__ import annotations
 
 import logging

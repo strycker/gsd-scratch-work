@@ -146,6 +146,7 @@ def returns_full_stats(
     joined["regime"] = cluster_labels
 
     records = []
+    # Per (regime, asset): distribution of quarterly returns — median is the headline; quantiles show tail risk.
     for regime, group in joined.groupby("regime"):
         asset_data = group.drop(columns=["regime"])
         for ticker in asset_data.columns:

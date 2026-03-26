@@ -30,6 +30,8 @@ Usage
     labels = spectral_labels(pca_df, k=5)
 """
 
+# Notebook / research use — production pipeline uses KMeans in clustering.py unless you change it deliberately.
+
 from __future__ import annotations
 
 import logging

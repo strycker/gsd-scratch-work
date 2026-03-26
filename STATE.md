@@ -259,3 +259,10 @@ outputs/plots/               — PNG figures from --plots flag
 - Clustering investigation suite fully implemented and tested (GMM, DBSCAN, Spectral, gap statistic, SVD, feature selection)
 - All critical bugs fixed: GMM scaler consistency, gap_std vs gap_sk separation, spectral affinity caching, cluster comparison index alignment
 
+---
+
+## Fork template & GSD (maintenance)
+
+- **Imports:** Use **`trading_crab_lib`** in notebooks and scripts (`pip install -e .`). See **`notebooks/README.md`**.
+- **Next milestone:** GSD idle post–v1.4 — start **v1.5** with **`$gsd-new-milestone`**; backlog in **`.planning/v1.5-CLEANUP-BACKLOG.md`**, deferred product in **`.planning/FUTURE-TODO.md`**, **`NEXT_STEPS.md`**.
+

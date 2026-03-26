@@ -57,6 +57,7 @@ def load_grok_labels(data_dir: Path) -> pd.Series | None:
         return None
 
     path = candidates[-1]  # take the most recent one (last alphabetically by date)
+    # Grok file is external reference labels — not used to train the RF; optional overlay for plots and market_code.
     log.info("Loading grok labels from %s", path)
 
     try:

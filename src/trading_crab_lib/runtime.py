@@ -10,6 +10,9 @@ and pass it through so behavior stays consistent and testable.
 :meth:`RunConfig.from_args` binds :mod:`argparse` without ad-hoc globals.
 """
 
+# Financial modeling: "refresh" vs "recompute" separates expensive network I/O
+# (scraping macro sites) from CPU-only recomputation from cached raw parquet.
+
 from __future__ import annotations
 
 import logging
@@ -36,7 +39,9 @@ class RunConfig:
     # ── misc ──────────────────────────────────────────────────────────────
     use_constrained_kmeans: bool = True  # attempt k-means-constrained
 
-    # Step 5 leakage guardrail:
+    # Step 5 leakage guardrail (supervised learning):
+    # Centered (non-causal) features use future quarters in smoothing windows — fine
+    # for clustering, invalid for "what would we have known at quarter-end" prediction.
     # - default: require features_supervised.parquet (causal features)
     # - opt-in : allow fallback to features.parquet (non-causal), with a loud warning
     allow_noncausal_features: bool = False
@@ -54,7 +59,9 @@ class RunConfig:
     drop_incomplete_tail: bool = True
 
     # ── market_code ───────────────────────────────────────────────────────
-    # Which market_code source to load, or None to run without market_code.
+    # market_code: optional *overlay* regime label per quarter for comparison plots
+    # or alternate training labels — not the same as cluster IDs from step 3 unless
+    # you saved balanced_cluster via --save-market-code.
     # Special value "grok"       → load from grok pickle via ingestion/grok.py
     # Any other string "foo"     → load checkpoint named "market_code_foo"
     # None                       → no market_code (fully data-driven)

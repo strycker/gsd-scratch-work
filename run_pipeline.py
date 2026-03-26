@@ -143,7 +143,7 @@ RunConfig passed through every module.
 
   To list all available market_code checkpoints:
     python -c "
-    from trading_crab_lib.io.checkpoints import CheckpointManager
+    from trading_crab_lib.checkpoints import CheckpointManager
     cm = CheckpointManager()
     mc = [e for e in cm.list() if e['name'].startswith('market_code_')]
     for e in mc: print(e['name'], '—', e.get('rows', '?'), 'rows')
@@ -183,6 +183,13 @@ from trading_crab_lib.email import (
 
 log = logging.getLogger(__name__)
 
+# Orchestration only: argparse lives here; individual steps are implemented in
+# trading_crab_lib and pipelines/*.py so tests can call the same functions without CLI.
+#
+# Data-flow mental model (quarterly time index throughout):
+#   raw macro wide table → engineered features (centered + causal) → PCA space → cluster IDs
+#   → named regimes + transition stats → supervised models → asset returns conditional on regime
+#   → dashboard / portfolios. Each arrow is checkpointed so you can resume mid-pipeline.
 
 # ── I/O helpers ───────────────────────────────────────────────────────────────
 
@@ -204,6 +211,7 @@ def _load_parquet(canonical_path: Path, checkpoint_name: str) -> pd.DataFrame:
         checkpoint_name,
     )
     df = CheckpointManager().load(checkpoint_name)
+    # Materialize under data/raw/ or data/processed/ so other tools (pandas, DuckDB) see the same path.
     # Backfill the canonical file so subsequent reads are fast
     canonical_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(canonical_path)
@@ -345,6 +353,7 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
 
     raw_path = DATA_DIR / "raw" / "macro_raw.parquet"
 
+    # Fast path: reuse disk + checkpoint when age and settings hash still match — avoids ~10 min scrape.
     if (
         not run_cfg.refresh_source_datasets
         and cm.is_fresh("macro_raw", max_age_days=ttl, require_config_match=True)
@@ -352,6 +361,7 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
     ):
         combined = pd.read_parquet(raw_path)
 
+        # Stale on-disk files may miss columns added in config later; repair from checkpoint first.
         missing = sorted(required_for_step2 - set(combined.columns))
         repaired_cols: list[str] = []
         dirty = False
@@ -427,6 +437,7 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
     elif not raw_path.exists():
         log.info("Step 1: macro_raw.parquet missing — recomputing ingestion")
 
+    # Full ingest: FRED = official macro series; multpl = market valuation / rate history from HTML tables.
     log.info("Step 1: fetching FRED data …")
     fred_df = fred_module.fetch_all(cfg)
 
@@ -436,6 +447,7 @@ def step1_ingest(cfg: dict, run_cfg: RunConfig) -> None:
     )
     multpl_df = multpl_module.fetch_all(cfg)
 
+    # Outer join: align on calendar quarter-end; missing cells remain NaN until step 2 gap-fill.
     combined = fred_df.join(multpl_df, how="outer") if not multpl_df.empty else fred_df
     start = cfg["data"]["start_date"]
     combined = combined[combined.index >= start]
@@ -687,12 +699,14 @@ def step3_cluster(cfg: dict, run_cfg: RunConfig, save_market_code: bool = False)
         log.info("Step 3: using cached cluster_labels checkpoint (age/config ok)")
         return
 
+    # PCA reduces correlated macro features to a few orthogonal axes — "regime geometry" lives here.
     pca_df, pca_model, scaler = reduce_pca(
         X,
         n_components=clust_cfg["n_pca_components"],
         random_state=clust_cfg["random_state"],
     )
 
+    # Re-scale PC scores before k-sweep so Euclidean distance in KMeans is not dominated by PC1 variance.
     X_scaled = StandardScaler().fit_transform(pca_df.values)
     scores = evaluate_kmeans(
         X_scaled,
@@ -860,6 +874,7 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
     rf_model = current_bundle["models"]["rf"]
     dt_model = current_bundle["models"]["dt"]
 
+    # Latest quarter: RF probability vector is the "now-cast" regime mix (not a single deterministic label).
     # Latest quarter prediction (rf_model gives proba)
     latest_proba = rf_model.predict_proba(X.iloc[[-1]])[0]
     classes = rf_model.classes_
@@ -894,6 +909,7 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
         "(use --market-code predicted on future runs)"
     )
 
+    # Behavior models: relate macro features to asset return *sign* paths — complements pure regime classification.
     # ── Behavior: train per-asset up/flat/down models ─────────────────────
     raw_dir = DATA_DIR / "raw"
     asset_prices_path = raw_dir / "asset_prices.parquet"
@@ -1523,6 +1539,7 @@ def main() -> None:
 
     cfg = load()
 
+    # Single settings dict drives dates, tickers, feature lists, and model hyperparameters — keep one source of truth.
     # Determine which steps to run
     if args.steps:
         try:

@@ -30,6 +30,9 @@ Run:
     python pipelines/06_asset_returns.py --refresh-assets  # force re-fetch yfinance
 """
 
+# Answers: "which ETFs did well in which regime historically?" — inputs to portfolio UX.
+# Medians summarize typical experience; hit_rate flags how often returns were positive — risk-aware reporting uses full stats when needed.
+
 import argparse
 import logging
 import sys

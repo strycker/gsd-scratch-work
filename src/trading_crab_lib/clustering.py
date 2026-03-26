@@ -16,6 +16,10 @@ Exploration / investigation functions (used by notebooks/03_clustering.ipynb):
   7. find_knee_k()          — elbow detection on inertia curve
 """
 
+# Unsupervised clustering discovers partition of *historical* quarters — not a
+# traded strategy. "Balanced" k-means trades geometric purity for ~equal sample
+# sizes per regime so per-regime return statistics are less noisy (see ARCHITECTURE.md).
+
 from __future__ import annotations
 
 import hashlib
@@ -262,12 +266,13 @@ def fit_clusters(
     X = StandardScaler().fit_transform(pca_df.values)
     result = pca_df.copy()
 
-    # Standard KMeans
+    # Standard KMeans: best_k from silhouette — optimizes geometric separation, may yield tiny/empty regimes.
     result["cluster"] = KMeans(
         n_clusters=best_k, n_init=100, random_state=random_state
     ).fit_predict(X)
     log.info("Standard KMeans (k=%d): %s", best_k, _size_summary(result["cluster"]))
 
+    # Balanced: forces ~equal cluster sizes so regime×asset return tables are not dominated by one tiny state.
     # Size-constrained KMeans
     KMC = _load_constrained_kmeans() if use_constrained else None
     if KMC is not None:

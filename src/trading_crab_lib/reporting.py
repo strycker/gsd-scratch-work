@@ -176,6 +176,7 @@ def simple_regime_portfolio(
         Series of portfolio weights indexed by ticker, summing to 1.0.
         Empty Series if current_regime not in regime_returns.
     """
+    # Naive rule: pick assets with highest *historical* median return in the point-estimate regime — not optimized for risk.
     if current_regime not in regime_returns.index:
         log.warning("simple_portfolio: regime %d not in return history", current_regime)
         return pd.Series(dtype=float)
@@ -227,6 +228,7 @@ def blended_regime_portfolio(
     all_tickers = regime_returns.columns.tolist()
     blended = pd.Series(0.0, index=all_tickers)
 
+    # Mixture: each regime contributes its top-N sleeve; weights reflect forecast uncertainty across regimes.
     for regime, prob in probs.items():
         if regime not in regime_returns.index or prob <= 0:
             continue

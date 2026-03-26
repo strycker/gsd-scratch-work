@@ -74,6 +74,7 @@ def merge_missing_macro_columns(
     need_multpl = missing & multpl_n
     need_fred = missing & fred_n
 
+    # Network-minimizing: fetch only the missing multpl or FRED columns, not the full universe unless needed.
     if need_multpl:
         from trading_crab_lib.ingestion import multpl as multpl_module
 

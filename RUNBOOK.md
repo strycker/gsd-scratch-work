@@ -96,7 +96,7 @@ python run_pipeline.py --steps 4,5,6,7 --market-code predicted --plots
 
 ```bash
 python -c "
-from trading_crab_lib.io.checkpoints import CheckpointManager
+from trading_crab_lib.checkpoints import CheckpointManager
 cm = CheckpointManager()
 mc = [e for e in cm.list() if e['name'].startswith('market_code_')]
 for e in mc:
