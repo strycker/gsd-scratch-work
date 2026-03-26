@@ -158,7 +158,7 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 **v1.3 — Consolidation, submodule parity & PyPI** is **shipped** (**2026-03-26**, git tag **`v1.3`**). Archives: **`.planning/milestones/v1.3-ROADMAP.md`**, **`v1.3-REQUIREMENTS.md`**, **`v1.3-MILESTONE-AUDIT.md`**.
 
-**v1.4 — Audit gap closure** (phases **35–36**) is **shipped** — **AUDIT-10**, **DOC-ALIGN-10**; see **`.planning/v1.4-MILESTONE-AUDIT.md`**. Ledger: **`.planning/MILESTONES.md`**.
+**v1.4 — Audit gap closure** (phases **35–36**) is **shipped** (**2026-03-26**, git tag **`v1.4`**) — **AUDIT-10**, **DOC-ALIGN-10**; **`.planning/milestones/v1.4-REQUIREMENTS.md`**, **`v1.4-MILESTONE-AUDIT.md`**. Ledger: **`.planning/MILESTONES.md`**.
 
 **Next:** define **v1.5** (or next product milestone) via **`$gsd-new-milestone`** when ready.
 
@@ -178,9 +178,9 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 ### v1.4 — Audit gap closure (**shipped**)
 
-**Status:** ✅ **Complete** — **2026-03-26**. Formal **28-VERIFICATION**; root doc import alignment (**`trading_crab_lib`**); Phase **34** Nyquist closure.
+**Status:** ✅ **Complete** — **2026-03-26** (git tag **`v1.4`**). Formal **28-VERIFICATION**; root doc import alignment (**`trading_crab_lib`**); Phase **34** Nyquist closure. Archives: **`.planning/milestones/v1.4-ROADMAP.md`**, **`v1.4-REQUIREMENTS.md`**, **`v1.4-MILESTONE-AUDIT.md`**.
 
 ---
 
-*Last updated: 2026-03-26 — **v1.3** archived; **v1.4** gap-closure shipped*
+*Last updated: 2026-03-26 — **v1.3** + **v1.4** milestones archived*
 

@@ -1,14 +1,16 @@
-# Trading-Crab — Requirements (v1.3 + v1.4)
+# Trading-Crab — Requirements
 
-**Milestone (shipped):** v1.3 — Consolidation, submodule parity & PyPI  
-**Milestone (shipped):** v1.4 — Audit gap closure (phases **35–36**; see **`.planning/v1.4-MILESTONE-AUDIT.md`**)  
+**Status:** All REQ rows below are **Complete** through milestone **v1.4**. Per-milestone snapshots: **`.planning/milestones/v*-REQUIREMENTS.md`**. Milestone audit: **`milestones/v1.4-MILESTONE-AUDIT.md`**.
+
+**Next:** Define a new milestone via **`$gsd-new-milestone`** when scope is chosen.
+
 **Research:** `.planning/research/SUMMARY.md` (2026-03-25)
 
-**Archived:** v1.0 / v1.2 — `.planning/milestones/v1.*-REQUIREMENTS.md`
+**Archived (historical):** v1.0 / v1.1 / v1.2 / v1.3 / v1.4 — `.planning/milestones/v*-REQUIREMENTS.md`
 
 ---
 
-## Milestone v1.4 — Audit gap closure
+## Milestone v1.4 — Audit gap closure *(shipped)*
 
 - [x] **AUDIT-10** — Formal **`28-VERIFICATION.md`** aligned with **28-SUMMARY** / **28-VALIDATION** and **`validate health`**. **Roadmap:** **Phase 35**. **Evidence:** **`.planning/phases/28-v1-3-hybrid-i001-summaries/28-VERIFICATION.md`**, **`35-SUMMARY.md`**.
 
@@ -52,6 +54,6 @@
 | AUDIT-10 | 35 | Complete |
 | DOC-ALIGN-10 | 36 | Complete |
 
-**Milestone v1.3 roadmap scope:** phases **28–34** on **`.planning/ROADMAP.md`** (all v1.3 REQ rows **Complete**).
+**Milestone v1.3 roadmap scope:** phases **28–34** (archived **`.planning/milestones/v1.3-REQUIREMENTS.md`**).
 
-**Milestone v1.4 gap closure:** phases **35–36** on **`.planning/ROADMAP.md`**.
+**Milestone v1.4 gap closure:** phases **35–36** (archived **`.planning/milestones/v1.4-REQUIREMENTS.md`**).

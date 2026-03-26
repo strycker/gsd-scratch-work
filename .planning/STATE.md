@@ -1,29 +1,28 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.4
-milestone_last_shipped: v1.3
+milestone_last_shipped: v1.4
 milestone_name: Audit gap closure
 status: idle
-last_updated: "2026-03-26T23:45:00.000Z"
+last_updated: "2026-03-26T23:59:00.000Z"
 progress:
-  total_phases: 2
-  completed_phases: 2
-  total_plans: 2
-  completed_plans: 2
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 ## Project state — Trading-Crab (GSD)
 
 ## Current position
 
-- **Phase:** **36** **complete** (v1.4 — **DOC-ALIGN-10**)
-- **Plan:** **`36-v1-4-root-docs-import-alignment-01-PLAN.md`** — executed
-- **Status:** **v1.3** milestone **archived** (`milestones/v1.3-*.md`). **v1.4** gap-closure phases **35–36** **complete**.
-- **Last activity:** 2026-03-26 — **`$gsd:complete-milestone v1.3`** — archive + **`$gsd:execute-phase 36`** context
+- **Phase:** *(none — **v1.4** archived 2026-03-26)*
+- **Status:** **v1.4** milestone **complete**; archives **`milestones/v1.4-{ROADMAP,REQUIREMENTS,MILESTONE-AUDIT}.md`**
+- **Last activity:** 2026-03-26 — **`$gsd:complete-milestone v1.4`**
 
 ## Next actions
 
-1. **`$gsd:complete-milestone v1.4`** when ready — or continue product work per **PROJECT.md**.
+1. **`$gsd-new-milestone`** — define **v1.5** (or next product milestone): research → requirements → roadmap.
 
 ## Milestone v1.3 — phase index (28–34) — archived
 
@@ -39,15 +38,16 @@ progress:
 
 **Archive:** **`.planning/milestones/v1.3-ROADMAP.md`**, **`v1.3-REQUIREMENTS.md`**, **`v1.3-MILESTONE-AUDIT.md`**.
 
-## Milestone v1.4 — phase index (35–36)
+## Milestone v1.4 — phase index (35–36) — archived
 
 | Phase | Slug (dir prefix) | Requirement(s) |
 |------:|-------------------|----------------|
 | 35 | `35-v1-4-phase-28-verification-parity` | AUDIT-10 ✅ |
 | 36 | `36-v1-4-root-docs-import-alignment` | DOC-ALIGN-10 ✅ |
 
+**Archive:** **`.planning/milestones/v1.4-ROADMAP.md`**, **`v1.4-REQUIREMENTS.md`**, **`v1.4-MILESTONE-AUDIT.md`**.
+
 ## Accumulated context
 
-- **v1.3** phases **28–34** — **shipped** and **archived** (2026-03-26).
-- **v1.4** phases **35–36** — **complete** (**AUDIT-10**, **DOC-ALIGN-10**); audit **`.planning/v1.4-MILESTONE-AUDIT.md`**.
-- **Submodules (read-only in v1.3):** `trading-crab-lib-repo-copy`, `claude-scratch-work-repo-copy`, `trading-crab-repo-copy`.
+- **v1.3** / **v1.4** — **shipped** and **archived** (2026-03-26).
+- **Submodules (read-only):** `trading-crab-lib-repo-copy`, `claude-scratch-work-repo-copy`, `trading-crab-repo-copy`.

@@ -1,5 +1,18 @@
 # Milestones
 
+## v1.4 Audit gap closure (Shipped: 2026-03-26)
+
+**Phases completed:** 2 phases (35–36), 2 plans
+
+**Archives:** `.planning/milestones/v1.4-ROADMAP.md`, `v1.4-REQUIREMENTS.md`, `v1.4-MILESTONE-AUDIT.md`
+
+**Key accomplishments:**
+
+- **AUDIT-10:** Formal **`28-VERIFICATION.md`** (validate health + hybrid I001 evidence) — **Phase 35**.
+- **DOC-ALIGN-10:** Root **`trading_crab_lib`** onboarding; **`34-VALIDATION`** Nyquist complete; **`34-VERIFICATION`** refreshed — **Phase 36**.
+
+---
+
 ## v1.3 Consolidation, submodule parity & PyPI (Shipped: 2026-03-26)
 
 **Phases completed:** 7 phases (28–34), 7 plans
