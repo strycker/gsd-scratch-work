@@ -443,7 +443,7 @@ Short summary:
 - ✓ Text + CSV dashboard with GREEN/YELLOW/RED asset signals
 - ✓ CheckpointManager (parquet + manifest; avoids re-scraping)
 - ✓ Full CLI (`run_pipeline.py --steps --refresh --recompute --plots …`)
-- ✓ Exploration notebooks (01–08)
+- ✓ Exploration notebooks (01–09)
 - ✓ Installation setup (`requirements.txt`, `setup.sh`, `Makefile`)
 - ✓ Python 3.10+ compatibility; SSL fix for yfinance curl_cffi
 - ✓ **Clustering investigation suite** — gap statistic, GMM, DBSCAN/HDBSCAN, Spectral,

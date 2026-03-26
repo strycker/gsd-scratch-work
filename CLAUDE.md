@@ -65,7 +65,10 @@ trading-crab/
 │   ├── 03_clustering.ipynb
 │   ├── 04_regimes.ipynb
 │   ├── 05_prediction.ipynb
-│   └── 06_assets.ipynb
+│   ├── 06_assets.ipynb
+│   ├── 07_pairplot.ipynb
+│   ├── 08_diagnostics.ipynb
+│   └── 09_raw_series.ipynb
 │
 ├── pipelines/                     ← runnable pipeline steps
 │   ├── 01_ingest.py
@@ -378,7 +381,7 @@ ground truth.  Items marked ✓ are verified as matching in `src/`.  Items marke
 - ✓ `RunConfig` dataclass for clean flag management
 - ✓ All config in `settings.yaml` (vs. hardcoded Python constants)
 - ✓ Full CLI in `run_pipeline.py` with `--steps`, `--refresh`, `--recompute`, etc.
-- ✓ Dedicated exploration notebooks (01–08)
+- ✓ Dedicated exploration notebooks (01–09)
 
 ---
 
@@ -431,7 +434,7 @@ See `ARCHITECTURE.md` for design decisions.  See `PITFALLS.md` for known gotchas
 - `run_pipeline.py` — master runner with full CLI (all flags implemented)
 - `ingestion/assets.py` — yfinance ETF price fetcher + 3-phase fallback chain (stooq → OpenBB → macro proxy)
 - `plotting.py` — 17 visualization helpers covering all 7 pipeline steps
-- `notebooks/01–08` — all notebooks present; 03_clustering expanded with 28 investigation cells
+- `notebooks/01–09` — all notebooks present; 03_clustering expanded with 28 investigation cells
 - Requirements — minimum-bound strategy, Python 3.10+ compatible
 - `from __future__ import annotations` — present in all source files using `X | Y` syntax
 - Unit tests — **213 passing tests** (8 skipped: HDBSCAN) covering all modules including clustering investigation suite
