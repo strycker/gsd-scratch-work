@@ -4,7 +4,7 @@
 
 - ✅ **v1.0 — Core pipeline + planning evidence** — Phases 1–16 (shipped 2026-03-20) — [full roadmap](milestones/v1.0-ROADMAP.md) · [requirements](milestones/v1.0-REQUIREMENTS.md) · [audit](milestones/v1.0-MILESTONE-AUDIT.md)
 - ✅ **v1.2 — Tactics, triggers & expanded signals** — Phases 17–27 (shipped 2026-03-24) — [full roadmap](milestones/v1.2-ROADMAP.md) · [requirements](milestones/v1.2-REQUIREMENTS.md) · [audit](milestones/v1.2-MILESTONE-AUDIT.md)
-- 🔄 **v1.3 — Consolidation, submodule parity & PyPI** — Research **`.planning/research/`** (2026-03-25). **On this roadmap:** phases **28–34** (milestone backlog fully scoped below; **28–33** = shipped).
+- ✅ **v1.3 — Consolidation, submodule parity & PyPI** — Research **`.planning/research/`** (2026-03-25). **Phases 28–34** shipped; DOCS-10 / Phase 34 complete (2026-03-26).
 
 ## Phases (v1.3 — current)
 
@@ -16,7 +16,7 @@
 - [x] **Phase 31: v1.3 — Library workspace & path API (PyPI-safe)** — **PKG-10**
 - [x] **Phase 32: v1.3 — PyPI release engineering & publish story** — **PKG-11**
 - [x] **Phase 33: v1.3 — Root prune (redundancy removal)** — **PRUNE-10**
-- [ ] **Phase 34: v1.3 — Library documentation & rationale pass** — **DOCS-10**
+- [x] **Phase 34: v1.3 — Library documentation & rationale pass** — **DOCS-10**
 
 ### Phase 28: v1.3 — Hybrid PLAN/SUMMARY closure (I001)
 
