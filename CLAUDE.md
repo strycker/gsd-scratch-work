@@ -27,7 +27,7 @@ The reference implementation lives in `legacy/`.  Two layers of reference exist:
   into: `config.py`, `data_ingestion.py`, `feature_engineering.py`, `clustering.py`,
   `regime_analysis.py`, `supervised.py`, `asset_returns.py`, `portfolio.py`,
   `plotting.py`, `pipeline.py`.  These are used as the design reference for the
-  `src/market_regime/` package.  **Do not modify legacy files.**
+  `src/trading_crab_lib/` package.  **Do not modify legacy files.**
 
 The modular pipeline in `src/` and `pipelines/` should do everything
 that script does, organized more cleanly, with checkpointing, CLI flags, and
@@ -86,34 +86,28 @@ trading-crab/
 │   ├── plots/                     ← saved figures (PNG/PDF)
 │   └── reports/                   ← dashboard.csv, weekly summaries
 │
-└── src/market_regime/             ← installable Python package
-    ├── __init__.py                ← defines ROOT, CONFIG_DIR, DATA_DIR, OUTPUT_DIR
-    ├── config.py                  ← load(), setup_logging()
+└── src/trading_crab_lib/          ← installable Python package (`pip install trading-crab-lib`)
+    ├── __init__.py                ← ROOT, CONFIG_DIR, DATA_DIR, OUTPUT_DIR; load, CheckpointManager, RunConfig
+    ├── paths.py                   ← LibraryPaths, resolve_library_paths (consumer installs)
+    ├── checkpoints.py           ← CheckpointManager (parquet + manifest under data/checkpoints/)
+    ├── config.py                  ← load(), setup_logging(), load_portfolio()
     ├── runtime.py                 ← RunConfig dataclass (verbose, plots, refresh flags)
-    ├── io/
-    │   └── checkpoints.py         ← CheckpointManager (save/load/is_fresh/clear)
-    ├── ingestion/
-    │   ├── multpl.py              ← lxml scraper for 46 multpl.com series
-    │   ├── fred.py                ← FRED API fetcher with publication-lag shift
-    │   └── assets.py              ← yfinance ETF price fetcher
-    ├── features/
-    │   └── transforms.py          ← ratios, log, select, gap-fill, derivatives, engineer_all
-    ├── clustering.py              ← reduce_pca, evaluate_kmeans, pick_best_k, fit_clusters
-    │                                 + optimize_n_components, compare_svd_pca,
-    │                                 + compute_gap_statistic, find_knee_k
-    ├── gmm.py                     ← fit_gmm (returns scaler), select_gmm_k, gmm_labels, gmm_probabilities
-    ├── density.py                 ← knn_distances, fit_dbscan_sweep, fit_dbscan, fit_hdbscan_sweep, hdbscan_labels
-    ├── spectral.py                ← fit_spectral_sweep (affinity cached), spectral_labels
-    ├── cluster_comparison.py      ← compare_all_methods, pairwise_rand_index,
-    │                                 extract_rf_feature_importances, recommend_clustering_features
-    ├── regime/
-    │   └── profiler.py            ← build_profiles, suggest_names, build_transition_matrix
-    ├── prediction/
-    │   └── classifier.py          ← train_current_regime, train_forward_classifiers
-    ├── assets/
-    │   └── returns.py             ← compute_quarterly_returns, returns_by_regime, rank_assets_by_regime
-    ├── reporting/
-    │   └── dashboard.py           ← asset_signals, print_dashboard, save_dashboard_csv
+    ├── transforms.py              ← ratios, log, select, gap-fill, derivatives, engineer_all
+    ├── clustering.py              ← reduce_pca, evaluate_kmeans, fit_clusters, gap statistic, …
+    ├── cluster_comparison.py
+    ├── gmm.py
+    ├── density.py
+    ├── spectral.py
+    ├── regime.py                  ← build_profiles, suggest_names, build_transition_matrix, …
+    ├── prediction.py              ← orchestration helpers
+    ├── prediction/              ← classifier, TSCV, feature gating, model metrics
+    │   └── classifier.py
+    ├── ingestion/                 ← multpl, fred, assets, grok, …
+    ├── asset_returns.py           ← quarterly returns, rank by regime, proxy fallback
+    ├── reporting.py               ← dashboard signals, portfolio blending, generate_recommendation, weekly report
+    ├── tactics.py
+    ├── diagnostics.py
+    ├── email.py
     └── plotting.py                ← ALL visualization helpers (used by notebooks + pipelines)
 ```
 
@@ -179,7 +173,7 @@ cp .env.example .env
 # edit .env: FRED_API_KEY=your_key_here
 
 # 4. Verify
-python -c "from market_regime.config import load; print(load()['data'])"
+python -c "from trading_crab_lib.config import load; print(load()['data'])"
 ```
 
 ### Key dependencies
@@ -259,7 +253,7 @@ steps default to `balanced_cluster` for regime labeling because equal-size clust
 are better for per-regime statistics with limited data.
 
 ### Plotting convention
-All visualization helpers live in `src/market_regime/plotting.py`. Notebooks import
+All visualization helpers live in `src/trading_crab_lib/plotting.py`. Notebooks import
 from there — they do not define plotting logic inline. Every plot function accepts
 `run_cfg: RunConfig` and honours `save_plots` / `show_plots`. Output filenames are
 standardized as `outputs/plots/{step}_{description}.png`.
@@ -291,7 +285,7 @@ Requires `FRED_API_KEY` in `.env`. Free registration at fred.stlouisfed.org.
 
 ### macrotrends.net (planned — not yet implemented)
 Gold spot price back to 1915, WTI crude oil back to 1946, silver, copper.
-See `ROADMAP.md` Tier 1 item 1.5 and `src/market_regime/ingestion/macrotrends.py` (to be created).
+See `ROADMAP.md` Tier 1 item 1.5 and `src/trading_crab_lib/ingestion/macrotrends.py` (to be created).
 Scraping approach: extract embedded JSON from `<script>var rawData={...}</script>` tags.
 
 ### ETF price history (yfinance)
@@ -370,8 +364,8 @@ ground truth.  Items marked ✓ are verified as matching in `src/`.  Items marke
 
 - ✓ `DecisionTreeClassifier` training for interpretability — implemented in `classifier.py`
 - ✓ `TimeSeriesSplit` cross-validation — implemented via `_tscv_scores()` helper
-- ✓ Portfolio construction — `src/market_regime/reporting/portfolio.py` (new file)
-- ✓ Macro-data fallback for asset returns — `compute_proxy_returns()` in `assets/returns.py`
+- ✓ Portfolio construction — `generate_recommendation()` / blended portfolios in `reporting.py`
+- ✓ Macro-data fallback for asset returns — `compute_proxy_returns()` in `asset_returns.py`
 - ✗ Empirical forward probabilities — `compute_forward_probabilities()` from `legacy/regime_analysis.py`
 - ✗ Confusion matrix in classification report — `generate_classification_report()` from `legacy/supervised.py`
 
@@ -479,7 +473,7 @@ See `ARCHITECTURE.md` for design decisions.  See `PITFALLS.md` for known gotchas
 
 ## Legacy Alignment Gaps
 
-Full comparison of `legacy/*.py` vs `src/market_regime/` completed March 2026.
+Full comparison of `legacy/*.py` vs `src/trading_crab_lib/` completed March 2026.
 
 ### Closed Gaps (all implemented)
 - ✓ **Gap 1** — TimeSeriesSplit CV (`legacy/supervised.py` → `classifier.py`)
@@ -490,7 +484,7 @@ Full comparison of `legacy/*.py` vs `src/market_regime/` completed March 2026.
 
 ### Remaining Gaps
 
-#### Empirical forward probabilities (`legacy/regime_analysis.py` → `regime/profiler.py`)
+#### Empirical forward probabilities (`legacy/regime_analysis.py` → `regime.py`)
 `compute_forward_probabilities()` computes count-based empirical P(reach regime j
 within N quarters | currently in regime i).  Useful as a sanity check alongside the
 model-based binary RF forward classifiers.  Low effort.  Status: not implemented.
@@ -527,7 +521,7 @@ jupyter lab notebooks/
 
 # Quick sanity check (no network, loads a checkpoint)
 python -c "
-from market_regime.io.checkpoints import CheckpointManager
+from trading_crab_lib.checkpoints import CheckpointManager
 cm = CheckpointManager()
 print(cm.list())
 "

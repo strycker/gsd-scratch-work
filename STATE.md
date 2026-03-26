@@ -37,12 +37,11 @@ Total: 213 passed, 8 skipped (HDBSCAN optional) — ✅ all passing (Python 3.11
 ```
 
 **Coverage gaps** (no tests for):
-- `src/market_regime/prediction/classifier.py` — classifier training + TSCV
-- `src/market_regime/reporting/portfolio.py` — portfolio construction
-- `src/market_regime/reporting/dashboard.py` — dashboard signals
-- `src/market_regime/ingestion/` — all ingestion (mocked network access needed)
-- `src/market_regime/regime/profiler.py` — regime naming heuristics
-- `src/market_regime/plotting.py` — plotting functions
+- `src/trading_crab_lib/prediction/classifier.py` — classifier training + TSCV
+- `src/trading_crab_lib/reporting.py` — portfolio construction + dashboard signals
+- `src/trading_crab_lib/ingestion/` — all ingestion (mocked network access needed)
+- `src/trading_crab_lib/regime.py` — regime naming heuristics
+- `src/trading_crab_lib/plotting.py` — plotting functions
 
 ---
 
@@ -79,11 +78,11 @@ Total: 213 passed, 8 skipped (HDBSCAN optional) — ✅ all passing (Python 3.11
 - ✅ **SVD vs PCA comparison**: `compare_svd_pca()` — side-by-side component loadings
 - ✅ **Gap statistic**: `compute_gap_statistic()` — Tibshirani 2001 criterion; correctly separates `gap_std` (raw sd) from `gap_sk` (simulation error = std×√(1+1/B))
 - ✅ **Elbow detection**: `find_knee_k()` — kneed library or gradient fallback
-- ✅ **Gaussian Mixture Models** (`src/market_regime/gmm.py`): BIC sweep, soft probabilities, convergence detection; `fit_gmm()` returns fitted scaler for consistent predictions
-- ✅ **DBSCAN** (`src/market_regime/density.py`): eps sweep, k-NN distance plot, noise handling with warnings
-- ✅ **HDBSCAN** (`src/market_regime/density.py`): optional (`pip install hdbscan`), `min_cluster_size` sweep
-- ✅ **Spectral Clustering** (`src/market_regime/spectral.py`): affinity matrix pre-computed once per sweep (~k-fold speedup), k sweep
-- ✅ **Multi-method comparison** (`src/market_regime/cluster_comparison.py`): silhouette/DB/CH for all methods, pairwise ARI matrix
+- ✅ **Gaussian Mixture Models** (`src/trading_crab_lib/gmm.py`): BIC sweep, soft probabilities, convergence detection; `fit_gmm()` returns fitted scaler for consistent predictions
+- ✅ **DBSCAN** (`src/trading_crab_lib/density.py`): eps sweep, k-NN distance plot, noise handling with warnings
+- ✅ **HDBSCAN** (`src/trading_crab_lib/density.py`): optional (`pip install hdbscan`), `min_cluster_size` sweep
+- ✅ **Spectral Clustering** (`src/trading_crab_lib/spectral.py`): affinity matrix pre-computed once per sweep (~k-fold speedup), k sweep
+- ✅ **Multi-method comparison** (`src/trading_crab_lib/cluster_comparison.py`): silhouette/DB/CH for all methods, pairwise ARI matrix
 - ✅ **RF feature selection**: `extract_rf_feature_importances()` + `recommend_clustering_features()` — rank and filter the 69 clustering features by step-5 RF importance
 
 ### Regime Profiling
@@ -169,7 +168,7 @@ Total: 213 passed, 8 skipped (HDBSCAN optional) — ✅ all passing (Python 3.11
 |-----|-------|--------|
 | Weekly automated report | `scripts/weekly_report.py` (new) | XL |
 | Streamlit dashboard | `app/dashboard.py` (new) | L |
-| Backtest framework | `src/market_regime/backtest/` (new) | XL |
+| Backtest framework | `src/trading_crab_lib/backtest/` (new) | XL |
 | `joblib.dump` for sklearn model serialization | `pipelines/05_predict.py` | S |
 | `end_date: null` → use today | `settings.yaml` + ingestion | S |
 

@@ -2,7 +2,7 @@
 phase: 34
 slug: v1-3-library-documentation-pass
 status: approved
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: true
 created: 2026-03-26
 ---
@@ -29,4 +29,4 @@ created: 2026-03-26
 |------|-----|
 | Spot-read 4 modules | Roadmap success criterion 3 |
 
-**Approval:** pending
+**Approval:** approved (Phase 36 — DOC-ALIGN-10: root docs aligned + verification refreshed)

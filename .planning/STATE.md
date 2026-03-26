@@ -4,27 +4,26 @@ milestone: v1.4
 milestone_last_shipped: v1.3
 milestone_name: Audit gap closure
 status: idle
-last_updated: "2026-03-27T00:05:00.000Z"
+last_updated: "2026-03-26T22:00:00.000Z"
 progress:
   total_phases: 2
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
 ---
 
 ## Project state — Trading-Crab (GSD)
 
 ## Current position
 
-- **Phase:** **36** — **next** (v1.4 — **DOC-ALIGN-10**)
-- **Plan:** (to be created — **`$gsd:plan-phase 36`**)
-- **Status:** Phase **35** **complete** (**28-VERIFICATION.md**, **AUDIT-10**). **v1.4** remaining: **36** (root docs / **`trading_crab_lib`**).
-- **Last activity:** 2026-03-26 — **`$gsd:execute-phase 35`** — **AUDIT-10** closed
+- **Phase:** **36** **complete** (v1.4 — **DOC-ALIGN-10**)
+- **Plan:** **`36-v1-4-root-docs-import-alignment-01-PLAN.md`** — executed
+- **Status:** **v1.4** gap-closure phases **35–36** **complete** (**AUDIT-10**, **DOC-ALIGN-10**). Root onboarding docs use **`trading_crab_lib`**; Phase **34** Nyquist / verification refreshed.
+- **Last activity:** 2026-03-26 — **`$gsd:execute-phase 36`** — **DOC-ALIGN-10** closed
 
 ## Next actions
 
-1. **`$gsd:plan-phase 36`** then **`$gsd:execute-phase 36`** — README / CLAUDE / **DOC-ALIGN-10**.
-2. When **v1.4** done: **`$gsd:audit-milestone`** → **`$gsd:complete-milestone v1.4`** (or archive per **PROJECT.md**).
+1. **`$gsd:audit-milestone`** → **`$gsd:complete-milestone v1.4`** (or archive per **PROJECT.md**).
 
 ## Milestone v1.3 — phase index (28–34)
 
@@ -38,7 +37,15 @@ progress:
 | 33 | `33-v1-3-root-prune` | PRUNE-10 ✅ |
 | 34 | `34-v1-3-library-documentation-pass` | DOCS-10 ✅ |
 
+## Milestone v1.4 — phase index (35–36)
+
+| Phase | Slug (dir prefix) | Requirement(s) |
+|------:|-------------------|----------------|
+| 35 | `35-v1-4-phase-28-verification-parity` | AUDIT-10 ✅ |
+| 36 | `36-v1-4-root-docs-import-alignment` | DOC-ALIGN-10 ✅ |
+
 ## Accumulated context
 
 - **v1.3** phases **28–34** are **complete** (requirements + roadmap checklists).
+- **v1.4** phases **35–36** are **complete**.
 - **Submodules (read-only in v1.3):** `trading-crab-lib-repo-copy`, `claude-scratch-work-repo-copy`, `trading-crab-repo-copy`.

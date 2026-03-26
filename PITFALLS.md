@@ -100,7 +100,7 @@ must be re-aligned accordingly.
 on macOS and some Linux environments.
 
 **Fix:** set `CURL_CA_BUNDLE` and `SSL_CERT_FILE` to `certifi.where()` before
-importing yfinance. This is done at module load in `src/market_regime/ingestion/assets.py`.
+importing yfinance. This is done at module load in `src/trading_crab_lib/ingestion/assets.py`.
 Do not remove those lines.
 
 **Note:** if the user has set these env vars already, `os.environ.setdefault()` is a
@@ -132,7 +132,7 @@ When used in function annotations at runtime, it fails on 3.9.
 
 **Fix:** add `from __future__ import annotations` at the top of every module
 that uses `X | Y` syntax. This makes all annotations lazy strings, bypassing
-the runtime evaluation. All `src/market_regime/` files should have this.
+the runtime evaluation. All `src/trading_crab_lib/` library modules should have this.
 
 **Check:** `grep -r "X | Y\|: str | " src/ | grep -v "from __future__"` — if
 any file matches, it needs the guard.
@@ -268,7 +268,7 @@ Enable only when specifically investigating feature relationships.
 **Symptom:** BUY/SELL signals are reversed.
 
 **Cause:** `legacy/portfolio.py` has `generate_recommendation(current_weights, target_weights)`
-while `src/market_regime/reporting/portfolio.py` has `generate_recommendation(target_weights, current_weights=None)`.
+while `src/trading_crab_lib/reporting.py` has `generate_recommendation(target_weights, current_weights=None)`.
 
 **Fix:** always call with keyword arguments:
 ```python

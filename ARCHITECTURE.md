@@ -194,7 +194,7 @@ only `balanced_cluster` is used downstream.
 
 ## 11. All Visualization in `plotting.py` — Never Inline in Notebooks
 
-**Decision:** Notebooks call functions from `src/market_regime/plotting.py`; they
+**Decision:** Notebooks call functions from `src/trading_crab_lib/plotting.py`; they
 do not define plotting logic inline.
 
 **Why:**

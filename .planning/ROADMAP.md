@@ -5,7 +5,7 @@
 - ✅ **v1.0 — Core pipeline + planning evidence** — Phases 1–16 (shipped 2026-03-20) — [full roadmap](milestones/v1.0-ROADMAP.md) · [requirements](milestones/v1.0-REQUIREMENTS.md) · [audit](milestones/v1.0-MILESTONE-AUDIT.md)
 - ✅ **v1.2 — Tactics, triggers & expanded signals** — Phases 17–27 (shipped 2026-03-24) — [full roadmap](milestones/v1.2-ROADMAP.md) · [requirements](milestones/v1.2-REQUIREMENTS.md) · [audit](milestones/v1.2-MILESTONE-AUDIT.md)
 - ✅ **v1.3 — Consolidation, submodule parity & PyPI** — Research **`.planning/research/`** (2026-03-25). **Phases 28–34** shipped; DOCS-10 / Phase 34 complete (2026-03-26).
-- **v1.4 — Audit gap closure** — **`.planning/v1.3-MILESTONE-AUDIT.md`** (2026-03-26). Phases **35–36** close process + onboarding gaps.
+- ✅ **v1.4 — Audit gap closure** — **`.planning/v1.3-MILESTONE-AUDIT.md`** (2026-03-26). Phases **35–36** **complete** (**AUDIT-10**, **DOC-ALIGN-10**).
 
 ## Phases (v1.4 — current)
 
@@ -19,7 +19,7 @@
 - [x] **Phase 33: v1.3 — Root prune (redundancy removal)** — **PRUNE-10**
 - [x] **Phase 34: v1.3 — Library documentation & rationale pass** — **DOCS-10**
 - [x] **Phase 35: v1.4 — Phase 28 verification parity (audit)** — **AUDIT-10**
-- [ ] **Phase 36: v1.4 — Root docs & import alignment** — **DOC-ALIGN-10**
+- [x] **Phase 36: v1.4 — Root docs & import alignment** — **DOC-ALIGN-10**
 
 ### Phase 35: v1.4 — Phase 28 verification parity (audit)
 

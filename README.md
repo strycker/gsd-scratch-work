@@ -332,7 +332,7 @@ downstream steps as an overlay/reference column.
 To list all available `market_code` checkpoints:
 ```bash
 python -c "
-from market_regime.io.checkpoints import CheckpointManager
+from trading_crab_lib.checkpoints import CheckpointManager
 cm = CheckpointManager()
 mc = [e for e in cm.list() if e['name'].startswith('market_code_')]
 for e in mc:

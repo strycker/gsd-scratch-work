@@ -60,6 +60,7 @@ def test_state_points_at_phase14_not_stale_phase3() -> None:
         or "current_phase: 21" in md
         or "current_phase: 22" in md
         or "milestone: v1.3" in md
+        or "milestone: v1.4" in md
     )
     assert acceptable, (
         "STATE.md should not be stuck on early phases; expected 14–22, null (v1.2–), or v1.3+ milestone"

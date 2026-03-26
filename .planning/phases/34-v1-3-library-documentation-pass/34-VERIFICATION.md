@@ -1,6 +1,6 @@
 ---
 phase: 34-v1-3-library-documentation-pass
-verified: 2026-03-26T00:00:00Z
+verified: 2026-03-26T22:05:00Z
 status: passed
 score: 4/4 success criteria
 ---
@@ -22,7 +22,7 @@ score: 4/4 success criteria
 | # | Truth | Status | Evidence |
 |---|--------|--------|----------|
 | 1 | Every `src/trading_crab_lib/**/*.py` is **edited or waived** with reason in `*-SUMMARY.md` | ✓ VERIFIED | [34-SUMMARY.md](34-SUMMARY.md) coverage table lists 30 paths (21 edited, 9 waived with rationale) |
-| 2 | **`ruff check`** and **`pytest`** green (no broken imports from doc-focused work) | ✓ VERIFIED | Logged below: `ruff check` + `ruff format --check` pass; `pytest` 362 passed, 9 skipped |
+| 2 | **`ruff check`** and **`pytest`** green (no broken imports from doc-focused work) | ✓ VERIFIED | Logged below: `ruff check` + `ruff format --check` pass; `pytest` counts from Phase **36** refresh |
 | 3 | Spot-check: **`config`**, **`checkpoints`**, **`transforms`**, **`prediction/classifier`** have expanded module docstrings | ✓ VERIFIED | Opening docstrings present with “why” / policy (see spot-check below) |
 | 4 | **`REQUIREMENTS.md`** DOCS-10 → **Complete** | ✓ VERIFIED | `.planning/REQUIREMENTS.md`: DOCS-10 checked; traceability row Complete |
 
@@ -57,10 +57,16 @@ score: 4/4 success criteria
 
 ## Automated checks (this run)
 
+**Note (Phase 36 — DOC-ALIGN-10):** Root onboarding import examples in **README** / **CLAUDE** are **`trading_crab_lib`**; library code unchanged.
+
 ```text
+make lint
+# bash scripts/lint.sh — All checks passed!
+# ruff format --check — 86 files already formatted
+
 python3 -m compileall -q src/trading_crab_lib
 python3 -m pytest tests/ -q
-# 362 passed, 9 skipped (warnings: sklearn parallel UserWarning in test_models_boosting — upstream)
+# 361 passed, 10 skipped (warnings: joblib/loky UserWarning on some hosts — upstream)
 
 python3 -m ruff check src tests run_pipeline.py pipelines scripts
 # All checks passed!
@@ -100,4 +106,4 @@ None — doc coverage and tooling verified via SUMMARY + spot-read + automated s
 **Note:** Ruff is configured in `pyproject.toml` and `make lint`; initial 34-RESEARCH assumed compileall-only — current bar matches updated roadmap wording (`ruff check` / `pytest`).
 
 ---
-*Verified: 2026-03-26*
+*Verified: 2026-03-26 (Phase 34 goals); automated bar refreshed 2026-03-26 (Phase 36 — DOC-ALIGN-10)*
