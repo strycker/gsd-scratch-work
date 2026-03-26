@@ -1,7 +1,6 @@
 """Unit tests for src/trading_crab_lib/io/checkpoints.py"""
 
 import sys
-import time
 from pathlib import Path
 
 import numpy as np
@@ -32,6 +31,7 @@ def sample_df(quarterly_index):
 
 # ── save / load round-trip ─────────────────────────────────────────────────
 
+
 class TestSaveLoad:
     def test_save_creates_parquet(self, cm, sample_df):
         cm.save(sample_df, "test")
@@ -59,6 +59,7 @@ class TestSaveLoad:
 
 # ── is_fresh ───────────────────────────────────────────────────────────────
 
+
 class TestIsFresh:
     def test_fresh_after_save(self, cm, sample_df):
         cm.save(sample_df, "test")
@@ -74,6 +75,7 @@ class TestIsFresh:
 
 
 # ── clear ──────────────────────────────────────────────────────────────────
+
 
 class TestClear:
     def test_clear_removes_files(self, cm, sample_df):
@@ -100,6 +102,7 @@ class TestClear:
 
 
 # ── preservation secondaries ─────────────────────────────────────────────
+
 
 class TestPreservation:
     def test_exists(self, cm, sample_df):
@@ -154,6 +157,7 @@ class TestPreservation:
 
 # ── list / summary ─────────────────────────────────────────────────────────
 
+
 class TestList:
     def test_list_empty_when_no_checkpoints(self, cm):
         assert cm.list() == []
@@ -182,9 +186,11 @@ class TestList:
 
 # ── model checkpoints ──────────────────────────────────────────────────────
 
+
 class TestModelCheckpoints:
     def test_save_load_model(self, cm):
         from sklearn.ensemble import RandomForestClassifier
+
         model = RandomForestClassifier(n_estimators=2, random_state=0)
         cm.save_model(model, "rf")
         loaded = cm.load_model("rf")
@@ -196,6 +202,7 @@ class TestModelCheckpoints:
 
     def test_model_exists(self, cm):
         from sklearn.ensemble import RandomForestClassifier
+
         assert not cm.model_exists("rf")
         cm.save_model(RandomForestClassifier(), "rf")
         assert cm.model_exists("rf")

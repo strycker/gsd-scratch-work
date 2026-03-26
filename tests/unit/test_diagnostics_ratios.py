@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from trading_crab_lib.diagnostics import (
     compute_ratios_diagnostics,
@@ -52,7 +51,11 @@ def test_compute_ratios_diagnostics_columns() -> None:
     )
     cfg = {
         "diagnostics": {
-            "trigger_defaults": {"z_abs_min": 0.01, "percentile_high": 0.99, "percentile_low": 0.01},
+            "trigger_defaults": {
+                "z_abs_min": 0.01,
+                "percentile_high": 0.99,
+                "percentile_low": 0.01,
+            },
             "ratios": [
                 {"name": "Oil:Gold", "numerator": "USO", "denominator": "GLD"},
             ],

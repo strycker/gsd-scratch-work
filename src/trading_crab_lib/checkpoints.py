@@ -1,7 +1,9 @@
 """
 CheckpointManager — save, load, and validity-check intermediate DataFrames.
 
-Each checkpoint is a parquet file stored under data/checkpoints/.
+**Why checkpoints:** Pipeline steps are expensive (scraping, feature engineering).
+Skipping work when inputs are unchanged speeds iteration and keeps CI fast.
+Each checkpoint is a parquet file under ``data/checkpoints/``.
 A JSON manifest alongside each file records:
   - creation timestamp
   - source config hash (settings.yaml)
@@ -54,9 +56,8 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-import yaml
 
-from trading_crab_lib import DATA_DIR, CONFIG_DIR
+from trading_crab_lib import CONFIG_DIR, DATA_DIR
 
 log = logging.getLogger(__name__)
 
@@ -124,7 +125,9 @@ class CheckpointManager:
 
         log.info(
             "Checkpoint saved: %s  (%d rows × %d cols)",
-            name, len(df), len(df.columns),
+            name,
+            len(df),
+            len(df.columns),
         )
         return parquet_path
 
@@ -136,7 +139,9 @@ class CheckpointManager:
         df = pd.read_parquet(parquet_path)
         log.info(
             "Checkpoint loaded: %s  (%d rows × %d cols)",
-            name, len(df), len(df.columns),
+            name,
+            len(df),
+            len(df.columns),
         )
         return df
 
@@ -168,7 +173,9 @@ class CheckpointManager:
         if age > timedelta(days=max_age_days):
             log.info(
                 "Checkpoint stale: %s (%.1f days old, max %.1f)",
-                name, age.total_seconds() / 86400, max_age_days,
+                name,
+                age.total_seconds() / 86400,
+                max_age_days,
             )
             return False
 
@@ -178,7 +185,10 @@ class CheckpointManager:
 
         log.debug(
             "Checkpoint fresh: %s (%.1f days old, %d×%d)",
-            name, age.total_seconds() / 86400, meta["rows"], meta["columns"],
+            name,
+            age.total_seconds() / 86400,
+            meta["rows"],
+            meta["columns"],
         )
         return True
 
@@ -225,9 +235,9 @@ class CheckpointManager:
             return "No checkpoints found."
         lines = [f"{'Name':<30} {'Created':<25} {'Shape':<12} {'Config'}", "-" * 80]
         for m in entries:
-            shape = f"{m.get('rows','?')}×{m.get('columns','?')}"
+            shape = f"{m.get('rows', '?')}×{m.get('columns', '?')}"
             lines.append(
-                f"{m['name']:<30} {m['created'][:19]:<25} {shape:<12} {m.get('config_hash','?')}"
+                f"{m['name']:<30} {m['created'][:19]:<25} {shape:<12} {m.get('config_hash', '?')}"
             )
         return "\n".join(lines)
 
@@ -252,6 +262,7 @@ class CheckpointManager:
         return model
 
     def model_exists(self, name: str) -> bool:
+        """Return True if ``{name}.pkl`` exists under the checkpoint directory."""
         return (self.dir / f"{name}.pkl").exists()
 
 

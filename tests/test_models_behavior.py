@@ -3,7 +3,10 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from trading_crab_lib.prediction.classifier import make_behavior_labels, train_forward_behavior_models
+from trading_crab_lib.prediction.classifier import (
+    make_behavior_labels,
+    train_forward_behavior_models,
+)
 
 
 def test_make_behavior_labels_series_assigns_up_flat_down() -> None:
@@ -16,9 +19,9 @@ def test_make_behavior_labels_series_assigns_up_flat_down() -> None:
     assert labels.index[-1] == idx[-2]
 
     # Check a few concrete points
-    assert labels.loc[idx[0]] == "down"   # future return -0.01 <= 0.0
-    assert labels.loc[idx[1]] == "flat"   # future return 0.0 between thresholds
-    assert labels.loc[idx[2]] == "up"     # future return 0.01 >= 0.0
+    assert labels.loc[idx[0]] == "down"  # future return -0.01 <= 0.0
+    assert labels.loc[idx[1]] == "flat"  # future return 0.0 between thresholds
+    assert labels.loc[idx[2]] == "up"  # future return 0.01 >= 0.0
 
 
 def test_make_behavior_labels_drops_trailing_periods() -> None:
@@ -86,4 +89,3 @@ def test_train_forward_behavior_models_trains_per_asset_and_horizon() -> None:
         # At least two behavior classes should be represented.
         classes = set(model.classes_)
         assert len(classes) >= 2
-

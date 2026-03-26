@@ -61,14 +61,18 @@ def test_state_points_at_phase14_not_stale_phase3() -> None:
         or "current_phase: 22" in md
         or "milestone: v1.3" in md
     )
-    assert acceptable, "STATE.md should not be stuck on early phases; expected 14–22, null (v1.2–), or v1.3+ milestone"
+    assert acceptable, (
+        "STATE.md should not be stuck on early phases; expected 14–22, null (v1.2–), or v1.3+ milestone"
+    )
 
 
 def test_early_verification_bodies_use_trading_crab_lib_paths() -> None:
     paths = [
         ROOT / ".planning/phases/01-null/01-null-VERIFICATION.md",
-        ROOT / ".planning/phases/02-regime-clustering-interpretation/02-regime-clustering-interpretation-VERIFICATION.md",
-        ROOT / ".planning/phases/03-supervised-regime-behavior-models/03-supervised-regime-behavior-models-VERIFICATION.md",
+        ROOT
+        / ".planning/phases/02-regime-clustering-interpretation/02-regime-clustering-interpretation-VERIFICATION.md",
+        ROOT
+        / ".planning/phases/03-supervised-regime-behavior-models/03-supervised-regime-behavior-models-VERIFICATION.md",
     ]
     for p in paths:
         body = p.read_text(encoding="utf-8")

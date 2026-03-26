@@ -8,29 +8,32 @@ import pytest
 
 from trading_crab_lib.spectral import fit_spectral_sweep, spectral_labels
 
-
 # ── Shared fixtures ───────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def pca_df():
     """40 quarters × 5 PCs with 4 well-separated blobs."""
     rng = np.random.default_rng(99)
     idx = pd.date_range("2000-03-31", periods=40, freq="QE")
-    data = np.vstack([
-        rng.multivariate_normal([5, 0, 0, 0, 0], 0.2 * np.eye(5), 10),
-        rng.multivariate_normal([-5, 0, 0, 0, 0], 0.2 * np.eye(5), 10),
-        rng.multivariate_normal([0, 5, 0, 0, 0], 0.2 * np.eye(5), 10),
-        rng.multivariate_normal([0, -5, 0, 0, 0], 0.2 * np.eye(5), 10),
-    ])
-    return pd.DataFrame(data, index=idx, columns=[f"PC{i+1}" for i in range(5)])
+    data = np.vstack(
+        [
+            rng.multivariate_normal([5, 0, 0, 0, 0], 0.2 * np.eye(5), 10),
+            rng.multivariate_normal([-5, 0, 0, 0, 0], 0.2 * np.eye(5), 10),
+            rng.multivariate_normal([0, 5, 0, 0, 0], 0.2 * np.eye(5), 10),
+            rng.multivariate_normal([0, -5, 0, 0, 0], 0.2 * np.eye(5), 10),
+        ]
+    )
+    return pd.DataFrame(data, index=idx, columns=[f"PC{i + 1}" for i in range(5)])
 
 
 @pytest.fixture
 def empty_df():
-    return pd.DataFrame(columns=[f"PC{i+1}" for i in range(5)])
+    return pd.DataFrame(columns=[f"PC{i + 1}" for i in range(5)])
 
 
 # ── fit_spectral_sweep ────────────────────────────────────────────────────────
+
 
 class TestFitSpectralSweep:
     def test_returns_tuple(self, pca_df):
@@ -58,7 +61,9 @@ class TestFitSpectralSweep:
     def test_labels_correct_unique_count(self, pca_df):
         _, labels_dict = fit_spectral_sweep(pca_df, k_range=range(2, 5))
         for k, labels in labels_dict.items():
-            assert labels.nunique() == k, f"k={k}: expected {k} unique labels, got {labels.nunique()}"
+            assert labels.nunique() == k, (
+                f"k={k}: expected {k} unique labels, got {labels.nunique()}"
+            )
 
     def test_silhouette_in_valid_range(self, pca_df):
         sweep_df, _ = fit_spectral_sweep(pca_df, k_range=range(2, 4))
@@ -80,6 +85,7 @@ class TestFitSpectralSweep:
 
 
 # ── spectral_labels ───────────────────────────────────────────────────────────
+
 
 class TestSpectralLabels:
     def test_returns_series(self, pca_df):

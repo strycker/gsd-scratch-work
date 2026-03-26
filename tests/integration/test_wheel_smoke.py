@@ -62,7 +62,9 @@ def test_wheel_install_loads_config_with_trading_crab_root(tmp_path: Path) -> No
         cwd=REPO_ROOT,
     )
     main_wheels = sorted(wheel_dir.glob("trading_crab_lib-*.whl"))
-    assert len(main_wheels) == 1, f"expected one trading_crab_lib wheel, got {list(wheel_dir.glob('*.whl'))}"
+    assert len(main_wheels) == 1, (
+        f"expected one trading_crab_lib wheel, got {list(wheel_dir.glob('*.whl'))}"
+    )
 
     venv = tmp_path / "venv"
     subprocess.run([sys.executable, "-m", "venv", str(venv)], check=True)

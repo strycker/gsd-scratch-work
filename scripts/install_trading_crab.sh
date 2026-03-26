@@ -42,7 +42,7 @@ if [[ ! -f config/email.local.yaml && -f config/email.example.yaml ]]; then
 fi
 
 echo "[install] Running smoke tests…"
-pytest tests/test_pipelines_ingest_features.py::test_step01_ingest_writes_macro_raw_without_network \
+RUN_PIPELINE_INGEST_SMOKE=1 pytest tests/test_pipelines_ingest_features.py::test_step01_ingest_writes_macro_raw_without_network \
        tests/test_models_regime.py::test_current_regime_models_and_probabilities -q
 
 echo "[install] Done. Environment is ready."

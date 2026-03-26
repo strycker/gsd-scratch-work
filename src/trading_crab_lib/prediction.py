@@ -1,22 +1,16 @@
 """
-Supervised regime classifier.
+Supervised regime classifier (compatibility shim).
 
-Trains two model types per pipeline run:
+**Implementation:** :mod:`trading_crab_lib.prediction.classifier` contains the
+full training stack (RF, DT, GB, forward horizons, behavior labels). This
+module keeps the original function names used by early pipeline code:
 
-1. RandomForestClassifier  — high accuracy, ensemble; used for production predictions.
-2. DecisionTreeClassifier  — shallow (max_depth=8), single tree; human-readable rules
-   and fast feature-importance inspection before committing to the forest.
+- RandomForestClassifier / DecisionTreeClassifier with TimeSeriesSplit CV
+- Forward binary classifiers per (horizon, regime)
 
-Both models use TimeSeriesSplit cross-validation so CV accuracy estimates reflect
-genuine walk-forward performance — no data from the future leaks into any fold.
-
-Also trains forward-looking binary classifiers for each (horizon, regime) pair:
-    "Will we be in regime R exactly H quarters from now?"
-
-Design note: ALL features fed to these classifiers must come from
-data/processed/features_supervised.parquet, which is built with causal
-(backward/right-aligned) rolling windows.  This guarantees that no future
-information is present in any feature value used for training or scoring.
+**Data policy:** Features must come from ``data/processed/features_supervised.parquet``
+(causal rolling windows). See :mod:`trading_crab_lib.prediction.feature_gating` for
+the guardrail when that file is missing.
 """
 
 from __future__ import annotations
@@ -34,6 +28,7 @@ log = logging.getLogger(__name__)
 
 
 # ── helpers ────────────────────────────────────────────────────────────────────
+
 
 def _log_feature_importance(model, feature_names, top_n: int = 15) -> None:
     importances = pd.Series(model.feature_importances_, index=feature_names)
@@ -60,12 +55,16 @@ def _tscv_scores(
         log.debug("%s fold %d/%d: accuracy=%.3f", label, fold, n_splits, acc)
     log.info(
         "%s CV accuracy: %.3f ± %.3f  (n_splits=%d)",
-        label, np.mean(scores), np.std(scores), n_splits,
+        label,
+        np.mean(scores),
+        np.std(scores),
+        n_splits,
     )
     return scores
 
 
 # ── public training functions ──────────────────────────────────────────────────
+
 
 def train_classifier(
     X: pd.DataFrame,
@@ -94,6 +93,7 @@ def train_classifier(
     rs = pcfg.get("random_state", 42)
 
     if kind == "rf":
+
         def _factory():
             return RandomForestClassifier(
                 n_estimators=pcfg.get("n_estimators", 200),
@@ -102,13 +102,16 @@ def train_classifier(
                 n_jobs=-1,
                 class_weight="balanced",
             )
+
         label = "RF current-regime"
     elif kind == "dt":
+
         def _factory():
             return DecisionTreeClassifier(
                 max_depth=pcfg.get("dt_max_depth", 8),
                 random_state=rs,
             )
+
         label = "DT current-regime"
     else:
         raise ValueError(f"kind must be 'rf' or 'dt', got {kind!r}")
@@ -120,7 +123,8 @@ def train_classifier(
 
     log.info(
         "%s — in-sample report:\n%s",
-        label, classification_report(y, final.predict(X), zero_division=0),
+        label,
+        classification_report(y, final.predict(X), zero_division=0),
     )
     _log_feature_importance(final, X.columns)
     return final
@@ -177,12 +181,17 @@ def train_forward_classifiers(
                 )
 
             scores = _tscv_scores(
-                _factory, X_aligned, y_binary, n_splits,
+                _factory,
+                X_aligned,
+                y_binary,
+                n_splits,
                 f"RF h={h}Q regime={regime}",
             )
             log.info(
                 "Forward h=%dQ regime=%d — mean CV accuracy=%.3f",
-                h, regime, np.mean(scores),
+                h,
+                regime,
+                np.mean(scores),
             )
 
             final = _factory()
@@ -193,6 +202,7 @@ def train_forward_classifiers(
 
 
 # ── inference ──────────────────────────────────────────────────────────────────
+
 
 def predict_current(model: RandomForestClassifier, X_now: pd.DataFrame) -> dict:
     """
@@ -205,7 +215,7 @@ def predict_current(model: RandomForestClassifier, X_now: pd.DataFrame) -> dict:
     regime = int(model.classes_[np.argmax(proba)])
     return {
         "regime": regime,
-        "probabilities": dict(zip(model.classes_.tolist(), proba.tolist())),
+        "probabilities": dict(zip(model.classes_.tolist(), proba.tolist(), strict=False)),
     }
 
 

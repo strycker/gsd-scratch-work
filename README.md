@@ -167,6 +167,7 @@ make setup-dev      # Setup with testing + notebook extras
 make run            # Steps 3-7 from cached checkpoints (fast)
 make run-full       # Full pipeline — re-scrape + recompute + plots
 make test           # Run the test suite
+make lint           # Ruff lint + format check
 make dashboard      # Print current regime dashboard
 make notebooks      # Launch JupyterLab
 make help           # Show all available targets
@@ -377,7 +378,7 @@ pip install pandas-datareader openbb
 | `hdbscan` | Optional | Hierarchical DBSCAN (via `[clustering-extras]`) |
 | `pandas-datareader` | Optional | Stooq ETF fallback (via `[data-extras]`) |
 | `openbb` | Optional | Multi-provider ETF fallback (via `[data-extras]`) |
-| `requirements-dev.txt` extras | Dev only | pytest, JupyterLab, IPython kernel |
+| `requirements-dev.txt` extras | Dev only | pytest, Ruff, JupyterLab, IPython kernel |
 
 To upgrade all pinned dependencies to their latest compatible versions:
 
@@ -393,6 +394,7 @@ pip-compile pyproject.toml --extra dev --upgrade --output-file requirements-dev.
 
 | File | Contents |
 |------|----------|
+| `docs/CURSOR.md` | Fresh-clone setup for Cursor/IDE: `.venv`, `pip install -e ".[dev]"`, interpreter, ruff/pytest/hdbscan |
 | `CLAUDE.md` | Code conventions, design rules, session instructions for AI |
 | `ROADMAP.md` | Prioritized feature backlog with effort estimates |
 | `ARCHITECTURE.md` | Why key design decisions were made (ADR format) |

@@ -38,11 +38,15 @@ def test_forward_window_probabilities_hand_computed():
     horizons = [1, 2]
     out = build_forward_window_probabilities(labels, horizons)
 
-    row_0_to_1_h1 = out[(out["from_regime"] == 0) & (out["to_regime"] == 1) & (out["horizon_quarters"] == 1)]
+    row_0_to_1_h1 = out[
+        (out["from_regime"] == 0) & (out["to_regime"] == 1) & (out["horizon_quarters"] == 1)
+    ]
     assert len(row_0_to_1_h1) == 1
     assert row_0_to_1_h1["prob"].iloc[0] == pytest.approx(1.0)
 
-    row_2_to_0_h1 = out[(out["from_regime"] == 2) & (out["to_regime"] == 0) & (out["horizon_quarters"] == 1)]
+    row_2_to_0_h1 = out[
+        (out["from_regime"] == 2) & (out["to_regime"] == 0) & (out["horizon_quarters"] == 1)
+    ]
     assert len(row_2_to_0_h1) == 1
     assert row_2_to_0_h1["prob"].iloc[0] == pytest.approx(1.0)
 

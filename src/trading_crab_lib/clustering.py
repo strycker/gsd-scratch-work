@@ -1,6 +1,9 @@
 """
 PCA dimensionality reduction, KMeans cluster evaluation, and clustering.
 
+**PCA width:** ``n_pca_components`` comes from ``config/settings.yaml`` (baseline
+5); changing it changes cluster geometry and pinned regime names.
+
 Core pipeline functions (called by pipelines/03_cluster.py):
   1. reduce_pca()          — StandardScale + PCA to N fixed components
   2. evaluate_kmeans()     — sweep k, score with silhouette/CH/DB, pick best k
@@ -16,8 +19,8 @@ Exploration / investigation functions (used by notebooks/03_clustering.ipynb):
 from __future__ import annotations
 
 import hashlib
-import logging
 import json
+import logging
 from pathlib import Path
 
 import numpy as np
@@ -39,6 +42,7 @@ log = logging.getLogger(__name__)
 def _load_constrained_kmeans():
     try:
         from k_means_constrained import KMeansConstrained
+
         return KMeansConstrained
     except ImportError:
         log.warning(
@@ -126,6 +130,7 @@ def write_clustering_manifest(manifest_path: Path, manifest: dict) -> None:
 
 # ── 1. PCA ─────────────────────────────────────────────────────────────────
 
+
 def reduce_pca(
     df: pd.DataFrame,
     n_components: int = 5,
@@ -163,6 +168,7 @@ def reduce_pca(
 
 # ── 2. K evaluation ────────────────────────────────────────────────────────
 
+
 def evaluate_kmeans(
     X: np.ndarray,
     k_range: range,
@@ -187,17 +193,22 @@ def evaluate_kmeans(
     for k in k_range:
         model = KMeans(n_clusters=k, n_init=n_init, random_state=random_state)
         labels = model.fit_predict(X)
-        results.append({
-            "k":              k,
-            "inertia":        model.inertia_,
-            "silhouette":     silhouette_score(X, labels),
-            "calinski":       calinski_harabasz_score(X, labels),
-            "davies_bouldin": davies_bouldin_score(X, labels),
-        })
-        log.debug("k=%d  sil=%.4f  CH=%.1f  DB=%.4f",
-                  k, results[-1]["silhouette"],
-                  results[-1]["calinski"],
-                  results[-1]["davies_bouldin"])
+        results.append(
+            {
+                "k": k,
+                "inertia": model.inertia_,
+                "silhouette": silhouette_score(X, labels),
+                "calinski": calinski_harabasz_score(X, labels),
+                "davies_bouldin": davies_bouldin_score(X, labels),
+            }
+        )
+        log.debug(
+            "k=%d  sil=%.4f  CH=%.1f  DB=%.4f",
+            k,
+            results[-1]["silhouette"],
+            results[-1]["calinski"],
+            results[-1]["davies_bouldin"],
+        )
 
     scores = pd.DataFrame(results)
 
@@ -222,6 +233,7 @@ def pick_best_k(scores: pd.DataFrame, k_cap: int = 5) -> int:
 
 
 # ── 3. Clustering ──────────────────────────────────────────────────────────
+
 
 def fit_clusters(
     pca_df: pd.DataFrame,
@@ -270,7 +282,8 @@ def fit_clusters(
         result["balanced_cluster"] = model.fit_predict(X)
         log.info(
             "Balanced KMeans (k=%d): %s",
-            balanced_k, _size_summary(result["balanced_cluster"]),
+            balanced_k,
+            _size_summary(result["balanced_cluster"]),
         )
     else:
         # Fall back to plain KMeans so the column always exists
@@ -319,6 +332,7 @@ def _size_summary(labels: pd.Series) -> str:
 
 # ── Exploration / investigation helpers ────────────────────────────────────────
 
+
 def optimize_n_components(
     df: pd.DataFrame,
     n_range: range | None = None,
@@ -360,7 +374,8 @@ def optimize_n_components(
     if skipped:
         log.warning(
             "optimize_n_components: skipping n=%s — exceeds min(n_samples, n_features)=%d",
-            skipped, max_components,
+            skipped,
+            max_components,
         )
     if not valid_n:
         raise ValueError(
@@ -377,18 +392,26 @@ def optimize_n_components(
         cumvar = float(np.sum(pca.explained_variance_ratio_))
 
         X_scaled = StandardScaler().fit_transform(X_pca)
-        labels = KMeans(n_clusters=balanced_k, n_init=n_init, random_state=random_state).fit_predict(X_scaled)
+        labels = KMeans(
+            n_clusters=balanced_k, n_init=n_init, random_state=random_state
+        ).fit_predict(X_scaled)
 
-        rows.append({
-            "n_components": n,
-            "explained_variance_pct": round(cumvar * 100, 2),
-            "silhouette": silhouette_score(X_scaled, labels),
-            "davies_bouldin": davies_bouldin_score(X_scaled, labels),
-            "calinski": calinski_harabasz_score(X_scaled, labels),
-        })
+        rows.append(
+            {
+                "n_components": n,
+                "explained_variance_pct": round(cumvar * 100, 2),
+                "silhouette": silhouette_score(X_scaled, labels),
+                "davies_bouldin": davies_bouldin_score(X_scaled, labels),
+                "calinski": calinski_harabasz_score(X_scaled, labels),
+            }
+        )
         log.info(
             "PCA n=%d  var=%.1f%%  sil=%.4f  DB=%.4f  CH=%.1f",
-            n, cumvar * 100, rows[-1]["silhouette"], rows[-1]["davies_bouldin"], rows[-1]["calinski"],
+            n,
+            cumvar * 100,
+            rows[-1]["silhouette"],
+            rows[-1]["davies_bouldin"],
+            rows[-1]["calinski"],
         )
 
     return pd.DataFrame(rows)
@@ -432,13 +455,13 @@ def compare_svd_pca(
     # PCA
     pca = PCA(n_components=n_components, random_state=random_state)
     X_pca = pca.fit_transform(X_scaled)
-    pca_cols = [f"PC{i+1}" for i in range(n_components)]
+    pca_cols = [f"PC{i + 1}" for i in range(n_components)]
     pca_df = pd.DataFrame(X_pca, index=df.index, columns=pca_cols)
 
     # TruncatedSVD (no additional centering — operates on X_scaled directly)
     svd = TruncatedSVD(n_components=n_components, random_state=random_state)
     X_svd = svd.fit_transform(X_scaled)
-    svd_cols = [f"SV{i+1}" for i in range(n_components)]
+    svd_cols = [f"SV{i + 1}" for i in range(n_components)]
     svd_df = pd.DataFrame(X_svd, index=df.index, columns=svd_cols)
 
     # Loadings comparison: absolute value of component weights per feature
@@ -454,7 +477,10 @@ def compare_svd_pca(
     svd_var = float(np.sum(svd.explained_variance_ratio_))
     log.info(
         "PCA: %d components, %.1f%% variance.  SVD: %d components, %.1f%% variance.",
-        n_components, pca_var * 100, n_components, svd_var * 100,
+        n_components,
+        pca_var * 100,
+        n_components,
+        svd_var * 100,
     )
     return pca_df, svd_df, loadings_df
 
@@ -525,7 +551,7 @@ def compute_gap_statistic(
             boot_vals.append(_log_wk(X_ref, k, seed=boot_seed))
         boot_log_wks.append(boot_vals)
 
-    gaps = [float(np.mean(boot)) - obs for boot, obs in zip(boot_log_wks, log_wks)]
+    gaps = [float(np.mean(boot)) - obs for boot, obs in zip(boot_log_wks, log_wks, strict=False)]
     # gap_std: raw bootstrap standard deviation sd_k
     raw_sds = [float(np.std(boot, ddof=1)) if len(boot) > 1 else 0.0 for boot in boot_log_wks]
     # gap_sk: Tibshirani simulation error = sd_k * sqrt(1 + 1/B)
@@ -542,16 +568,19 @@ def compute_gap_statistic(
         log.warning(
             "Gap statistic: Tibshirani criterion not satisfied for any k in %s — "
             "defaulting to last k=%d",
-            list(k_range), ks[-1],
+            list(k_range),
+            ks[-1],
         )
 
-    return pd.DataFrame({
-        "k":       ks,
-        "gap":     gaps,
-        "gap_std": raw_sds,
-        "gap_sk":  gap_sks,
-        "optimal": optimal,
-    })
+    return pd.DataFrame(
+        {
+            "k": ks,
+            "gap": gaps,
+            "gap_std": raw_sds,
+            "gap_sk": gap_sks,
+            "optimal": optimal,
+        }
+    )
 
 
 def find_knee_k(scores: pd.DataFrame) -> int:
@@ -589,6 +618,7 @@ def find_knee_k(scores: pd.DataFrame) -> int:
     # Attempt kneed first
     try:
         from kneed import KneeLocator  # type: ignore[import]
+
         kl = KneeLocator(ks, inertia, curve="convex", direction="decreasing")
         if kl.knee is not None:
             log.info("kneed: knee at k=%d", kl.knee)

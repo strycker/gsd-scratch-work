@@ -53,7 +53,9 @@ class TestResolveCurrentRegimeModelPath:
         cfg = {"dashboard": {"regime_model": "gb"}}
         assert resolve_current_regime_model_path(cfg, tmp_path, None) == gb
 
-    def test_gb_fallback_when_missing(self, tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
+    def test_gb_fallback_when_missing(
+        self, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    ) -> None:
         import logging
 
         rf = tmp_path / "current_regime.pkl"

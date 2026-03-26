@@ -1,5 +1,12 @@
 """
-trading_crab_lib — Market Regime Classification & Prediction Pipeline
+trading_crab_lib — market regime classification and prediction.
+
+The package resolves workspace paths (``ROOT``, ``CONFIG_DIR``, ``DATA_DIR``,
+``OUTPUT_DIR``), loads YAML config via :func:`load`, and exposes
+:class:`~trading_crab_lib.runtime.RunConfig` plus :class:`~trading_crab_lib.checkpoints.CheckpointManager`
+for pipeline checkpoints. Submodules (``transforms``, ``clustering``, ``ingestion``,
+…) are available through normal imports or lazy attributes on the package object
+(see :func:`__getattr__`).
 """
 
 from .paths import LibraryPaths, resolve_library_paths  # noqa: E402
@@ -13,9 +20,9 @@ OUTPUT_DIR = _paths.output_dir
 # Convenience re-exports so callers can use:
 #   import trading_crab_lib as crab
 #   crab.load(), crab.setup_logging(), crab.RunConfig(), ...
+from .checkpoints import CheckpointManager  # noqa: E402
 from .config import load, load_portfolio, setup_logging  # noqa: E402
 from .runtime import RunConfig  # noqa: E402
-from .checkpoints import CheckpointManager  # noqa: E402
 
 __all__ = [
     "ROOT",

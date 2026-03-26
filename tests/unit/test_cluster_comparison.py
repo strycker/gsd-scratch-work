@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import pickle
-import tempfile
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -18,19 +16,21 @@ from trading_crab_lib.cluster_comparison import (
     recommend_clustering_features,
 )
 
-
 # ── Shared fixtures ───────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def pca_df():
     """50 quarters × 5 PCs — 2 well-separated clusters."""
     rng = np.random.default_rng(42)
     idx = pd.date_range("2000-03-31", periods=50, freq="QE")
-    data = np.vstack([
-        rng.multivariate_normal([4, 0, 0, 0, 0], np.eye(5), 25),
-        rng.multivariate_normal([-4, 0, 0, 0, 0], np.eye(5), 25),
-    ])
-    return pd.DataFrame(data, index=idx, columns=[f"PC{i+1}" for i in range(5)])
+    data = np.vstack(
+        [
+            rng.multivariate_normal([4, 0, 0, 0, 0], np.eye(5), 25),
+            rng.multivariate_normal([-4, 0, 0, 0, 0], np.eye(5), 25),
+        ]
+    )
+    return pd.DataFrame(data, index=idx, columns=[f"PC{i + 1}" for i in range(5)])
 
 
 @pytest.fixture
@@ -78,6 +78,7 @@ def rf_model_path(tmp_path):
 
 
 # ── compare_all_methods ───────────────────────────────────────────────────────
+
 
 class TestCompareAllMethods:
     def test_returns_dataframe(self, pca_df, labels_a, labels_b):
@@ -133,6 +134,7 @@ class TestCompareAllMethods:
 
 # ── pairwise_rand_index ───────────────────────────────────────────────────────
 
+
 class TestPairwiseRandIndex:
     def test_returns_square_dataframe(self, labels_a, labels_b):
         result = pairwise_rand_index({"a": labels_a, "b": labels_b})
@@ -175,6 +177,7 @@ class TestPairwiseRandIndex:
 
 
 # ── extract_rf_feature_importances ───────────────────────────────────────────
+
 
 class TestExtractRfFeatureImportances:
     def test_returns_series(self, rf_model_path):
@@ -221,6 +224,7 @@ class TestExtractRfFeatureImportances:
     def test_non_tree_model_raises(self, tmp_path):
         """Non-tree models without feature_importances_ should raise AttributeError."""
         from sklearn.linear_model import LinearRegression
+
         model = LinearRegression()
         model.fit([[1, 2], [3, 4]], [0, 1])
         path = tmp_path / "lr.pkl"
@@ -231,6 +235,7 @@ class TestExtractRfFeatureImportances:
 
 
 # ── recommend_clustering_features ─────────────────────────────────────────────
+
 
 class TestRecommendClusteringFeatures:
     @pytest.fixture

@@ -1,10 +1,5 @@
 """Unit tests for config loader and portfolio loader."""
 
-from pathlib import Path
-
-import pytest
-import yaml
-
 from trading_crab_lib.config import load_portfolio
 
 

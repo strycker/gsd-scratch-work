@@ -44,12 +44,12 @@ log = logging.getLogger(__name__)
 #   kind "price"  → compute quarterly pct_change
 #   kind "rate"   → use level value directly (already a rate/spread/growth figure)
 _PROXY_COLUMNS: list[tuple[str, str, str]] = [
-    ("S&P 500",        "sp500",         "price"),
-    ("S&P 500 Real",   "sp500_adj",     "price"),
-    ("10Y Treasury",   "10yr_ustreas",  "rate"),
-    ("GDP Growth",     "gdp_growth",    "rate"),
-    ("Inflation",      "us_infl",       "rate"),
-    ("Credit Spread",  "credit_spread", "rate"),
+    ("S&P 500", "sp500", "price"),
+    ("S&P 500 Real", "sp500_adj", "price"),
+    ("10Y Treasury", "10yr_ustreas", "rate"),
+    ("GDP Growth", "gdp_growth", "rate"),
+    ("Inflation", "us_infl", "rate"),
+    ("Credit Spread", "credit_spread", "rate"),
 ]
 
 
@@ -90,7 +90,9 @@ def compute_proxy_returns(macro_df: pd.DataFrame) -> pd.DataFrame:
     result = result.dropna(how="all").iloc[1:]
     log.info(
         "Proxy returns computed: %d quarters × %d assets (%s)",
-        len(result), len(found), ", ".join(found),
+        len(result),
+        len(found),
+        ", ".join(found),
     )
     return result
 
@@ -151,21 +153,26 @@ def returns_full_stats(
             if col.empty:
                 continue
             q = col.quantile([0.25, 0.75])
-            records.append({
-                "regime":        regime,
-                "asset":         ticker,
-                "median_return": col.median(),
-                "q25":           q.iloc[0],
-                "q75":           q.iloc[1],
-                "hit_rate":      (col > 0).mean(),
-                "n_quarters":    len(col),
-            })
+            records.append(
+                {
+                    "regime": regime,
+                    "asset": ticker,
+                    "median_return": col.median(),
+                    "q25": q.iloc[0],
+                    "q75": q.iloc[1],
+                    "hit_rate": (col > 0).mean(),
+                    "n_quarters": len(col),
+                }
+            )
 
     if not records:
         empty = pd.DataFrame()
         return {
-            "median_return": empty, "q25": empty, "q75": empty,
-            "hit_rate": empty, "n_quarters": empty,
+            "median_return": empty,
+            "q25": empty,
+            "q75": empty,
+            "hit_rate": empty,
+            "n_quarters": empty,
         }
 
     flat = pd.DataFrame(records)
@@ -195,12 +202,14 @@ def rank_assets_by_regime(profile: pd.DataFrame) -> pd.DataFrame:
     for regime, row in profile.iterrows():
         sorted_assets = row.dropna().sort_values(ascending=False)
         for rank, (asset, ret) in enumerate(sorted_assets.items(), start=1):
-            records.append({
-                "regime":                  regime,
-                "asset":                   asset,
-                "median_quarterly_return": ret,
-                "rank":                    rank,
-            })
+            records.append(
+                {
+                    "regime": regime,
+                    "asset": asset,
+                    "median_quarterly_return": ret,
+                    "rank": rank,
+                }
+            )
     return pd.DataFrame(records)
 
 
@@ -259,13 +268,13 @@ def _score_absolute(median: float) -> float:
     if median >= 0.04:
         return 50.0 + (median - 0.04) * (35.0 / 0.02)  # 85–100
     if median >= 0.02:
-        return 50.0 + (median - 0.02) * (20.0 / 0.02)   # 70–85
+        return 50.0 + (median - 0.02) * (20.0 / 0.02)  # 70–85
     if median >= 0.0:
-        return 50.0 + median * (20.0 / 0.02)           # 50–70
+        return 50.0 + median * (20.0 / 0.02)  # 50–70
     if median >= -0.02:
-        return 50.0 + median * (20.0 / 0.02)           # 30–50
+        return 50.0 + median * (20.0 / 0.02)  # 30–50
     if median >= -0.03:
-        return 30.0 + (median + 0.02) * (15.0 / 0.01)   # 15–30
+        return 30.0 + (median + 0.02) * (15.0 / 0.01)  # 15–30
     return max(0.0, 15.0 + (median + 0.03) * (15.0 / 0.03))
 
 
@@ -334,20 +343,22 @@ def behavior_tables(
             score_rel = 100.0 * (1.0 - (rrank - 1) / max(1, n - 1)) if n > 1 else 50.0
             score_abs = _score_absolute(m)
 
-            records.append({
-                "regime":          regime,
-                "asset":           asset,
-                "median_return":   m,
-                "q25":             q25_df.loc[regime, asset] if asset in q25_df.columns else None,
-                "q75":             q75_df.loc[regime, asset] if asset in q75_df.columns else None,
-                "hit_rate":        hit_df.loc[regime, asset] if asset in hit_df.columns else None,
-                "n_quarters":      int(n_df.loc[regime, asset]) if asset in n_df.columns else None,
-                "signal_absolute": abs_sig,
-                "tertile":         int(tert),
-                "signal_display":   display,
-                "score_relative":  round(score_rel, 1),
-                "score_absolute":  round(_score_absolute(m), 1),
-                "rank":            int(ranked[asset]),
-            })
+            records.append(
+                {
+                    "regime": regime,
+                    "asset": asset,
+                    "median_return": m,
+                    "q25": q25_df.loc[regime, asset] if asset in q25_df.columns else None,
+                    "q75": q75_df.loc[regime, asset] if asset in q75_df.columns else None,
+                    "hit_rate": hit_df.loc[regime, asset] if asset in hit_df.columns else None,
+                    "n_quarters": int(n_df.loc[regime, asset]) if asset in n_df.columns else None,
+                    "signal_absolute": abs_sig,
+                    "tertile": int(tert),
+                    "signal_display": display,
+                    "score_relative": round(score_rel, 1),
+                    "score_absolute": round(score_abs, 1),
+                    "rank": int(ranked[asset]),
+                }
+            )
 
     return pd.DataFrame(records)

@@ -165,6 +165,8 @@ jupyter lab notebooks/
 
 ## Environment Setup
 
+**Fresh clone in Cursor / VS Code:** create **`.venv`**, install dev deps, and select the workspace interpreter — see **`docs/CURSOR.md`** (`.venv` is gitignored by design).
+
 ```bash
 # 1. Install package + dev extras
 pip install -e ".[dev]"
@@ -410,6 +412,7 @@ ground truth.  Items marked ✓ are verified as matching in `src/`.  Items marke
 ### Testing
 ```bash
 pytest tests/ -v
+make lint          # Ruff: lint + format check (same paths as CI)
 ```
 Tests live under `tests/`. Unit tests should not require network access — mock
 `requests.get` for scraping tests and FRED API calls. Use fixtures from `tests/conftest.py`.

@@ -5,7 +5,7 @@ Checklist for maintainers: build artifacts, upload to TestPyPI, then PyPI.
 ## Prerequisites
 
 - **Python 3.10+** (aligned with `requires-python` in `pyproject.toml`).
-- Editable install with dev tools: `pip install -e ".[dev]"` (includes `build`, `twine`, `pytest`).
+- Editable install with dev tools: `pip install -e ".[dev]"` (includes `build`, `twine`, `pytest`, `ruff`).
 - Accounts on [PyPI](https://pypi.org/) and [TestPyPI](https://test.pypi.org/).
 - API tokens for uploads (recommended: **API token** per project, not account password).
 

@@ -25,7 +25,7 @@
 ## 4. Root prune & narrative docs
 
 - [x] **PRUNE-10** — Remove redundant root notebooks/scratch/duplicate docs (excluding `legacy/`, `*_repo-copy/`). **Roadmap:** **Phase 33**. **Evidence:** **`.planning/phases/33-v1-3-root-prune/33-ROOT-INVENTORY.md`**, **`.planning/phases/33-v1-3-root-prune/33-SUMMARY.md`**.
-- [ ] **DOCS-10** — Extensive Google-style docstrings + file “why” + major-block rationale under `src/trading_crab_lib/`. **Roadmap:** **Phase 34**.
+- [x] **DOCS-10** — Extensive Google-style docstrings + file “why” + major-block rationale under `src/trading_crab_lib/`. **Roadmap:** **Phase 34**. **Evidence:** **`.planning/phases/34-v1-3-library-documentation-pass/34-SUMMARY.md`**, **`34-VERIFICATION.md`**.
 
 ---
 
@@ -39,6 +39,6 @@
 | PKG-10 | 31 | Complete |
 | PKG-11 | 32 | Complete |
 | PRUNE-10 | 33 | Complete |
-| DOCS-10 | 34 | Not started |
+| DOCS-10 | 34 | Complete |
 
 **Milestone v1.3 roadmap scope:** phases **28–34** on **`.planning/ROADMAP.md`** (all REQ rows above are mapped).

@@ -1,8 +1,24 @@
 """Shared fixtures for all tests."""
 
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    parser.addoption(
+        "--pipeline-ingest-smoke",
+        action="store_true",
+        default=False,
+        help="Run slow pipelines/01_ingest smoke test (sets RUN_PIPELINE_INGEST_SMOKE=1).",
+    )
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    if config.getoption("--pipeline-ingest-smoke", default=False):
+        os.environ["RUN_PIPELINE_INGEST_SMOKE"] = "1"
 
 
 @pytest.fixture
@@ -18,17 +34,17 @@ def raw_macro_df(quarterly_index):
     n = len(quarterly_index)
     return pd.DataFrame(
         {
-            "sp500":     rng.uniform(800, 4000, n),
+            "sp500": rng.uniform(800, 4000, n),
             "sp500_adj": rng.uniform(800, 4000, n),
-            "dividend":  rng.uniform(10, 60, n),
+            "dividend": rng.uniform(10, 60, n),
             "div_yield": rng.uniform(0.01, 0.05, n),
-            "gdp":       rng.uniform(8000, 22000, n),
-            "cpi":       rng.uniform(150, 280, n),
-            "fred_gdp":  rng.uniform(8000, 22000, n),
-            "fred_gnp":  rng.uniform(7500, 21000, n),
-            "fred_baa":  rng.uniform(3.0, 9.0, n),
-            "fred_aaa":  rng.uniform(2.5, 8.0, n),
-            "fred_cpi":  rng.uniform(150, 280, n),
+            "gdp": rng.uniform(8000, 22000, n),
+            "cpi": rng.uniform(150, 280, n),
+            "fred_gdp": rng.uniform(8000, 22000, n),
+            "fred_gnp": rng.uniform(7500, 21000, n),
+            "fred_baa": rng.uniform(3.0, 9.0, n),
+            "fred_aaa": rng.uniform(2.5, 8.0, n),
+            "fred_cpi": rng.uniform(150, 280, n),
         },
         index=quarterly_index,
     )

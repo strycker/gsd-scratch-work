@@ -12,4 +12,6 @@ def _repo_root() -> Path:
 def test_gitignore_lists_env_and_email_local() -> None:
     lines = (_repo_root() / ".gitignore").read_text(encoding="utf-8").splitlines()
     assert ".env" in lines, "root .env should be gitignored"
-    assert any("email.local.yaml" in line for line in lines), "email.local.yaml pattern should be gitignored"
+    assert any("email.local.yaml" in line for line in lines), (
+        "email.local.yaml pattern should be gitignored"
+    )

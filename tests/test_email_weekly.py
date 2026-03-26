@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 from datetime import date
-from pathlib import Path
-from unittest.mock import MagicMock, patch, ANY
+from unittest.mock import ANY, MagicMock
 
-from trading_crab_lib import OUTPUT_DIR
 from trading_crab_lib.email import (
     build_weekly_email_body,
     load_email_config,
@@ -116,4 +114,3 @@ class TestSendWeeklyEmail:
         instance = smtp_ssl_mock.return_value.__enter__.return_value
         assert instance.login.called
         assert instance.send_message.called
-

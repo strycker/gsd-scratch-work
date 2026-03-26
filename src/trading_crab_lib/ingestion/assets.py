@@ -125,6 +125,7 @@ def _ssl_bypass_curl_session():
 
     try:
         import urllib3
+
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     except ImportError:
         pass
@@ -140,6 +141,7 @@ def _ssl_bypass_curl_session():
 
 
 # ── Phase 1: batch yfinance download ──────────────────────────────────────────
+
 
 def _batch_yfinance(
     tickers: list[str], start: str, end: str, session=None
@@ -157,7 +159,7 @@ def _batch_yfinance(
     try:
         import yfinance as yf
     except ImportError:
-        raise ImportError("yfinance is not installed.  Run: pip install yfinance")
+        raise ImportError("yfinance is not installed.  Run: pip install yfinance") from None
 
     log.info("Batch-fetching %d tickers from yfinance ...", len(tickers))
 
@@ -200,7 +202,9 @@ def _batch_yfinance(
         close_df = raw["Close"]  # DataFrame: index=date, columns=tickers
     else:
         if "Close" not in raw.columns:
-            log.warning("'Close' missing from single-ticker download columns: %s", list(raw.columns))
+            log.warning(
+                "'Close' missing from single-ticker download columns: %s", list(raw.columns)
+            )
             return {}, ssl_seen
         t = tickers[0] if len(tickers) == 1 else "Close"
         close_df = raw[["Close"]].rename(columns={"Close": t})
@@ -226,6 +230,7 @@ def _batch_yfinance(
 
 # ── Phase 2: per-ticker SSL bypass ────────────────────────────────────────────
 
+
 def _fetch_ticker_with_session(ticker: str, start: str, end: str, session) -> pd.Series:
     """
     Fetch one ticker via yf.Ticker(session=session).history().
@@ -234,6 +239,7 @@ def _fetch_ticker_with_session(ticker: str, start: str, end: str, session) -> pd
     a plain requests.Session with "Yahoo API requires curl_cffi session".
     """
     import yfinance as yf
+
     log.info("Fetching %s via curl_cffi session (SSL bypass) ...", ticker)
     raw = yf.Ticker(ticker, session=session).history(
         start=start, end=end, interval="1mo", auto_adjust=True
@@ -272,6 +278,7 @@ def _fetch_missing_with_ssl_bypass(
 
 
 # ── Phase 3: stooq fallback (pandas-datareader) ────────────────────────────────
+
 
 def _fetch_ticker_stooq(ticker: str, start: str, end: str) -> pd.Series:
     """
@@ -323,6 +330,7 @@ def _fetch_tickers_stooq(tickers: list[str], start: str, end: str) -> list[pd.Se
 
 # ── Phase 4: OpenBB fallback ───────────────────────────────────────────────────
 
+
 def _fetch_ticker_openbb(ticker: str, start: str, end: str) -> pd.Series:
     """
     Fetch one ticker via OpenBB.
@@ -360,7 +368,9 @@ def _fetch_ticker_openbb(ticker: str, start: str, end: str) -> pd.Series:
         None,
     )
     if close_col is None:
-        log.warning("OpenBB: could not find close column for %s (columns: %s)", ticker, list(df.columns))
+        log.warning(
+            "OpenBB: could not find close column for %s (columns: %s)", ticker, list(df.columns)
+        )
         return pd.Series(name=ticker, dtype=float)
 
     close = df[close_col].rename(ticker)
@@ -380,8 +390,7 @@ def _fetch_tickers_openbb(tickers: list[str], start: str, end: str) -> list[pd.S
                 results.append(s)
         except ImportError:
             log.warning(
-                "openbb not installed — OpenBB fallback unavailable.  "
-                "Run: pip install openbb"
+                "openbb not installed — OpenBB fallback unavailable.  Run: pip install openbb"
             )
             break  # no point trying more tickers
         except Exception as exc:
@@ -390,6 +399,7 @@ def _fetch_tickers_openbb(tickers: list[str], start: str, end: str) -> list[pd.S
 
 
 # ── public API ─────────────────────────────────────────────────────────────────
+
 
 def fetch_all(cfg: dict) -> pd.DataFrame:
     """
@@ -485,8 +495,7 @@ def fetch_all(cfg: dict) -> pd.DataFrame:
             log.info("stooq bulk succeeded (%d/%d tickers)", len(series_list), len(tickers))
         else:
             log.warning(
-                "stooq returned no data.  "
-                "Install pandas-datareader: pip install pandas-datareader"
+                "stooq returned no data.  Install pandas-datareader: pip install pandas-datareader"
             )
 
     # ── OpenBB bulk when still empty ──────────────────────────────────────────

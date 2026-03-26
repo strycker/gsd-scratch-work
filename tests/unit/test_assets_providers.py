@@ -42,6 +42,7 @@ def test_stooq_disabled_never_calls_stooq_functions(monkeypatch: pytest.MonkeyPa
         },
         "data": {"start_date": "2018-01-01", "end_date": "2020-12-31"},
     }
+
     def _no_stooq_one(*_a, **_k):
         raise AssertionError("_fetch_ticker_stooq should not be called")
 
@@ -57,7 +58,10 @@ def test_stooq_disabled_never_calls_stooq_functions(monkeypatch: pytest.MonkeyPa
 def test_fetch_all_index_name_and_columns_subset() -> None:
     spy = _qe_series("SPY", 101.0)
     cfg = {
-        "assets": {"etfs": ["SPY"], "providers": {"yfinance": True, "stooq": False, "openbb": False}},
+        "assets": {
+            "etfs": ["SPY"],
+            "providers": {"yfinance": True, "stooq": False, "openbb": False},
+        },
         "data": {"start_date": "2018-01-01", "end_date": "2020-12-31"},
     }
     with patch.object(_assets_mod, "_batch_yfinance", return_value=({"SPY": spy}, False)):
@@ -93,8 +97,12 @@ def test_partial_yahoo_then_stooq_fills_second_ticker() -> None:
 
     with patch.object(_assets_mod, "_batch_yfinance", side_effect=fake_batch):
         with patch.object(_assets_mod, "_ssl_bypass_curl_session", return_value=None):
-            with patch.object(_assets_mod, "_fetch_missing_with_ssl_bypass", side_effect=no_ssl_missing):
-                with patch.object(_assets_mod, "_fetch_ticker_stooq", side_effect=fake_stooq_ticker):
+            with patch.object(
+                _assets_mod, "_fetch_missing_with_ssl_bypass", side_effect=no_ssl_missing
+            ):
+                with patch.object(
+                    _assets_mod, "_fetch_ticker_stooq", side_effect=fake_stooq_ticker
+                ):
                     out = fetch_all(cfg)
 
     assert "QQQ" in calls

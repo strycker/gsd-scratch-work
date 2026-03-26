@@ -42,13 +42,7 @@ def test_walk_finds_repo_layout(tmp_path, monkeypatch):
 
 
 def test_site_packages_raises_with_message(tmp_path, monkeypatch):
-    pkg_file = (
-        tmp_path
-        / "lib"
-        / "site-packages"
-        / "trading_crab_lib"
-        / "paths.py"
-    )
+    pkg_file = tmp_path / "lib" / "site-packages" / "trading_crab_lib" / "paths.py"
     pkg_file.parent.mkdir(parents=True)
     with pytest.raises(RuntimeError, match="TRADING_CRAB_ROOT"):
         resolve_library_paths(package_file=pkg_file)

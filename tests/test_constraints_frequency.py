@@ -65,4 +65,3 @@ def test_feature_artifacts_are_quarterly(name: str, checkpoints: CheckpointManag
     assert not features.empty, f"{name} checkpoint is empty"
     _assert_quarterly_index(features.index)
     _assert_no_intraday(features.index)
-

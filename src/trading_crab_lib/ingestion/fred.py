@@ -1,20 +1,16 @@
+"""FRED API ingestion for macro series.
+
+Fetches each series defined in ``cfg["fred"]["series"]``, resamples to quarterly
+frequency (period-end), and returns a single wide DataFrame. Series are fetched
+in parallel (:class:`~concurrent.futures.ThreadPoolExecutor`) to cut wall-clock
+time from ~N×latency to roughly one round-trip latency.
+
+**Publication-lag shift:** GDP and GNP are released after quarter close. Series
+marked ``shift: true`` are shifted forward one quarter so values align with when
+they would have been known — avoiding look-ahead bias in supervised models.
+"""
+
 from __future__ import annotations
-
-"""
-FRED API ingestion.
-
-Fetches each series defined in cfg["fred"]["series"], resamples to
-quarterly frequency (period-end), and returns a single wide DataFrame.
-
-Series are fetched in parallel (ThreadPoolExecutor) to cut wall-clock
-time from ~N×latency down to roughly one round-trip latency.
-
-Publication-lag shift:
-  GDP and GNP figures are released after the quarter closes.  Series marked
-  shift:true are shifted forward by one quarter so the value aligns with
-  the quarter in which it would actually have been known.  This is critical
-  for preventing look-ahead bias in supervised models.
-"""
 
 import logging
 import ssl
@@ -55,6 +51,7 @@ def _patch_fredapi_urlopen(ssl_verify: bool) -> None:
     fred_mod.urlopen = _urlopen
     _FREDAPI_SSL_PATCHED = True
 
+
 # FRED is generally tolerant of small parallel bursts; keep a modest cap so
 # we don't get rate-limited or trigger any undocumented throttle.
 _MAX_WORKERS = 8
@@ -91,7 +88,7 @@ def fetch_all(cfg: dict) -> pd.DataFrame:
     """
     api_key = cfg["fred"].get("api_key")
     if not api_key:
-        raise EnvironmentError("FRED_API_KEY is not set")
+        raise OSError("FRED_API_KEY is not set")
 
     ssl_verify = bool(cfg.get("fred", {}).get("ssl_verify", True))
     _patch_fredapi_urlopen(ssl_verify)
@@ -118,10 +115,7 @@ def fetch_all(cfg: dict) -> pd.DataFrame:
 
     frames: dict[str, pd.Series] = {}
     with ThreadPoolExecutor(max_workers=min(_MAX_WORKERS, len(series_cfg))) as pool:
-        futures = {
-            pool.submit(_fetch_task, sid, meta): sid
-            for sid, meta in series_cfg.items()
-        }
+        futures = {pool.submit(_fetch_task, sid, meta): sid for sid, meta in series_cfg.items()}
         for future in as_completed(futures):
             friendly_name, series = future.result()
             if series is not None:
@@ -131,4 +125,3 @@ def fetch_all(cfg: dict) -> pd.DataFrame:
     df.index.name = "date"
     log.info("FRED fetch complete: %d quarters, %d series", len(df), len(df.columns))
     return df
-

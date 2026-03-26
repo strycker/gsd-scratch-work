@@ -1,12 +1,17 @@
 """
-Central config loader — call load() once at pipeline entry points.
-Uses python-dotenv for secrets, PyYAML for settings.
+Configuration loading for the trading-crab pipeline.
+
+**Why a single loader:** ``settings.yaml`` holds tunable parameters; secrets
+(``FRED_API_KEY``) must never be committed. :func:`load` merges YAML with
+environment variables after :func:`dotenv.load_dotenv`, so local ``.env`` and
+CI env vars both work. Call :func:`load` once at process entry (``run_pipeline.py``
+or a notebook kernel) and pass the resulting ``dict`` through the pipeline.
 """
 
 from __future__ import annotations
 
-import os
 import logging
+import os
 from pathlib import Path
 
 import yaml
@@ -18,7 +23,15 @@ log = logging.getLogger(__name__)
 
 
 def load(settings_path: Path | None = None) -> dict:
-    """Load settings.yaml and inject secrets from .env / environment."""
+    """Load ``settings.yaml`` and inject ``FRED_API_KEY`` from the environment.
+
+    Args:
+        settings_path: Explicit path to YAML. Defaults to ``CONFIG_DIR / "settings.yaml"``.
+
+    Returns:
+        Parsed configuration dict (same structure as ``config/settings.yaml``),
+        with ``cfg["fred"]["api_key"]`` set from ``FRED_API_KEY`` (possibly ``None``).
+    """
     load_dotenv()  # reads .env if present; env vars already set take priority
 
     path = settings_path or CONFIG_DIR / "settings.yaml"
@@ -67,6 +80,11 @@ def load_portfolio(portfolio_path: Path | None = None) -> dict[str, float]:
 
 
 def setup_logging(level: str = "INFO") -> None:
+    """Configure the root logger with a consistent timestamped format.
+
+    Args:
+        level: Log level name (e.g. ``"INFO"``, ``"DEBUG"``).
+    """
     logging.basicConfig(
         format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",

@@ -1,3 +1,11 @@
+"""Per-asset tactical metrics and labels (volatility, trend, correlation, entry bias).
+
+Computes rolling volatility, log-price slopes, correlation to SPY, soft-stop z-scores,
+and classifies each asset into ``buy_hold`` / ``swing`` / ``stand_aside`` using
+``config/settings.yaml`` ``tactics`` thresholds. Used by the dashboard / reporting
+layer, not by regime clustering.
+"""
+
 from __future__ import annotations
 
 import numpy as np

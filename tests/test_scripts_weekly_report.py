@@ -7,15 +7,13 @@ from datetime import date
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 # Import the script as a module (script lives in scripts/)
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 import run_weekly_report as weekly  # noqa: E402
 
-
 # ── Archive logic (timestamped copy + email_body.txt) ────────────────────────
+
 
 class TestArchiveWeeklyReport:
     def test_creates_timestamped_copy_and_email_body(self, tmp_path):
@@ -50,6 +48,7 @@ class TestArchiveWeeklyReport:
 
 
 # ── CLI argv (subprocess args) ────────────────────────────────────────────────
+
 
 class TestScriptArgv:
     # Pipeline order: steps 8–9 (tactics / weekly e2e) run before 7 (dashboard) per run_weekly_report.py
@@ -106,7 +105,19 @@ class TestScriptSendEmail:
 
         with patch("run_weekly_report.subprocess.run") as m:
             m.return_value = MagicMock(returncode=0)
-            monkeypatch.setattr("run_weekly_report.load_email_config", lambda: {"smtp_host": "h", "smtp_port": 587, "username": "u", "password": "p", "from_address": "f", "to_address": "t", "use_tls": True, "use_ssl": False})
+            monkeypatch.setattr(
+                "run_weekly_report.load_email_config",
+                lambda: {
+                    "smtp_host": "h",
+                    "smtp_port": 587,
+                    "username": "u",
+                    "password": "p",
+                    "from_address": "f",
+                    "to_address": "t",
+                    "use_tls": True,
+                    "use_ssl": False,
+                },
+            )
             monkeypatch.setattr("run_weekly_report.send_weekly_email", lambda cfg, subj, body: True)
             with patch("sys.argv", ["run_weekly_report.py", "--send-email"]):
                 result = weekly.main()

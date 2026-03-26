@@ -42,4 +42,3 @@ def test_rrg_for_benchmark_quadrants() -> None:
     assets = set(df["asset"])
     assert {"TLT", "GLD"} <= assets
     assert set(df["quadrant"]).issubset({"LEADING", "WEAKENING", "LAGGING", "IMPROVING"})
-

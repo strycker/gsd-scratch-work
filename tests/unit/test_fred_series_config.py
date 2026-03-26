@@ -4,7 +4,6 @@ from pathlib import Path
 
 import yaml
 
-
 CFG_PATH = Path(__file__).resolve().parents[2] / "config" / "settings.yaml"
 
 
@@ -42,4 +41,3 @@ def test_fred_series_includes_phase8_additions() -> None:
         assert key in series
         assert series[key]["name"] == name
         assert series[key].get("shift", False) is False
-

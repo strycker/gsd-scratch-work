@@ -20,13 +20,12 @@ Run:
 """
 
 import argparse
-import sys
 import pickle
+import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import numpy as np
 import pandas as pd
 
 import trading_crab_lib as crab
@@ -38,15 +37,15 @@ setup_logging = crab.setup_logging
 
 from sklearn.tree import export_text
 
+from trading_crab_lib.asset_returns import compute_proxy_returns, compute_quarterly_returns
 from trading_crab_lib.prediction.classifier import (
     train_current_regime,
-    train_forward_classifiers,
     train_forward_behavior_models,
+    train_forward_classifiers,
     train_interpretability_tree,
 )
 from trading_crab_lib.prediction.feature_gating import select_step5_feature_path
 from trading_crab_lib.prediction.model_metrics_artifacts import write_model_metrics_artifacts
-from trading_crab_lib.asset_returns import compute_proxy_returns, compute_quarterly_returns
 from trading_crab_lib.transforms import trim_incomplete_tail
 
 
@@ -92,7 +91,7 @@ def main() -> None:
     classes = rf.classes_
 
     # Map class → probability and pick argmax as current regime.
-    prob_by_class = dict(zip(classes, proba))
+    prob_by_class = dict(zip(classes, proba, strict=False))
     best_regime = max(prob_by_class.items(), key=lambda kv: kv[1])[0]
 
     print(f"\nLatest quarter prediction: regime {best_regime}")

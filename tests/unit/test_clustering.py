@@ -10,11 +10,11 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from trading_crab_lib.clustering import (
-    reduce_pca,
-    evaluate_kmeans,
-    pick_best_k,
-    fit_clusters,
     build_clustering_manifest,
+    evaluate_kmeans,
+    fit_clusters,
+    pick_best_k,
+    reduce_pca,
 )
 
 
@@ -32,6 +32,7 @@ def feature_df(quarterly_index):
 
 
 # ── reduce_pca ─────────────────────────────────────────────────────────────
+
 
 class TestReducePca:
     def test_output_shape(self, feature_df):
@@ -53,12 +54,14 @@ class TestReducePca:
     def test_returns_fitted_objects(self, feature_df):
         from sklearn.decomposition import PCA
         from sklearn.preprocessing import StandardScaler
+
         _, pca, scaler = reduce_pca(feature_df, n_components=5)
         assert isinstance(pca, PCA)
         assert isinstance(scaler, StandardScaler)
 
 
 # ── evaluate_kmeans ────────────────────────────────────────────────────────
+
 
 class TestEvaluateKmeans:
     def test_returns_dataframe_with_expected_cols(self, feature_df):
@@ -80,30 +83,38 @@ class TestEvaluateKmeans:
 
 # ── pick_best_k ────────────────────────────────────────────────────────────
 
+
 class TestPickBestK:
     def test_returns_highest_silhouette(self):
-        scores = pd.DataFrame({
-            "k":          [2, 3, 4, 5],
-            "silhouette": [0.2, 0.5, 0.4, 0.3],
-        })
+        scores = pd.DataFrame(
+            {
+                "k": [2, 3, 4, 5],
+                "silhouette": [0.2, 0.5, 0.4, 0.3],
+            }
+        )
         assert pick_best_k(scores, k_cap=10) == 3
 
     def test_cap_applied(self):
-        scores = pd.DataFrame({
-            "k":          [2, 3, 4, 5, 6, 7],
-            "silhouette": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
-        })
+        scores = pd.DataFrame(
+            {
+                "k": [2, 3, 4, 5, 6, 7],
+                "silhouette": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+            }
+        )
         assert pick_best_k(scores, k_cap=5) == 5
 
     def test_cap_not_applied_when_best_below_cap(self):
-        scores = pd.DataFrame({
-            "k":          [2, 3, 4],
-            "silhouette": [0.1, 0.5, 0.2],
-        })
+        scores = pd.DataFrame(
+            {
+                "k": [2, 3, 4],
+                "silhouette": [0.1, 0.5, 0.2],
+            }
+        )
         assert pick_best_k(scores, k_cap=5) == 3
 
 
 # ── fit_clusters ───────────────────────────────────────────────────────────
+
 
 class TestFitClusters:
     def test_both_columns_present(self, feature_df):

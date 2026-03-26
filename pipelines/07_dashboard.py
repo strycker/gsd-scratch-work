@@ -24,8 +24,8 @@ Run:
 """
 
 import logging
-import sys
 import pickle
+import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -39,23 +39,23 @@ load = crab.load
 load_portfolio = crab.load_portfolio
 setup_logging = crab.setup_logging
 
-from trading_crab_lib.prediction import predict_current
-from trading_crab_lib.prediction.dashboard_model import resolve_current_regime_model_path
-from trading_crab_lib.asset_returns import rank_assets_by_regime
-from trading_crab_lib.reporting import (
-    asset_signals,
-    print_dashboard,
-    save_dashboard_csv,
-    simple_regime_portfolio,
-    blended_regime_portfolio,
-    generate_recommendation,
-    build_recommendation_digest,
-    save_recommendation_bundle,
-    write_weekly_report_md,
-)
-
 import pandas as pd
 import yaml
+
+from trading_crab_lib.asset_returns import rank_assets_by_regime
+from trading_crab_lib.prediction import predict_current
+from trading_crab_lib.prediction.dashboard_model import resolve_current_regime_model_path
+from trading_crab_lib.reporting import (
+    asset_signals,
+    blended_regime_portfolio,
+    build_recommendation_digest,
+    generate_recommendation,
+    print_dashboard,
+    save_dashboard_csv,
+    save_recommendation_bundle,
+    simple_regime_portfolio,
+    write_weekly_report_md,
+)
 
 
 def load_regime_names() -> dict[int, str]:
@@ -161,7 +161,10 @@ def main() -> None:
         for asset, w in blended_weights.items():
             print(f"  {asset:<12s}  {w:.1%}")
 
-        print("\n── Trade recommendations (blended vs current portfolio, %.0f%% threshold) ──" % (rec_threshold * 100))
+        print(
+            "\n── Trade recommendations (blended vs current portfolio, %.0f%% threshold) ──"
+            % (rec_threshold * 100)
+        )
         print(recommendations.to_string())
 
         if not simple_weights.empty:
@@ -176,7 +179,10 @@ def main() -> None:
         if behavior_path.exists():
             behavior_df = pd.read_parquet(behavior_path)
             digest = build_recommendation_digest(
-                behavior_df, current_regime, current_weights, blended_weights,
+                behavior_df,
+                current_regime,
+                current_weights,
+                blended_weights,
                 recommendations if not recommendations.empty else pd.DataFrame(),
                 top_n=5,
             )

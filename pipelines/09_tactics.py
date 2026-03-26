@@ -12,7 +12,6 @@ Run:
 from __future__ import annotations
 
 import logging
-from pathlib import Path
 
 import pandas as pd
 
@@ -23,7 +22,7 @@ OUTPUT_DIR = crab.OUTPUT_DIR
 load = crab.load
 setup_logging = crab.setup_logging
 
-from trading_crab_lib.tactics import compute_tactics_metrics, classify_tactics
+from trading_crab_lib.tactics import classify_tactics, compute_tactics_metrics
 
 log = logging.getLogger(__name__)
 
@@ -57,4 +56,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

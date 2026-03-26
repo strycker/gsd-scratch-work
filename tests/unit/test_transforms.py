@@ -14,22 +14,29 @@ from trading_crab_lib.config import load
 from trading_crab_lib.transforms import (
     add_cross_ratios,
     add_yield_curve_features,
-    apply_log_transforms,
-    apply_gap_fill,
     apply_derivatives,
+    apply_gap_fill,
+    apply_log_transforms,
     engineer_all,
     select_features,
 )
 
-
 # ── add_cross_ratios ───────────────────────────────────────────────────────
+
 
 class TestAddCrossRatios:
     def test_all_ten_columns_added(self, raw_macro_df):
         result = add_cross_ratios(raw_macro_df)
         expected = [
-            "div_yield2", "price_div", "price_gdp", "price_gdp2", "price_gnp2",
-            "div_minus_baa", "credit_spread", "real_price2", "real_price3",
+            "div_yield2",
+            "price_div",
+            "price_gdp",
+            "price_gdp2",
+            "price_gnp2",
+            "div_minus_baa",
+            "credit_spread",
+            "real_price2",
+            "real_price3",
             "real_price_gdp2",
         ]
         for col in expected:
@@ -58,6 +65,7 @@ class TestAddCrossRatios:
 
 # ── apply_log_transforms ───────────────────────────────────────────────────
 
+
 class TestApplyLogTransforms:
     def test_adds_log_columns(self, raw_macro_df):
         cols = ["sp500", "gdp"]
@@ -71,8 +79,7 @@ class TestApplyLogTransforms:
         pd.testing.assert_series_equal(result["log_sp500"], expected, check_names=False)
 
     def test_clips_at_1e9(self, quarterly_index):
-        df = pd.DataFrame({"x": [-5.0, 0.0, 1.0, 100.0]},
-                          index=quarterly_index[:4])
+        df = pd.DataFrame({"x": [-5.0, 0.0, 1.0, 100.0]}, index=quarterly_index[:4])
         result = apply_log_transforms(df, ["x"])
         assert np.all(np.isfinite(result["log_x"].values))
 
@@ -88,6 +95,7 @@ class TestApplyLogTransforms:
 
 
 # ── select_features ────────────────────────────────────────────────────────
+
 
 class TestSelectFeatures:
     def test_keeps_requested_columns(self, raw_macro_df):
@@ -112,12 +120,33 @@ class TestSelectFeatures:
 
 # ── apply_gap_fill ─────────────────────────────────────────────────────────
 
+
 class TestApplyGapFill:
     def test_interior_nans_filled(self, quarterly_index):
-        vals = np.array([1.0, np.nan, np.nan, 4.0, 5.0,
-                         6.0, 7.0, 8.0, 9.0, 10.0,
-                         11.0, 12.0, 13.0, 14.0, 15.0,
-                         16.0, 17.0, 18.0, 19.0, 20.0])
+        vals = np.array(
+            [
+                1.0,
+                np.nan,
+                np.nan,
+                4.0,
+                5.0,
+                6.0,
+                7.0,
+                8.0,
+                9.0,
+                10.0,
+                11.0,
+                12.0,
+                13.0,
+                14.0,
+                15.0,
+                16.0,
+                17.0,
+                18.0,
+                19.0,
+                20.0,
+            ]
+        )
         df = pd.DataFrame({"x": vals}, index=quarterly_index)
         result = apply_gap_fill(df)
         assert result["x"].isna().sum() == 0
@@ -156,6 +185,7 @@ class TestApplyGapFill:
 
 
 # ── apply_derivatives ──────────────────────────────────────────────────────
+
 
 class TestApplyDerivatives:
     def test_three_derivative_columns_added(self, quarterly_index):
@@ -202,6 +232,7 @@ class TestApplyDerivatives:
 
 # ── add_yield_curve_features ───────────────────────────────────────────────
 
+
 class TestAddYieldCurveFeatures:
     def test_builds_three_spreads_when_rates_present(self, quarterly_index):
         rng = np.random.default_rng(7)
@@ -226,6 +257,7 @@ class TestAddYieldCurveFeatures:
 
 
 # ── engineer_all (Phase 17 macro smoke) ───────────────────────────────────
+
 
 class TestEngineerAllExpandedMacro:
     """Synthetic frame + narrowed feature lists — exercises yc_* + log_fred_* path."""

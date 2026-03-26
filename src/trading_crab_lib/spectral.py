@@ -34,7 +34,6 @@ from __future__ import annotations
 
 import logging
 
-import numpy as np
 import pandas as pd
 from sklearn.cluster import SpectralClustering
 from sklearn.metrics import (
@@ -113,8 +112,8 @@ def fit_spectral_sweep(
             all_labels[k] = labels
 
             sil = silhouette_score(X, labels_arr)
-            db  = davies_bouldin_score(X, labels_arr)
-            ch  = calinski_harabasz_score(X, labels_arr)
+            db = davies_bouldin_score(X, labels_arr)
+            ch = calinski_harabasz_score(X, labels_arr)
             rows.append({"k": k, "silhouette": sil, "davies_bouldin": db, "calinski": ch})
             log.info("Spectral k=%d  sil=%.4f  DB=%.4f  CH=%.1f", k, sil, db, ch)
         except Exception as exc:
@@ -161,7 +160,8 @@ def spectral_labels(
 
     log.info(
         "Spectral (k=%d, affinity=%s): %s",
-        k, affinity,
+        k,
+        affinity,
         labels.value_counts().sort_index().to_dict(),
     )
     return labels

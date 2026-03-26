@@ -39,27 +39,27 @@ log = logging.getLogger(__name__)
 #
 NAMING_HEURISTICS: list[tuple[str, str, str, float]] = [
     # Inflation
-    ("us_infl",              "High Inflation",     "Low Inflation",       0.20),
-    ("log_cpi_d1",           "Rising CPI",         "Falling CPI",         0.10),
-    ("log_fred_cpi_d1",      "Rising CPI",         "Falling CPI",         0.10),
+    ("us_infl", "High Inflation", "Low Inflation", 0.20),
+    ("log_cpi_d1", "Rising CPI", "Falling CPI", 0.10),
+    ("log_fred_cpi_d1", "Rising CPI", "Falling CPI", 0.10),
     # Growth
-    ("gdp_growth",           "Strong Growth",      "Weak/Neg Growth",     0.20),
-    ("real_gdp_growth",      "Strong Real Growth", "Weak Real Growth",    0.20),
-    ("log_fred_gdp_d1",      "GDP Expanding",      "GDP Contracting",     0.10),
+    ("gdp_growth", "Strong Growth", "Weak/Neg Growth", 0.20),
+    ("real_gdp_growth", "Strong Real Growth", "Weak Real Growth", 0.20),
+    ("log_fred_gdp_d1", "GDP Expanding", "GDP Contracting", 0.10),
     # Rates / monetary
-    ("10yr_ustreas",         "High Rates",         "Low Rates",           0.20),
-    ("fred_gs10",            "High Rates",         "Low Rates",           0.20),
-    ("fred_tb3ms",           "Tight Short Rates",  "Easy Short Rates",    0.20),
-    ("10yr_ustreas_d1",      "Rates Rising",       "Rates Falling",       0.10),
+    ("10yr_ustreas", "High Rates", "Low Rates", 0.20),
+    ("fred_gs10", "High Rates", "Low Rates", 0.20),
+    ("fred_tb3ms", "Tight Short Rates", "Easy Short Rates", 0.20),
+    ("10yr_ustreas_d1", "Rates Rising", "Rates Falling", 0.10),
     # Credit / risk
-    ("credit_spread",        "Wide Credit Spread", "Tight Credit Spread", 0.20),
-    ("div_minus_baa",        "High Div Premium",   "Low Div Premium",     0.10),
+    ("credit_spread", "Wide Credit Spread", "Tight Credit Spread", 0.20),
+    ("div_minus_baa", "High Div Premium", "Low Div Premium", 0.10),
     # Equity valuation
-    ("sp500_pe",             "High Valuations",    "Low Valuations",      0.20),
-    ("log_cape_shiller_d1",  "Valuations Rising",  "Valuations Falling",  0.10),
+    ("sp500_pe", "High Valuations", "Low Valuations", 0.20),
+    ("log_cape_shiller_d1", "Valuations Rising", "Valuations Falling", 0.10),
     # Earnings / dividends
-    ("log_earn_d1",          "Earnings Growing",   "Earnings Declining",  0.10),
-    ("log_div_yield_d1",     "Yield Rising",       "Yield Falling",       0.10),
+    ("log_earn_d1", "Earnings Growing", "Earnings Declining", 0.10),
+    ("log_div_yield_d1", "Yield Rising", "Yield Falling", 0.10),
 ]
 
 
@@ -89,7 +89,9 @@ def build_profiles(
     profile = joined.groupby("_cluster").agg(stats)
     log.info(
         "Built profiles: %d clusters × %d features × %d stats",
-        len(profile), len(features_df.columns), len(stats),
+        len(profile),
+        len(features_df.columns),
+        len(stats),
     )
     return profile
 
@@ -213,21 +215,27 @@ def build_forward_window_probabilities(
             denom = count_current if count_current > 0 else 1
             for to_r in regimes:
                 prob = reach_count[to_r] / denom if count_current > 0 else 0.0
-                rows.append({
-                    "from_regime": from_r,
-                    "to_regime": to_r,
-                    "horizon_quarters": horizon,
-                    "prob": float(prob),
-                })
+                rows.append(
+                    {
+                        "from_regime": from_r,
+                        "to_regime": to_r,
+                        "horizon_quarters": horizon,
+                        "prob": float(prob),
+                    }
+                )
 
     out = pd.DataFrame(rows)
     if out.empty:
         out = pd.DataFrame(columns=["from_regime", "to_regime", "horizon_quarters", "prob"])
     else:
-        out = out.sort_values(["horizon_quarters", "from_regime", "to_regime"]).reset_index(drop=True)
+        out = out.sort_values(["horizon_quarters", "from_regime", "to_regime"]).reset_index(
+            drop=True
+        )
     log.info(
         "Forward-window probabilities: %d regimes, horizons %s → %d rows",
-        len(regimes), horizons, len(out),
+        len(regimes),
+        horizons,
+        len(out),
     )
     return out
 

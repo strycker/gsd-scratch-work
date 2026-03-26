@@ -57,7 +57,7 @@ def test_current_regime_models_and_probabilities():
     assert sorted(labels) == sorted(pd.unique(y))
 
     # Both models should expose predict_proba over all regimes
-    for name, model in models.items():
+    for _name, model in models.items():
         proba = model.predict_proba(X)
         assert proba.shape[0] == len(X)
         assert proba.shape[1] == len(model.classes_)
@@ -93,7 +93,7 @@ def test_forward_regime_horizon_one_shift_and_probabilities():
     # Use the same alignment as in train_forward_classifiers
     mask = regimes.shift(-1).notna()
     X_h = X.loc[mask]
-    for name, model in h1["models"].items():
+    for _name, model in h1["models"].items():
         proba = model.predict_proba(X_h)
         assert proba.shape[0] == len(X_h)
         np.testing.assert_allclose(proba.sum(axis=1), np.ones(len(X_h)), rtol=1e-6)
@@ -127,4 +127,3 @@ def test_step5_feature_path_gating_prefers_supervised_by_default(tmp_path) -> No
     assert chosen_path2 == supervised_path
     assert feature_source2 == "features_supervised"
     assert noncausal_used2 is False
-

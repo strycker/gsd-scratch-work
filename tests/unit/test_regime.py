@@ -1,12 +1,11 @@
-import pandas as pd
 import numpy as np
-from pathlib import Path
+import pandas as pd
 
 from trading_crab_lib.regime import (
     build_profiles,
-    suggest_names,
     build_transition_matrix,
     load_name_overrides,
+    suggest_names,
 )
 
 
@@ -15,12 +14,8 @@ def _make_synthetic_features_and_labels():
     idx = pd.period_range("2000Q1", periods=8, freq="Q")
 
     # Two simple features: "inflation" and "growth"
-    inflation = pd.Series(
-        [1.0, 1.1, 1.2, 1.3, 3.0, 3.1, 3.2, 3.3], index=idx, name="us_infl"
-    )
-    growth = pd.Series(
-        [0.5, 0.4, 0.6, 0.5, 2.0, 2.1, 1.9, 2.2], index=idx, name="gdp_growth"
-    )
+    inflation = pd.Series([1.0, 1.1, 1.2, 1.3, 3.0, 3.1, 3.2, 3.3], index=idx, name="us_infl")
+    growth = pd.Series([0.5, 0.4, 0.6, 0.5, 2.0, 2.1, 1.9, 2.2], index=idx, name="gdp_growth")
 
     features = pd.concat([inflation, growth], axis=1)
 
@@ -70,9 +65,7 @@ def test_build_profiles_aligns_on_intersection():
 
     # Add an extra row to features only
     extra_idx = pd.period_range("2002Q1", periods=1, freq="Q")
-    extra_row = pd.DataFrame(
-        {"us_infl": [10.0], "gdp_growth": [10.0]}, index=extra_idx
-    )
+    extra_row = pd.DataFrame({"us_infl": [10.0], "gdp_growth": [10.0]}, index=extra_idx)
     features_extra = pd.concat([features, extra_row])
 
     profile = build_profiles(features_extra, labels)
@@ -107,7 +100,7 @@ def test_load_name_overrides_applied(tmp_path):
     # Create a temporary config directory with an override file
     config_dir = tmp_path
     overrides_path = config_dir / "regime_labels.yaml"
-    overrides_path.write_text("0: \"Custom Regime A\"\n")
+    overrides_path.write_text('0: "Custom Regime A"\n')
 
     overrides = load_name_overrides(config_dir)
     assert overrides == {0: "Custom Regime A"}
@@ -144,4 +137,3 @@ def test_build_transition_matrix_probabilities():
     assert np.isclose(tm.loc[0, 0], 1.0 / 3.0)
     assert np.isclose(tm.loc[0, 1], 2.0 / 3.0)
     assert np.isclose(tm.loc[1, 0], 1.0)
-

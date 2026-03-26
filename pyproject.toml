@@ -49,6 +49,8 @@ Repository = "https://github.com/strycker/gsd-scratch-work"
 dev = [
     "pytest>=8.0",
     "pytest-cov",
+    "ruff>=0.9",
+    "hdbscan>=0.8",  # optional clustering backend; unit tests in test_density.py
     "ipykernel",
     "jupyterlab",
     "build>=1.0",
@@ -82,8 +84,36 @@ markers = [
     "smoke: slow integration (e.g. venv + wheel)",
     "network: test may download packages via pip",
     "wheel_smoke: pip wheel + venv install smoke (opt-in: RUN_WHEEL_SMOKE=1)",
+    "pipeline_ingest_smoke: slow mocked pipelines/01_ingest smoke (opt-in: RUN_PIPELINE_INGEST_SMOKE=1 or --pipeline-ingest-smoke)",
 ]
 filterwarnings = [
     # pandas_datareader still uses distutils LooseVersion (upstream; data-extras dep)
     "ignore:distutils Version classes are deprecated:DeprecationWarning:pandas_datareader",
 ]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+extend-exclude = ["legacy"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+]
+ignore = [
+    "E501",   # line length — use formatter / line-length instead
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Imports after sys.path / lazy matplotlib backend (must stay ordered)
+"run_pipeline.py" = ["E402"]
+"pipelines/*.py" = ["E402"]
+"src/trading_crab_lib/plotting.py" = ["E402"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["trading_crab_lib"]

@@ -1,3 +1,11 @@
+"""Ratio and relative-rotation (RRG-style) diagnostics for weekly reporting.
+
+Builds z-scores, percentile ranks, and trigger classifications for configured
+price ratios, plus simplified RS-Ratio / RS-Momentum quadrants vs a benchmark.
+Outputs are consumed by ``reporting`` (embedded in markdown reports) and are
+deterministic given price history — they do not drive model training.
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -184,4 +192,3 @@ def compute_ratios_diagnostics(prices: pd.DataFrame, cfg: dict) -> pd.DataFrame:
         }
         records.append(row)
     return pd.DataFrame.from_records(records)
-

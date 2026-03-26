@@ -1,6 +1,11 @@
 """
 Feature engineering transforms applied to the merged quarterly DataFrame.
 
+**Why this order:** It matches ``legacy/unified_script.py`` and the published
+regime geometry: cross-ratios before logs, gap fill *after* log (interpolation
+in log space), then derivatives, then ``clustering_features`` from
+``config/settings.yaml``. Do not reorder without re-benchmarking clustering.
+
 Pipeline order (matches legacy workflow exactly):
   1. Cross-asset ratios   — computed from raw columns before log transform
   2. Log transforms       — stabilise variance on exponential-looking series
@@ -16,9 +21,9 @@ explicit selection steps.
 
 import logging
 
+import matplotlib.dates as mdates
 import numpy as np
 import pandas as pd
-import matplotlib.dates as mdates
 from scipy.interpolate import BPoly
 
 log = logging.getLogger(__name__)
@@ -28,8 +33,17 @@ log = logging.getLogger(__name__)
 
 # Columns required by add_cross_ratios (must exist in raw/macro data)
 _CROSS_RATIO_REQUIRED = [
-    "dividend", "sp500", "gdp", "fred_gdp", "fred_gnp",
-    "div_yield", "fred_baa", "fred_aaa", "cpi", "fred_cpi", "sp500_adj",
+    "dividend",
+    "sp500",
+    "gdp",
+    "fred_gdp",
+    "fred_gnp",
+    "div_yield",
+    "fred_baa",
+    "fred_aaa",
+    "cpi",
+    "fred_cpi",
+    "sp500_adj",
 ]
 
 
@@ -47,15 +61,15 @@ def add_cross_ratios(df: pd.DataFrame) -> pd.DataFrame:
             "or check config/settings.yaml multpl.datasets and fred.series."
         )
     df = df.copy()
-    df["div_yield2"]      = df["dividend"]  / df["sp500"]
-    df["price_div"]       = df["sp500"]     / df["dividend"]
-    df["price_gdp"]       = df["sp500"]     / df["gdp"]
-    df["price_gdp2"]      = df["sp500"]     / df["fred_gdp"]
-    df["price_gnp2"]      = df["sp500"]     / df["fred_gnp"]
-    df["div_minus_baa"]   = df["div_yield"] - df["fred_baa"] / 100.0
-    df["credit_spread"]   = (df["fred_baa"] - df["fred_aaa"]) / 100.0
-    df["real_price2"]     = df["sp500"]     / df["cpi"]
-    df["real_price3"]     = df["sp500"]     / df["fred_cpi"]
+    df["div_yield2"] = df["dividend"] / df["sp500"]
+    df["price_div"] = df["sp500"] / df["dividend"]
+    df["price_gdp"] = df["sp500"] / df["gdp"]
+    df["price_gdp2"] = df["sp500"] / df["fred_gdp"]
+    df["price_gnp2"] = df["sp500"] / df["fred_gnp"]
+    df["div_minus_baa"] = df["div_yield"] - df["fred_baa"] / 100.0
+    df["credit_spread"] = (df["fred_baa"] - df["fred_aaa"]) / 100.0
+    df["real_price2"] = df["sp500"] / df["cpi"]
+    df["real_price3"] = df["sp500"] / df["fred_cpi"]
     df["real_price_gdp2"] = df["sp500_adj"] / df["gdp"]
     return df
 
@@ -81,6 +95,7 @@ def add_yield_curve_features(df: pd.DataFrame) -> pd.DataFrame:
 
 # ── 2. Log transforms ──────────────────────────────────────────────────────
 
+
 def apply_log_transforms(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     """Add log_{col} columns for each col in `columns` that exists in df."""
     df = df.copy()
@@ -94,6 +109,7 @@ def apply_log_transforms(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 
 # ── 3. Feature selection ───────────────────────────────────────────────────
 
+
 def select_features(df: pd.DataFrame, feature_list: list[str]) -> pd.DataFrame:
     """Keep only the columns in feature_list (plus market_code if present)."""
     keep = [c for c in feature_list if c in df.columns]
@@ -105,6 +121,7 @@ def select_features(df: pd.DataFrame, feature_list: list[str]) -> pd.DataFrame:
 
 
 # ── 4. Bernstein polynomial gap filling ───────────────────────────────────
+
 
 def _dates_to_daynum(index) -> np.ndarray:
     """Convert a DatetimeIndex or string index to matplotlib day-numbers."""
@@ -139,15 +156,21 @@ def _compute_derivatives(
     smoothed = series.rolling(window=window, min_periods=1, center=center).mean()
     x = _dates_to_daynum(series.index) - _dates_to_daynum(series.index).min()
 
-    d1 = pd.Series(np.gradient(smoothed, x), index=series.index).rolling(
-        window=window, min_periods=1, center=center
-    ).mean()
-    d2 = pd.Series(np.gradient(d1, x), index=series.index).rolling(
-        window=window, min_periods=1, center=center
-    ).mean()
-    d3 = pd.Series(np.gradient(d2, x), index=series.index).rolling(
-        window=window, min_periods=1, center=center
-    ).mean()
+    d1 = (
+        pd.Series(np.gradient(smoothed, x), index=series.index)
+        .rolling(window=window, min_periods=1, center=center)
+        .mean()
+    )
+    d2 = (
+        pd.Series(np.gradient(d1, x), index=series.index)
+        .rolling(window=window, min_periods=1, center=center)
+        .mean()
+    )
+    d3 = (
+        pd.Series(np.gradient(d2, x), index=series.index)
+        .rolling(window=window, min_periods=1, center=center)
+        .mean()
+    )
     return d1, d2, d3
 
 
@@ -190,7 +213,7 @@ def _fill_column(df: pd.DataFrame, col: str, window: int) -> pd.Series:
             poly = BPoly.from_derivatives(
                 [t[left], t[right]],
                 [
-                    [y.iloc[left],  d1_full.iloc[left],  d2_full.iloc[left],  d3_full.iloc[left]],
+                    [y.iloc[left], d1_full.iloc[left], d2_full.iloc[left], d3_full.iloc[left]],
                     [y.iloc[right], d1_full.iloc[right], d2_full.iloc[right], d3_full.iloc[right]],
                 ],
             )
@@ -201,17 +224,17 @@ def _fill_column(df: pd.DataFrame, col: str, window: int) -> pd.Series:
             y.iloc[start:right] = (
                 y.iloc[right]
                 + d1_full.iloc[right] * dt
-                + d2_full.iloc[right] * dt ** 2 / 2
-                + d3_full.iloc[right] * dt ** 3 / 6
+                + d2_full.iloc[right] * dt**2 / 2
+                + d3_full.iloc[right] * dt**3 / 6
             )
         else:
             # Trailing gap — forward Taylor expansion from left boundary
-            dt = t[left + 1:] - t[left]
-            y.iloc[left + 1:] = (
+            dt = t[left + 1 :] - t[left]
+            y.iloc[left + 1 :] = (
                 y.iloc[left]
                 + d1_full.iloc[left] * dt
-                + d2_full.iloc[left] * dt ** 2 / 2
-                + d3_full.iloc[left] * dt ** 3 / 6
+                + d2_full.iloc[left] * dt**2 / 2
+                + d3_full.iloc[left] * dt**3 / 6
             )
     return y
 
@@ -229,9 +252,8 @@ def apply_gap_fill(df: pd.DataFrame, window: int = 5) -> pd.DataFrame:
 
 # ── 5. Smoothed derivatives ────────────────────────────────────────────────
 
-def apply_derivatives(
-    df: pd.DataFrame, window: int = 5, causal: bool = False
-) -> pd.DataFrame:
+
+def apply_derivatives(df: pd.DataFrame, window: int = 5, causal: bool = False) -> pd.DataFrame:
     """
     For every feature column (excluding market_code), compute d1, d2, d3
     and append as {col}_d1, {col}_d2, {col}_d3.
@@ -255,6 +277,7 @@ def apply_derivatives(
 
 
 # ── Master wrapper ─────────────────────────────────────────────────────────
+
 
 def engineer_all(df: pd.DataFrame, cfg: dict, causal: bool = False) -> pd.DataFrame:
     """
@@ -292,7 +315,9 @@ def engineer_all(df: pd.DataFrame, cfg: dict, causal: bool = False) -> pd.DataFr
     log.info("Step 2/6 — log transforms (%d columns)", len(feat_cfg["log_columns"]))
     df = apply_log_transforms(df, feat_cfg["log_columns"])
 
-    log.info("Step 3/6 — initial feature selection (%d features)", len(feat_cfg["initial_features"]))
+    log.info(
+        "Step 3/6 — initial feature selection (%d features)", len(feat_cfg["initial_features"])
+    )
     df = select_features(df, feat_cfg["initial_features"])
 
     log.info("Step 4/6 — Bernstein gap filling (always centered for boundary conditions)")
@@ -301,18 +326,25 @@ def engineer_all(df: pd.DataFrame, cfg: dict, causal: bool = False) -> pd.DataFr
     log.info("Step 5/6 — smoothed derivatives (window=%d, mode=%s)", window, mode)
     df = apply_derivatives(df, window=window, causal=causal)
 
-    log.info("Step 6/6 — clustering feature selection (%d features)", len(feat_cfg["clustering_features"]))
+    log.info(
+        "Step 6/6 — clustering feature selection (%d features)",
+        len(feat_cfg["clustering_features"]),
+    )
     df = select_features(df, feat_cfg["clustering_features"])
 
     nan_count = df.drop(columns=["market_code"], errors="ignore").isna().sum().sum()
     log.info(
         "Feature engineering complete [%s]: %d rows × %d features, %d NaNs remaining",
-        mode, len(df), len(df.columns), nan_count,
+        mode,
+        len(df),
+        len(df.columns),
+        nan_count,
     )
     return df
 
 
 # ── Incomplete-tail trimming ───────────────────────────────────────────────────
+
 
 def trim_incomplete_tail(
     df: pd.DataFrame,

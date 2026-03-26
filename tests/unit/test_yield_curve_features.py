@@ -42,4 +42,3 @@ def test_add_yield_curve_features_handles_missing_columns() -> None:
     assert "yc_10y_2y" not in out
     assert "yc_10y_3m" not in out
     assert "yc_2y_3m" not in out
-

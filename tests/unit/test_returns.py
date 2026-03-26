@@ -5,21 +5,20 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from trading_crab_lib.asset_returns import (
+    behavior_tables,
     compute_quarterly_returns,
     compute_template_returns,
+    rank_assets_by_regime,
     returns_by_regime,
     returns_full_stats,
-    rank_assets_by_regime,
-    behavior_tables,
 )
 
-
 # ── compute_quarterly_returns ──────────────────────────────────────────────
+
 
 class TestComputeQuarterlyReturns:
     def test_returns_shape(self, asset_prices):
@@ -46,6 +45,7 @@ class TestComputeQuarterlyReturns:
 
 # ── returns_by_regime ──────────────────────────────────────────────────────
 
+
 class TestReturnsByRegime:
     def test_pivot_shape(self, asset_prices, cluster_labels):
         returns = compute_quarterly_returns(asset_prices)
@@ -64,15 +64,34 @@ class TestReturnsByRegime:
     def test_values_are_medians(self, quarterly_index):
         """Manual check: regime 0 gets quarters [0, 5, 10, 15], verify median."""
         returns = pd.DataFrame(
-            {"X": [0.10, 0.20, 0.30, 0.40, 0.50,
-                   0.15, 0.25, 0.35, 0.45, 0.55,
-                   0.12, 0.22, 0.32, 0.42, 0.52,
-                   0.11, 0.21, 0.31, 0.41, 0.51]},
+            {
+                "X": [
+                    0.10,
+                    0.20,
+                    0.30,
+                    0.40,
+                    0.50,
+                    0.15,
+                    0.25,
+                    0.35,
+                    0.45,
+                    0.55,
+                    0.12,
+                    0.22,
+                    0.32,
+                    0.42,
+                    0.52,
+                    0.11,
+                    0.21,
+                    0.31,
+                    0.41,
+                    0.51,
+                ]
+            },
             index=quarterly_index,
         )
         labels = pd.Series(
-            [0, 1, 2, 3, 4, 0, 1, 2, 3, 4,
-             0, 1, 2, 3, 4, 0, 1, 2, 3, 4],
+            [0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4],
             index=quarterly_index,
         )
         profile = returns_by_regime(returns, labels)
@@ -89,6 +108,7 @@ class TestReturnsByRegime:
 
 
 # ── returns_full_stats ─────────────────────────────────────────────────────
+
 
 class TestReturnsFullStats:
     def test_returns_five_keys_including_iqr(self, asset_prices, cluster_labels):
@@ -114,6 +134,7 @@ class TestReturnsFullStats:
 
 
 # ── rank_assets_by_regime ──────────────────────────────────────────────────
+
 
 class TestRankAssetsByRegime:
     def test_rank_columns_present(self, asset_prices, cluster_labels):
@@ -142,6 +163,7 @@ class TestRankAssetsByRegime:
 
 
 # ── compute_template_returns ─────────────────────────────────────────────────
+
 
 class TestComputeTemplateReturns:
     def test_template_weights_sum_to_return(self, quarterly_index):
@@ -172,14 +194,26 @@ class TestComputeTemplateReturns:
 
 # ── behavior_tables ─────────────────────────────────────────────────────────
 
+
 class TestBehaviorTables:
     def test_columns_include_stoplight_and_scores(self, asset_prices, cluster_labels):
         returns = compute_quarterly_returns(asset_prices)
         common = returns.index.intersection(cluster_labels.index)
         bt = behavior_tables(returns.loc[common], cluster_labels.loc[common])
         required = {
-            "regime", "asset", "median_return", "q25", "q75", "hit_rate", "n_quarters",
-            "signal_absolute", "tertile", "signal_display", "score_relative", "score_absolute", "rank",
+            "regime",
+            "asset",
+            "median_return",
+            "q25",
+            "q75",
+            "hit_rate",
+            "n_quarters",
+            "signal_absolute",
+            "tertile",
+            "signal_display",
+            "score_relative",
+            "score_absolute",
+            "rank",
         }
         assert required <= set(bt.columns)
 
@@ -192,9 +226,9 @@ class TestBehaviorTables:
         row_0 = bt[(bt["regime"] == 0) & (bt["asset"] == "A")].iloc[0]
         row_1 = bt[(bt["regime"] == 1) & (bt["asset"] == "A")].iloc[0]
         row_2 = bt[(bt["regime"] == 2) & (bt["asset"] == "A")].iloc[0]
-        assert row_0["signal_absolute"] == "GREEN"   # 3% >= 2%
+        assert row_0["signal_absolute"] == "GREEN"  # 3% >= 2%
         assert row_1["signal_absolute"] == "NEUTRAL"  # 0%
-        assert row_2["signal_absolute"] == "RED"    # -2% <= 0%
+        assert row_2["signal_absolute"] == "RED"  # -2% <= 0%
 
     def test_scores_in_range(self, asset_prices, cluster_labels):
         returns = compute_quarterly_returns(asset_prices)

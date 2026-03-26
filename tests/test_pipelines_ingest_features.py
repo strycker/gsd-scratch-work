@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from pathlib import Path
 import importlib.util
+import os
 import types
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -45,8 +46,8 @@ def isolated_pipeline_data(monkeypatch, tmp_path: Path) -> Path:
         (data_root / sub).mkdir(parents=True, exist_ok=True)
     ckpt_dir = data_root / "checkpoints"
 
-    import trading_crab_lib as crab
     import run_pipeline as rp
+    import trading_crab_lib as crab
     import trading_crab_lib.checkpoints as ckpt_mod
 
     monkeypatch.setattr(crab, "DATA_DIR", data_root)
@@ -71,6 +72,14 @@ def cfg():
     return load()
 
 
+@pytest.mark.pipeline_ingest_smoke
+@pytest.mark.skipif(
+    os.environ.get("RUN_PIPELINE_INGEST_SMOKE") != "1",
+    reason=(
+        "slow (loads pipelines/01_ingest.py); opt in: "
+        "RUN_PIPELINE_INGEST_SMOKE=1 or pytest --pipeline-ingest-smoke"
+    ),
+)
 def test_step01_ingest_writes_macro_raw_without_network(
     monkeypatch, isolated_pipeline_data: Path, cfg
 ) -> None:
@@ -79,6 +88,12 @@ def test_step01_ingest_writes_macro_raw_without_network(
 
     Network-dependent fetches are patched to return a tiny synthetic DataFrame.
     The step should write macro_raw.parquet under the isolated DATA_DIR/raw.
+
+    **Not run by default** — same pattern as ``RUN_WHEEL_SMOKE``::
+
+        RUN_PIPELINE_INGEST_SMOKE=1 pytest tests/test_pipelines_ingest_features.py::test_step01_ingest_writes_macro_raw_without_network -q
+        pytest --pipeline-ingest-smoke tests/test_pipelines_ingest_features.py::test_step01_ingest_writes_macro_raw_without_network -q
+        bash scripts/smoke_pipeline_ingest.sh
     """
 
     from trading_crab_lib.ingestion import fred as fred_module
@@ -87,7 +102,9 @@ def test_step01_ingest_writes_macro_raw_without_network(
     synthetic = _make_synthetic_macro()
 
     monkeypatch.setattr(fred_module, "fetch_all", lambda _cfg: synthetic)
-    monkeypatch.setattr(multpl_module, "fetch_all", lambda _cfg: pd.DataFrame(index=synthetic.index))
+    monkeypatch.setattr(
+        multpl_module, "fetch_all", lambda _cfg: pd.DataFrame(index=synthetic.index)
+    )
 
     raw_dir = isolated_pipeline_data / "raw"
     out_path = raw_dir / "macro_raw.parquet"
@@ -145,7 +162,9 @@ def test_step02_features_writes_feature_artifacts_without_network(
     step02.main()
 
     assert features_path.exists(), "02_features.main() did not write features.parquet"
-    assert features_sup_path.exists(), "02_features.main() did not write features_supervised.parquet"
+    assert features_sup_path.exists(), (
+        "02_features.main() did not write features_supervised.parquet"
+    )
 
     features = pd.read_parquet(features_path)
     features_sup = pd.read_parquet(features_sup_path)

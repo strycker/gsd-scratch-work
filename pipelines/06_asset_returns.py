@@ -43,16 +43,16 @@ DATA_DIR = crab.DATA_DIR
 load = crab.load
 setup_logging = crab.setup_logging
 
-from trading_crab_lib.asset_returns import (
-    compute_quarterly_returns,
-    compute_proxy_returns,
-    compute_template_returns,
-    returns_by_regime,
-    rank_assets_by_regime,
-    behavior_tables,
-)
-
 import pandas as pd
+
+from trading_crab_lib.asset_returns import (
+    behavior_tables,
+    compute_proxy_returns,
+    compute_quarterly_returns,
+    compute_template_returns,
+    rank_assets_by_regime,
+    returns_by_regime,
+)
 
 log = logging.getLogger(__name__)
 
@@ -60,7 +60,8 @@ log = logging.getLogger(__name__)
 def main() -> None:
     parser = argparse.ArgumentParser(description="Step 6 — Asset returns by regime")
     parser.add_argument(
-        "--refresh-assets", action="store_true",
+        "--refresh-assets",
+        action="store_true",
         help=(
             "Force re-fetch ETF prices from yfinance even if a cached "
             "data/raw/asset_prices.parquet already exists.  "
@@ -134,8 +135,12 @@ def main() -> None:
             template_behavior = behavior_tables(
                 template_returns, labels_aligned, thresholds=behavior_thresholds
             )
-            template_behavior.to_parquet(out_dir / "template_behavior_by_regime.parquet", index=False)
-            print(f"Wrote template behavior by regime → {out_dir / 'template_behavior_by_regime.parquet'}")
+            template_behavior.to_parquet(
+                out_dir / "template_behavior_by_regime.parquet", index=False
+            )
+            print(
+                f"Wrote template behavior by regime → {out_dir / 'template_behavior_by_regime.parquet'}"
+            )
 
     print("\nTop assets per regime (by median quarterly return):")
     print(ranked.to_string(index=False))

@@ -1,44 +1,40 @@
 """
 RunConfig — global runtime flags for the pipeline.
 
-Mirrors the top-of-script flags in legacy/unified_script.py:
-  VERBOSE, GENERATE_PLOTS, GENERATE_OPTIONAL_SNS_PAIRPLOT,
-  GENERATE_OPTIONAL_SCATTER_MATRIX_PLOT, REFRESH_SOURCE_DATASETS,
-  RECOMPUTE_DERIVED_DATASETS
+Mirrors the top-of-script flags in ``legacy/unified_script.py`` (verbose, plot
+generation, refresh/recompute, optional pairplot/scatter_matrix). Construct one
+:class:`RunConfig` at the entry point (``run_pipeline.py`` or a pipeline script)
+and pass it through so behavior stays consistent and testable.
 
-Construct one RunConfig at the entry point (run_pipeline.py or a pipeline
-script) and pass it through to every module that needs it.
-
-Usage:
-    from trading_crab_lib.runtime import RunConfig
-    run_cfg = RunConfig(generate_plots=True, verbose=True)
+**Why a dataclass:** CLI flags and notebook parameters map 1:1 to fields;
+:meth:`RunConfig.from_args` binds :mod:`argparse` without ad-hoc globals.
 """
 
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
 class RunConfig:
     # ── verbosity ─────────────────────────────────────────────────────────
-    verbose: bool = False                   # DEBUG logging if True
+    verbose: bool = False  # DEBUG logging if True
 
     # ── plotting ──────────────────────────────────────────────────────────
-    generate_plots: bool = False            # produce matplotlib figures
-    generate_pairplot: bool = False         # seaborn pairplot (slow, optional)
-    generate_scatter_matrix: bool = False   # pandas scatter_matrix (slow, optional)
-    save_plots: bool = True                 # write PNGs to outputs/plots/
-    show_plots: bool = False                # plt.show() — False for headless/CI
+    generate_plots: bool = False  # produce matplotlib figures
+    generate_pairplot: bool = False  # seaborn pairplot (slow, optional)
+    generate_scatter_matrix: bool = False  # pandas scatter_matrix (slow, optional)
+    save_plots: bool = True  # write PNGs to outputs/plots/
+    show_plots: bool = False  # plt.show() — False for headless/CI
 
     # ── data refresh ──────────────────────────────────────────────────────
-    refresh_source_datasets: bool = False   # re-scrape multpl + re-hit FRED
+    refresh_source_datasets: bool = False  # re-scrape multpl + re-hit FRED
     recompute_derived_datasets: bool = False  # recompute features from cached raw
-    refresh_asset_prices: bool = False      # re-fetch yfinance ETF prices (step 6)
+    refresh_asset_prices: bool = False  # re-fetch yfinance ETF prices (step 6)
 
     # ── misc ──────────────────────────────────────────────────────────────
-    use_constrained_kmeans: bool = True     # attempt k-means-constrained
+    use_constrained_kmeans: bool = True  # attempt k-means-constrained
 
     # Step 5 leakage guardrail:
     # - default: require features_supervised.parquet (causal features)
@@ -65,12 +61,14 @@ class RunConfig:
     market_code_source: str | None = None
 
     @classmethod
-    def from_args(cls, args) -> "RunConfig":
-        """
-        Build a RunConfig from a parsed argparse.Namespace.
+    def from_args(cls, args) -> RunConfig:
+        """Build a :class:`RunConfig` from a parsed :class:`argparse.Namespace`.
 
-        Designed to work with the argparse setup in run_pipeline.py —
-        attribute names match the argparse dest names exactly.
+        Args:
+            args: Namespace from ``run_pipeline.py`` (``dest`` names match field names).
+
+        Returns:
+            Populated :class:`RunConfig` instance.
         """
         return cls(
             verbose=getattr(args, "verbose", False),
@@ -86,9 +84,7 @@ class RunConfig:
             allow_noncausal_features=getattr(args, "allow_noncausal_features", False),
             market_code_source=getattr(args, "market_code", None),
             drop_incomplete_tail=not getattr(args, "no_drop_tail", False),
-            refresh_preservation_checkpoints=getattr(
-                args, "refresh_preservation", False
-            ),
+            refresh_preservation_checkpoints=getattr(args, "refresh_preservation", False),
         )
 
     def apply_logging(self) -> None:

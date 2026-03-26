@@ -9,13 +9,13 @@ import pytest
 from trading_crab_lib.density import (
     fit_dbscan,
     fit_dbscan_sweep,
+    fit_hdbscan_sweep,
     hdbscan_labels,
     knn_distances,
-    fit_hdbscan_sweep,
 )
 
-
 # ── Shared fixtures ───────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def pca_df():
@@ -26,20 +26,23 @@ def pca_df():
     """
     rng = np.random.default_rng(7)
     idx = pd.date_range("2000-03-31", periods=60, freq="QE")
-    data = np.vstack([
-        rng.multivariate_normal([5, 0, 0, 0, 0], 0.1 * np.eye(5), 20),
-        rng.multivariate_normal([-5, 0, 0, 0, 0], 0.1 * np.eye(5), 20),
-        rng.multivariate_normal([0, 5, 0, 0, 0], 0.1 * np.eye(5), 20),
-    ])
-    return pd.DataFrame(data, index=idx, columns=[f"PC{i+1}" for i in range(5)])
+    data = np.vstack(
+        [
+            rng.multivariate_normal([5, 0, 0, 0, 0], 0.1 * np.eye(5), 20),
+            rng.multivariate_normal([-5, 0, 0, 0, 0], 0.1 * np.eye(5), 20),
+            rng.multivariate_normal([0, 5, 0, 0, 0], 0.1 * np.eye(5), 20),
+        ]
+    )
+    return pd.DataFrame(data, index=idx, columns=[f"PC{i + 1}" for i in range(5)])
 
 
 @pytest.fixture
 def empty_df():
-    return pd.DataFrame(columns=[f"PC{i+1}" for i in range(5)])
+    return pd.DataFrame(columns=[f"PC{i + 1}" for i in range(5)])
 
 
 # ── knn_distances ─────────────────────────────────────────────────────────────
+
 
 class TestKnnDistances:
     def test_returns_series(self, pca_df):
@@ -74,6 +77,7 @@ class TestKnnDistances:
 
 
 # ── fit_dbscan_sweep ──────────────────────────────────────────────────────────
+
 
 class TestFitDbscanSweep:
     def test_returns_dataframe(self, pca_df):
@@ -115,6 +119,7 @@ class TestFitDbscanSweep:
 
 # ── fit_dbscan ────────────────────────────────────────────────────────────────
 
+
 class TestFitDbscan:
     def test_returns_series(self, pca_df):
         labels = fit_dbscan(pca_df, eps=1.0)
@@ -154,10 +159,12 @@ class TestFitDbscan:
 
 # ── HDBSCAN (may not be installed) ────────────────────────────────────────────
 
+
 @pytest.fixture
 def hdbscan_available():
     try:
         import hdbscan  # noqa: F401
+
         return True
     except ImportError:
         return False
@@ -166,6 +173,7 @@ def hdbscan_available():
 class TestFitHdbscanSweep:
     def test_import_error_when_not_installed(self, pca_df, monkeypatch):
         import builtins
+
         real_import = builtins.__import__
 
         def mock_import(name, *args, **kwargs):
@@ -206,6 +214,7 @@ class TestFitHdbscanSweep:
 class TestHdbscanLabels:
     def test_import_error_when_not_installed(self, pca_df, monkeypatch):
         import builtins
+
         real_import = builtins.__import__
 
         def mock_import(name, *args, **kwargs):

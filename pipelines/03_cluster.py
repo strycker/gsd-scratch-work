@@ -18,10 +18,10 @@ Run:
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 import argparse
 import logging
+import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
@@ -30,18 +30,18 @@ import trading_crab_lib as crab
 DATA_DIR = crab.DATA_DIR
 load = crab.load
 setup_logging = crab.setup_logging
+import pandas as pd
+
 from trading_crab_lib.clustering import (
-    reduce_pca,
-    evaluate_kmeans,
-    pick_best_k,
-    fit_clusters,
     build_clustering_manifest,
     clustering_manifest_matches,
-    write_clustering_manifest,
+    evaluate_kmeans,
+    fit_clusters,
     is_constrained_kmeans_available,
+    pick_best_k,
+    reduce_pca,
+    write_clustering_manifest,
 )
-
-import pandas as pd
 
 log = logging.getLogger(__name__)
 
@@ -88,7 +88,9 @@ def main() -> None:
         and scores_path.exists()
         and clustering_manifest_matches(manifest_path, new_manifest)
     ):
-        log.info("Step 3: inputs/config unchanged — skipping reclustering (use --force to override).")
+        log.info(
+            "Step 3: inputs/config unchanged — skipping reclustering (use --force to override)."
+        )
         return
 
     # ── 1. PCA ─────────────────────────────────────────────────────────────
@@ -102,6 +104,7 @@ def main() -> None:
     # ── 2. Evaluate k values ────────────────────────────────────────────────
     # Library logs: "Evaluating cluster counts... done." + full sorted table
     from sklearn.preprocessing import StandardScaler
+
     X_scaled = StandardScaler().fit_transform(pca_df.values)
     scores = evaluate_kmeans(
         X_scaled,
@@ -130,7 +133,9 @@ def main() -> None:
         ["market_code"] if "market_code" in clustered.columns else []
     )
     clustered[label_cols].to_parquet(out_dir / "cluster_labels.parquet")
-    clustered.drop(columns=label_cols, errors="ignore").to_parquet(out_dir / "pca_components.parquet")
+    clustered.drop(columns=label_cols, errors="ignore").to_parquet(
+        out_dir / "pca_components.parquet"
+    )
     scores.to_parquet(out_dir / "kmeans_scores.parquet", index=False)
 
     # Write/refresh manifest after successful clustering.

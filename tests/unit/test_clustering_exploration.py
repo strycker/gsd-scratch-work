@@ -21,8 +21,8 @@ from trading_crab_lib.clustering import (
     reduce_pca,
 )
 
-
 # ── Shared fixtures ───────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def feature_df():
@@ -42,6 +42,7 @@ def kmeans_scores(feature_df):
 
 # ── optimize_n_components ─────────────────────────────────────────────────────
 
+
 class TestOptimizeNComponents:
     def test_returns_dataframe(self, feature_df):
         result = optimize_n_components(feature_df, n_range=range(3, 6), balanced_k=3, n_init=5)
@@ -53,7 +54,13 @@ class TestOptimizeNComponents:
 
     def test_expected_columns(self, feature_df):
         result = optimize_n_components(feature_df, n_range=range(3, 5), balanced_k=3, n_init=5)
-        for col in ("n_components", "explained_variance_pct", "silhouette", "davies_bouldin", "calinski"):
+        for col in (
+            "n_components",
+            "explained_variance_pct",
+            "silhouette",
+            "davies_bouldin",
+            "calinski",
+        ):
             assert col in result.columns
 
     def test_variance_pct_between_0_and_100(self, feature_df):
@@ -93,6 +100,7 @@ class TestOptimizeNComponents:
 
 
 # ── compare_svd_pca ───────────────────────────────────────────────────────────
+
 
 class TestCompareSvdPca:
     def test_returns_three_dataframes(self, feature_df):
@@ -155,16 +163,19 @@ class TestCompareSvdPca:
 
 # ── compute_gap_statistic ─────────────────────────────────────────────────────
 
+
 class TestComputeGapStatistic:
     @pytest.fixture
     def X(self):
         """Simple 2D data with 3 obvious clusters."""
         rng = np.random.default_rng(5)
-        return np.vstack([
-            rng.multivariate_normal([3, 0], 0.2 * np.eye(2), 30),
-            rng.multivariate_normal([-3, 0], 0.2 * np.eye(2), 30),
-            rng.multivariate_normal([0, 3], 0.2 * np.eye(2), 30),
-        ])
+        return np.vstack(
+            [
+                rng.multivariate_normal([3, 0], 0.2 * np.eye(2), 30),
+                rng.multivariate_normal([-3, 0], 0.2 * np.eye(2), 30),
+                rng.multivariate_normal([0, 3], 0.2 * np.eye(2), 30),
+            ]
+        )
 
     def test_returns_dataframe(self, X):
         result = compute_gap_statistic(X, k_range=range(2, 5), n_boots=3, n_init=3)
@@ -219,6 +230,7 @@ class TestComputeGapStatistic:
 
 # ── find_knee_k ───────────────────────────────────────────────────────────────
 
+
 class TestFindKneeK:
     def test_returns_int(self, kmeans_scores):
         knee = find_knee_k(kmeans_scores)
@@ -254,6 +266,7 @@ class TestFindKneeK:
     def test_kneed_fallback_gradient(self, kmeans_scores, monkeypatch):
         """When kneed is not installed, gradient fallback should still return a valid k."""
         import builtins
+
         real_import = builtins.__import__
 
         def mock_import(name, *args, **kwargs):

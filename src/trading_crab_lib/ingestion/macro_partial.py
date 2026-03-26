@@ -35,10 +35,12 @@ REQUIRED_MACRO_RAW_FOR_STEP2: frozenset[str] = frozenset(
 
 
 def fred_column_names(cfg: dict) -> set[str]:
+    """Return FRED series column names from ``cfg["fred"]["series"]``."""
     return {meta["name"] for meta in cfg["fred"]["series"].values()}
 
 
 def multpl_column_names(cfg: dict) -> set[str]:
+    """Return multpl short names (first column of each dataset row) from config."""
     return {str(row[0]) for row in cfg["multpl"]["datasets"]}
 
 

@@ -25,16 +25,16 @@ CONFIG_DIR = crab.CONFIG_DIR
 load = crab.load
 setup_logging = crab.setup_logging
 
-from trading_crab_lib.regime import (
-    build_profiles,
-    suggest_names,
-    build_transition_matrix,
-    build_forward_window_probabilities,
-    load_name_overrides,
-)
-
 import pandas as pd
 import yaml
+
+from trading_crab_lib.regime import (
+    build_forward_window_probabilities,
+    build_profiles,
+    build_transition_matrix,
+    load_name_overrides,
+    suggest_names,
+)
 
 
 def main() -> None:
@@ -77,10 +77,7 @@ def main() -> None:
     tm.to_parquet(DATA_DIR / "regimes" / "transition_matrix.parquet")
 
     # Forward-window empirical probabilities (same horizons as Phase 3 classifiers)
-    horizons = (
-        cfg.get("prediction", {}).get("forward_horizons_quarters")
-        or [1, 2, 4, 8]
-    )
+    horizons = cfg.get("prediction", {}).get("forward_horizons_quarters") or [1, 2, 4, 8]
     forward_probs = build_forward_window_probabilities(labels, horizons)
     fwp_path = DATA_DIR / "regimes" / "forward_window_probabilities.parquet"
     forward_probs.to_parquet(fwp_path)

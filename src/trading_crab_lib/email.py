@@ -1,9 +1,8 @@
 """
-Email helpers for weekly report sending (Phase 7, v1.2).
+SMTP helpers for optional weekly report delivery.
 
-This module is intentionally small and config-driven:
-  - Secrets live only in config/email.local.yaml (gitignored).
-  - Sending is opt-in; failures are logged but should not crash the pipeline.
+Secrets live only in ``config/email.local.yaml`` (gitignored). Sending is
+opt-in; failures are logged and must not abort the pipeline.
 """
 
 from __future__ import annotations
@@ -11,9 +10,9 @@ from __future__ import annotations
 import logging
 import smtplib
 import ssl
+from datetime import date
 from email.message import EmailMessage
 from pathlib import Path
-from datetime import date
 
 import yaml
 
@@ -36,7 +35,7 @@ def load_email_config(path: Path | None = None) -> dict:
         log.info("Email config %s not found; email sending is disabled.", cfg_path)
         return {}
     try:
-        with open(cfg_path, "r", encoding="utf-8") as f:
+        with open(cfg_path, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
         if not isinstance(data, dict):
             log.warning("Email config %s is not a mapping; ignoring.", cfg_path)
@@ -122,4 +121,3 @@ def send_weekly_email(config: dict, subject: str, body: str) -> bool:
     except Exception as exc:  # pragma: no cover - network/SMTP dependent
         log.warning("Failed to send weekly email: %s", exc)
         return False
-

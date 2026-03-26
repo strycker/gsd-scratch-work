@@ -1,10 +1,15 @@
+"""Persist calibration and accuracy metrics from :class:`~.classifier.FoldReport` to disk.
+
+Writes JSON/Parquet artifacts under ``outputs/reports/model_metrics/`` for dashboards
+and regression checks (multiclass Brier score, per-bin calibration, fold summaries).
+"""
+
 from __future__ import annotations
 
 import json
 import logging
-from dataclasses import asdict, is_dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Literal, Tuple
+from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
@@ -201,10 +206,19 @@ def write_model_metrics_artifacts(
         )
 
         for fold_i, fr in enumerate(reports, start=1):
-            if fr.y_true_test is None or fr.y_pred_test is None or fr.proba_test is None or fr.class_order is None:
+            if (
+                fr.y_true_test is None
+                or fr.y_pred_test is None
+                or fr.proba_test is None
+                or fr.class_order is None
+            ):
                 continue
-            brier = _compute_brier_multiclass(fr.y_true_test, np.asarray(fr.proba_test), fr.class_order)
-            calib_bins = _calibration_bins(fr.y_true_test, np.asarray(fr.proba_test), fr.class_order)
+            brier = _compute_brier_multiclass(
+                fr.y_true_test, np.asarray(fr.proba_test), fr.class_order
+            )
+            calib_bins = _calibration_bins(
+                fr.y_true_test, np.asarray(fr.proba_test), fr.class_order
+            )
             conf_tidy = _confusion_tidy(fr.y_true_test, fr.y_pred_test, fr.class_order, fold=fold_i)
 
             per_fold_rows.append(
@@ -266,11 +280,22 @@ def write_model_metrics_artifacts(
             )
 
             for fold_i, fr in enumerate(reports, start=1):
-                if fr.y_true_test is None or fr.y_pred_test is None or fr.proba_test is None or fr.class_order is None:
+                if (
+                    fr.y_true_test is None
+                    or fr.y_pred_test is None
+                    or fr.proba_test is None
+                    or fr.class_order is None
+                ):
                     continue
-                brier = _compute_brier_multiclass(fr.y_true_test, np.asarray(fr.proba_test), fr.class_order)
-                calib_bins = _calibration_bins(fr.y_true_test, np.asarray(fr.proba_test), fr.class_order)
-                conf_tidy = _confusion_tidy(fr.y_true_test, fr.y_pred_test, fr.class_order, fold=fold_i)
+                brier = _compute_brier_multiclass(
+                    fr.y_true_test, np.asarray(fr.proba_test), fr.class_order
+                )
+                calib_bins = _calibration_bins(
+                    fr.y_true_test, np.asarray(fr.proba_test), fr.class_order
+                )
+                conf_tidy = _confusion_tidy(
+                    fr.y_true_test, fr.y_pred_test, fr.class_order, fold=fold_i
+                )
 
                 per_fold_rows.append(
                     {
@@ -331,11 +356,22 @@ def write_model_metrics_artifacts(
             )
 
             for fold_i, fr in enumerate(reports, start=1):
-                if fr.y_true_test is None or fr.y_pred_test is None or fr.proba_test is None or fr.class_order is None:
+                if (
+                    fr.y_true_test is None
+                    or fr.y_pred_test is None
+                    or fr.proba_test is None
+                    or fr.class_order is None
+                ):
                     continue
-                brier = _compute_brier_multiclass(fr.y_true_test, np.asarray(fr.proba_test), fr.class_order)
-                calib_bins = _calibration_bins(fr.y_true_test, np.asarray(fr.proba_test), fr.class_order)
-                conf_tidy = _confusion_tidy(fr.y_true_test, fr.y_pred_test, fr.class_order, fold=fold_i)
+                brier = _compute_brier_multiclass(
+                    fr.y_true_test, np.asarray(fr.proba_test), fr.class_order
+                )
+                calib_bins = _calibration_bins(
+                    fr.y_true_test, np.asarray(fr.proba_test), fr.class_order
+                )
+                conf_tidy = _confusion_tidy(
+                    fr.y_true_test, fr.y_pred_test, fr.class_order, fold=fold_i
+                )
 
                 per_fold_rows.append(
                     {
@@ -447,4 +483,3 @@ def write_model_metrics_artifacts(
 
     if binning_log:
         log.info("Wrote metrics artifacts to %s", output_dir)
-

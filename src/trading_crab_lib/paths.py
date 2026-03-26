@@ -33,7 +33,14 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class LibraryPaths:
-    """Resolved workspace locations for config, data, and outputs."""
+    """Resolved workspace locations for config, data, and outputs.
+
+    Attributes:
+        root: Project root when inferrable (e.g. parent of ``config/``).
+        config_dir: Directory containing ``settings.yaml``.
+        data_dir: ``data/`` tree (checkpoints, raw, processed).
+        output_dir: ``outputs/`` tree (plots, models, reports).
+    """
 
     root: Path
     config_dir: Path

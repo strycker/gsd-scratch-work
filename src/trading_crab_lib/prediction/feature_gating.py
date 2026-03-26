@@ -1,8 +1,14 @@
+"""Step-5 feature path selection: supervised (causal) vs non-causal fallback.
+
+Enforces the default policy of loading ``features_supervised.parquet`` for
+supervised training. Opt-in ``--allow-noncausal-features`` may fall back to
+``features.parquet`` with a loud warning when the supervised file is missing.
+"""
+
 from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Tuple
 
 log = logging.getLogger(__name__)
 
@@ -14,7 +20,7 @@ def select_step5_feature_path(
     processed_dir: Path,
     *,
     allow_noncausal_features: bool,
-) -> Tuple[Path, str, bool]:
+) -> tuple[Path, str, bool]:
     """
     Select the feature parquet path for step 5.
 
@@ -53,4 +59,3 @@ def select_step5_feature_path(
         noncausal_path.name,
     )
     return noncausal_path, "features", True
-

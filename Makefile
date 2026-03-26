@@ -16,6 +16,7 @@ help:
 	@echo ""
 	@echo "  make test           Run the full test suite"
 	@echo "  make test-fast      Run tests, stop at first failure"
+	@echo "  make lint           Ruff lint + format check (src, tests, pipelines)"
 	@echo ""
 	@echo "  make run            Steps 3-7 from cached data (fast, no re-scraping)"
 	@echo "  make run-full       Full pipeline — re-scrape + recompute + plots"
@@ -50,6 +51,10 @@ test:
 
 test-fast:
 	pytest tests/ -x -q
+
+lint:
+	ruff check src tests run_pipeline.py pipelines scripts
+	ruff format --check src tests run_pipeline.py pipelines scripts
 
 # ── pipeline ───────────────────────────────────────────────────────────────────
 

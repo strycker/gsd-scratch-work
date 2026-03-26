@@ -1,12 +1,12 @@
 """
-plotting.py — Shared visualization helpers for all pipeline stages.
+Shared visualization helpers for all pipeline stages.
 
-All plot functions:
-  - Accept run_cfg: RunConfig and honour save_plots / show_plots
-  - Save to outputs/plots/{step}_{description}.png when save_plots=True
-  - Are importable by notebooks without side-effects
+All plot functions take :class:`~trading_crab_lib.runtime.RunConfig` and honor
+``save_plots`` / ``show_plots``. Figures go to ``outputs/plots/{step}_{description}.png``
+when saving. The Agg backend is forced only outside Jupyter so notebooks keep
+inline rendering.
 
-Custom 5-regime color palette (from legacy/unified_script.py):
+Custom 5-regime color palette (from ``legacy/unified_script.py``):
     CUSTOM_COLORS = ["#0000d0","#d00000","#f48c06","#8338ec","#50a000"]
 
 Usage:
@@ -19,9 +19,9 @@ Usage:
 from __future__ import annotations
 
 import logging
-from pathlib import Path
 
 import matplotlib
+
 
 # Only force the Agg (headless) backend when NOT running inside Jupyter/IPython.
 # In Jupyter, %matplotlib inline has already configured the inline backend and
@@ -30,15 +30,17 @@ import matplotlib
 def _in_jupyter() -> bool:
     try:
         from IPython import get_ipython  # type: ignore[import]
+
         return get_ipython() is not None
     except ImportError:
         return False
 
+
 if not _in_jupyter():
     matplotlib.use("Agg")
 
-import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
 import pandas as pd
@@ -79,6 +81,7 @@ def _regime_color(cluster_id: int) -> str:
 
 # ── Step 01: Ingestion ─────────────────────────────────────────────────────────
 
+
 def plot_raw_series_coverage(
     raw: pd.DataFrame,
     run_cfg: RunConfig,
@@ -98,7 +101,8 @@ def plot_raw_series_coverage(
         coverage.T.values,
         aspect="auto",
         cmap="Blues",
-        vmin=0, vmax=1,
+        vmin=0,
+        vmax=1,
         interpolation="nearest",
     )
     n_quarters = len(raw)
@@ -106,7 +110,9 @@ def plot_raw_series_coverage(
     ax.set_xticks(range(0, n_quarters, tick_step))
     ax.set_xticklabels(
         [str(raw.index[i].year) for i in range(0, n_quarters, tick_step)],
-        rotation=45, ha="right", fontsize=7,
+        rotation=45,
+        ha="right",
+        fontsize=7,
     )
     ax.set_yticks(range(len(coverage.columns)))
     ax.set_yticklabels(coverage.columns, fontsize=6)
@@ -134,7 +140,7 @@ def plot_raw_series_sample(
     if n == 1:
         axes = [axes]
 
-    for ax, col in zip(axes, series):
+    for ax, col in zip(axes, series, strict=False):
         ax.plot(raw.index, raw[col], linewidth=1.2)
         ax.set_ylabel(col, fontsize=8)
         ax.grid(alpha=0.3)
@@ -146,6 +152,7 @@ def plot_raw_series_sample(
 
 
 # ── Step 02: Features ──────────────────────────────────────────────────────────
+
 
 def plot_feature_correlations(
     features: pd.DataFrame,
@@ -171,7 +178,8 @@ def plot_feature_correlations(
         corr,
         ax=ax,
         cmap="RdBu_r",
-        vmin=-1, vmax=1,
+        vmin=-1,
+        vmax=1,
         center=0,
         square=True,
         linewidths=0.3,
@@ -204,7 +212,7 @@ def plot_feature_distributions(
     fig, axes = plt.subplots(nrows_grid, ncols_grid, figsize=(16, 3 * nrows_grid))
     axes_flat = axes.flat
 
-    for ax, col in zip(axes_flat, cols):
+    for ax, col in zip(axes_flat, cols, strict=False):
         data = features[col].dropna()
         ax.hist(data, bins=30, edgecolor="none", alpha=0.75, color="#4477aa")
         ax.set_title(col, fontsize=7)
@@ -212,7 +220,7 @@ def plot_feature_distributions(
         ax.grid(alpha=0.3)
 
     # Hide unused panels
-    for ax in list(axes_flat)[len(cols):]:
+    for ax in list(axes_flat)[len(cols) :]:
         ax.set_visible(False)
 
     fig.suptitle("Feature Distributions", fontsize=13)
@@ -260,6 +268,7 @@ def plot_pairplot(
 
 # ── Step 03: Clustering ────────────────────────────────────────────────────────
 
+
 def plot_elbow_curve(
     scores: pd.DataFrame,
     chosen_k: int,
@@ -277,13 +286,12 @@ def plot_elbow_curve(
         ("davies_bouldin", "Davies-Bouldin", "lower = better"),
     ]
 
-    for ax, (col, title, subtitle) in zip(axes, metrics):
+    for ax, (col, title, subtitle) in zip(axes, metrics, strict=False):
         if col not in scores.columns:
             ax.set_visible(False)
             continue
         ax.plot(scores["k"], scores[col], "o-", linewidth=2, markersize=6, color="#3366cc")
-        ax.axvline(chosen_k, color="#cc3300", linestyle="--", linewidth=1.5,
-                   label=f"k={chosen_k}")
+        ax.axvline(chosen_k, color="#cc3300", linestyle="--", linewidth=1.5, label=f"k={chosen_k}")
         ax.set_xlabel("Number of clusters (k)")
         ax.set_title(f"{title}\n({subtitle})", fontsize=10)
         ax.legend(fontsize=8)
@@ -322,7 +330,7 @@ def plot_pca_scatter(
     if n_panels == 2:
         pairs.append((pca_cols[2], pca_cols[3]))
 
-    for ax, (xcol, ycol) in zip(axes, pairs):
+    for ax, (xcol, ycol) in zip(axes, pairs, strict=False):
         for cid in unique_clusters:
             mask = aligned_labels == cid
             label = regime_names.get(cid, f"Regime {cid}")
@@ -363,15 +371,22 @@ def plot_cluster_sizes(
     ax.set_xticklabels(regime_labels, rotation=20, ha="right", fontsize=9)
     ax.set_ylabel("Number of quarters")
     ax.set_title(title, fontsize=12)
-    for bar, val in zip(bars, counts.values):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5,
-                str(val), ha="center", va="bottom", fontsize=9)
+    for bar, val in zip(bars, counts.values, strict=False):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 0.5,
+            str(val),
+            ha="center",
+            va="bottom",
+            fontsize=9,
+        )
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
     _save_or_show(fig, "03_cluster_sizes.png", run_cfg)
 
 
 # ── Step 04: Regime Profiling ──────────────────────────────────────────────────
+
 
 def plot_regime_timeline(
     labels: pd.Series,
@@ -392,8 +407,7 @@ def plot_regime_timeline(
         mask = labels.astype(int) == cid
         y = cid
         for idx in labels.index[mask]:
-            ax.barh(y, width=92, left=idx, height=0.8,
-                    color=_regime_color(cid), alpha=0.8)
+            ax.barh(y, width=92, left=idx, height=0.8, color=_regime_color(cid), alpha=0.8)
 
     ax.set_yticks(unique_clusters)
     ax.set_yticklabels(
@@ -430,7 +444,8 @@ def plot_transition_matrix(
         annot=True,
         fmt=".2f",
         cmap="Blues",
-        vmin=0, vmax=1,
+        vmin=0,
+        vmax=1,
         xticklabels=labels_map,
         yticklabels=labels_map,
         linewidths=0.5,
@@ -467,28 +482,29 @@ def plot_regime_profiles(
     fig, axes = plt.subplots(nrows_grid, ncols_grid, figsize=(14, 4 * nrows_grid))
     axes_flat = list(axes.flat) if hasattr(axes, "flat") else [axes]
 
-    for ax, col in zip(axes_flat, key_cols):
+    for ax, col in zip(axes_flat, key_cols, strict=False):
         data_by_regime = [
-            features.loc[valid.astype(int) == cid, col].dropna().values
-            for cid in unique_clusters
+            features.loc[valid.astype(int) == cid, col].dropna().values for cid in unique_clusters
         ]
         bp = ax.boxplot(
             data_by_regime,
             patch_artist=True,
             medianprops={"color": "black", "linewidth": 2},
         )
-        for patch, cid in zip(bp["boxes"], unique_clusters):
+        for patch, cid in zip(bp["boxes"], unique_clusters, strict=False):
             patch.set_facecolor(_regime_color(cid))
             patch.set_alpha(0.75)
         ax.set_xticks(range(1, len(unique_clusters) + 1))
         ax.set_xticklabels(
             [regime_names.get(i, f"R{i}") for i in unique_clusters],
-            rotation=20, ha="right", fontsize=7,
+            rotation=20,
+            ha="right",
+            fontsize=7,
         )
         ax.set_title(col, fontsize=9)
         ax.grid(axis="y", alpha=0.3)
 
-    for ax in axes_flat[len(key_cols):]:
+    for ax in axes_flat[len(key_cols) :]:
         ax.set_visible(False)
 
     fig.suptitle("Regime Profiles — Key Indicators", fontsize=13)
@@ -497,6 +513,7 @@ def plot_regime_profiles(
 
 
 # ── Step 05: Prediction ────────────────────────────────────────────────────────
+
 
 def plot_feature_importance(
     model,
@@ -553,9 +570,15 @@ def plot_forward_probabilities(
         f"(predicted regime: {regime_names.get(prediction['regime'], prediction['regime'])})",
         fontsize=11,
     )
-    for bar, val in zip(bars, values):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.01,
-                f"{val:.1%}", ha="center", va="bottom", fontsize=8)
+    for bar, val in zip(bars, values, strict=False):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 0.01,
+            f"{val:.1%}",
+            ha="center",
+            va="bottom",
+            fontsize=8,
+        )
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
     _save_or_show(fig, "05_current_regime_probs.png", run_cfg)
@@ -586,12 +609,11 @@ def plot_predicted_vs_actual(
     unique_clusters = sorted(labels.dropna().astype(int).unique())
     fig, axes = plt.subplots(2, 1, figsize=(16, 6), sharex=True)
 
-    for ax, (series, title) in zip(axes, [(y_true, "Actual"), (y_pred, "Predicted")]):
+    for ax, (series, title) in zip(axes, [(y_true, "Actual"), (y_pred, "Predicted")], strict=False):
         for cid in unique_clusters:
             mask = series.astype(int) == cid
             for idx in series.index[mask]:
-                ax.barh(0, width=92, left=idx, height=0.8,
-                        color=_regime_color(cid), alpha=0.85)
+                ax.barh(0, width=92, left=idx, height=0.8, color=_regime_color(cid), alpha=0.85)
         ax.set_yticks([])
         ax.set_ylabel(title, fontsize=10)
         ax.set_xlim(common[0], common[-1])
@@ -607,13 +629,19 @@ def plot_predicted_vs_actual(
         )
         for i in unique_clusters
     ]
-    fig.legend(handles=patches, loc="lower center", ncol=len(unique_clusters),
-               fontsize=8, bbox_to_anchor=(0.5, -0.03))
+    fig.legend(
+        handles=patches,
+        loc="lower center",
+        ncol=len(unique_clusters),
+        fontsize=8,
+        bbox_to_anchor=(0.5, -0.03),
+    )
     fig.tight_layout()
     _save_or_show(fig, "05_predicted_vs_actual.png", run_cfg)
 
 
 # ── Step 06: Asset Returns ─────────────────────────────────────────────────────
+
 
 def plot_asset_returns_by_regime(
     profile: pd.DataFrame,
@@ -679,9 +707,7 @@ def plot_asset_heatmap(
         log.warning("seaborn not installed — skipping asset heatmap")
         return
 
-    row_labels = [
-        regime_names.get(int(i), f"Regime {int(i)}") for i in profile.index
-    ]
+    row_labels = [regime_names.get(int(i), f"Regime {int(i)}") for i in profile.index]
 
     fig, ax = plt.subplots(figsize=(max(8, len(profile.columns)), max(4, len(profile) * 0.8)))
     sns.heatmap(
@@ -726,8 +752,15 @@ def plot_asset_return_distributions(
         if len(data) < 3:
             continue
         label = regime_names.get(cid, f"Regime {cid}")
-        ax.hist(data, bins=15, density=True, alpha=0.45,
-                color=_regime_color(cid), label=label, edgecolor="none")
+        ax.hist(
+            data,
+            bins=15,
+            density=True,
+            alpha=0.45,
+            color=_regime_color(cid),
+            label=label,
+            edgecolor="none",
+        )
 
     ax.set_xlabel(f"{ticker} quarterly return")
     ax.set_ylabel("Density")
@@ -740,6 +773,7 @@ def plot_asset_return_distributions(
 
 
 # ── Step 08: Diagnostics (ratios + RRG) ─────────────────────────────────────────
+
 
 def plot_diagnostics_ratios_summary(ratios_df: pd.DataFrame, run_cfg: RunConfig) -> None:
     """Bar chart of |latest_zscore| by configured ratio name."""
@@ -773,16 +807,14 @@ def plot_diagnostics_rrg(rrg_df: pd.DataFrame, run_cfg: RunConfig) -> None:
     if len(benchmarks) == 0:
         return
     n = len(benchmarks)
-    fig, axes = plt.subplots(
-        1, n, figsize=(5 * n, 5), squeeze=False
-    )
+    fig, axes = plt.subplots(1, n, figsize=(5 * n, 5), squeeze=False)
     quadrant_colors = {
         "LEADING": "#2a9d8f",
         "WEAKENING": "#e9c46a",
         "LAGGING": "#e76f51",
         "IMPROVING": "#264653",
     }
-    for ax, bench in zip(axes.flat, benchmarks):
+    for ax, bench in zip(axes.flat, benchmarks, strict=False):
         sub = rrg_df[rrg_df["benchmark"] == bench]
         for q, g in sub.groupby("quadrant"):
             c = quadrant_colors.get(str(q), "#888888")

@@ -1,5 +1,9 @@
 """
-Dashboard and portfolio construction.
+Dashboard, portfolio construction, and weekly report assembly.
+
+**Why this module:** Centralizes human-facing outputs (signals, CSV, markdown
+sections) so pipeline steps stay thin. Thresholds default here but should be
+tuned via ``config/settings.yaml`` where noted.
 
 Dashboard (stoplight summary):
   asset_signals()       — RED/YELLOW/GREEN per asset for the current regime
@@ -73,8 +77,8 @@ def _append_diagnostics_section(lines: list[str], cfg: dict) -> None:
 # Default thresholds — overridden at call time by values from settings.yaml.
 # Do not tune these constants here; edit config/settings.yaml instead.
 _DEFAULT_SIGNAL_THRESHOLDS = {
-    "green":  0.05,   # median return > +5%/quarter
-    "yellow": 0.00,   # median return > 0%
+    "green": 0.05,  # median return > +5%/quarter
+    "yellow": 0.00,  # median return > 0%
     # below 0% → red
 }
 
@@ -127,7 +131,9 @@ def print_dashboard(
     print("\nAsset Signals (current regime):")
     for _, row in asset_signals_df.iterrows():
         icon = {"GREEN": "●", "YELLOW": "◑", "RED": "○"}.get(row["signal"], "?")
-        print(f"  {icon} {row['asset']:<8s}  {row['median_quarterly_return']:+.1%}  [{row['signal']}]")
+        print(
+            f"  {icon} {row['asset']:<8s}  {row['median_quarterly_return']:+.1%}  [{row['signal']}]"
+        )
 
     print("\nForward Transition Probabilities (from current regime):")
     if regime in transition_matrix.index:
@@ -149,6 +155,7 @@ def save_dashboard_csv(
 
 
 # ── Portfolio construction ─────────────────────────────────────────────────────
+
 
 def simple_regime_portfolio(
     regime_returns: pd.DataFrame,
@@ -180,7 +187,9 @@ def simple_regime_portfolio(
     for asset, w in weights.items():
         log.info(
             "  simple  %-12s  %.1f%%  (hist. median: %+.2f%%/qtr)",
-            asset, w * 100, row[asset] * 100,
+            asset,
+            w * 100,
+            row[asset] * 100,
         )
     return weights
 
@@ -235,7 +244,9 @@ def blended_regime_portfolio(
 
         log.debug(
             "  blended regime %d (p=%.2f): top assets = %s",
-            regime, prob, list(top.index),
+            regime,
+            prob,
+            list(top.index),
         )
 
     total = blended.sum()
@@ -281,11 +292,7 @@ def generate_recommendation(
 
     records = []
     for asset in all_assets:
-        current = (
-            float(current_weights.get(asset, 0.0))
-            if current_weights is not None
-            else 0.0
-        )
+        current = float(current_weights.get(asset, 0.0)) if current_weights is not None else 0.0
         target = float(target_weights.get(asset, 0.0))
         delta = target - current
 
@@ -296,27 +303,33 @@ def generate_recommendation(
         else:
             signal = "HOLD"
 
-        records.append({
-            "asset":       asset,
-            "current_pct": round(current * 100, 1),
-            "target_pct":  round(target * 100, 1),
-            "delta_pct":   round(delta * 100, 1),
-            "signal":      signal,
-        })
+        records.append(
+            {
+                "asset": asset,
+                "current_pct": round(current * 100, 1),
+                "target_pct": round(target * 100, 1),
+                "delta_pct": round(delta * 100, 1),
+                "signal": signal,
+            }
+        )
 
     result = pd.DataFrame(records).set_index("asset")
 
-    buys  = (result["signal"] == "BUY").sum()
+    buys = (result["signal"] == "BUY").sum()
     sells = (result["signal"] == "SELL").sum()
     holds = (result["signal"] == "HOLD").sum()
     log.info(
         "Trade signals: %d BUY, %d SELL, %d HOLD  (threshold=%.0f%%)",
-        buys, sells, holds, threshold * 100,
+        buys,
+        sells,
+        holds,
+        threshold * 100,
     )
     return result
 
 
 # ── Phase 5: recommendation bundle + weekly report ─────────────────────────────
+
 
 def build_recommendation_digest(
     behavior_df: pd.DataFrame,
@@ -335,9 +348,7 @@ def build_recommendation_digest(
         return pd.DataFrame()
 
     holdings = set(current_weights.index) if current_weights is not None else set()
-    strong_green = set(
-        regime_behav[regime_behav["signal_display"] == "green_strong"]["asset"]
-    )
+    strong_green = set(regime_behav[regime_behav["signal_display"] == "green_strong"]["asset"])
     digest_assets = sorted(holdings | strong_green)
 
     # Top/bottom N by rank within regime
@@ -451,20 +462,28 @@ def write_weekly_report_md(
             lines.append(f"- **{a}** — reduce {row['delta_pct']:.1f}%")
         lines.append("")
     if not buys and not sells:
-        lines.append("No BUY or SELL signals above threshold; current allocation is in line with the model.")
+        lines.append(
+            "No BUY or SELL signals above threshold; current allocation is in line with the model."
+        )
     lines.append("")
 
     # Risk / regime transition
     lines.append("## Risk & regime transition")
     lines.append("")
     if transition_row is not None and not transition_row.empty:
-        top_trans = transition_row.drop(current_regime, errors="ignore").sort_values(ascending=False).head(3)
+        top_trans = (
+            transition_row.drop(current_regime, errors="ignore")
+            .sort_values(ascending=False)
+            .head(3)
+        )
         if not top_trans.empty:
             lines.append("Most likely regime transitions from current state:")
             for to_r, p in top_trans.items():
                 lines.append(f"- To regime {to_r}: {p:.0%}")
         else:
-            lines.append("Regime is stable; no significant transition probability to other regimes.")
+            lines.append(
+                "Regime is stable; no significant transition probability to other regimes."
+            )
     else:
         lines.append("Transition probabilities not available.")
     lines.append("")
@@ -521,7 +540,9 @@ def write_weekly_report_md(
                             f"{r['asset']} (z={float(r['soft_stop_z']):+.2f})"
                             for _, r in topz.iterrows()
                         ]
-                        lines.append(f"- **Largest soft-stop |z| (distance from rolling mean):** {', '.join(parts_z)}")
+                        lines.append(
+                            f"- **Largest soft-stop |z| (distance from rolling mean):** {', '.join(parts_z)}"
+                        )
             lines.append("")
         except Exception:
             # Do not let a malformed tactics file break the report.

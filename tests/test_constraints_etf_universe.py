@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 import pandas as pd
 import pytest
 
-from trading_crab_lib.config import load
 from trading_crab_lib.checkpoints import CheckpointManager
+from trading_crab_lib.config import load
 
 
 def _assert_columns_within_universe(
@@ -17,9 +17,7 @@ def _assert_columns_within_universe(
     cols_set = {c.upper() for c in columns}
     extras = sorted(cols_set - universe_set)
     if extras:
-        raise AssertionError(
-            f"Found tickers outside configured ETF universe: {extras}"
-        )
+        raise AssertionError(f"Found tickers outside configured ETF universe: {extras}")
 
 
 @pytest.fixture(scope="module")
@@ -64,4 +62,3 @@ def test_helper_rejects_out_of_universe_ticker(etf_universe: list[str]) -> None:
 
     with pytest.raises(AssertionError):
         _assert_columns_within_universe(df.columns, etf_universe)
-

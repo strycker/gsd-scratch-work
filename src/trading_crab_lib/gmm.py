@@ -39,7 +39,6 @@ from __future__ import annotations
 import logging
 import warnings
 
-import numpy as np
 import pandas as pd
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.mixture import GaussianMixture
@@ -104,13 +103,23 @@ def fit_gmm(
                     log.warning(
                         "GMM k=%d cov=%s did not converge after %d iterations "
                         "— BIC may be unreliable; increase max_iter or n_init",
-                        k, cov_type, max_iter,
+                        k,
+                        cov_type,
+                        max_iter,
                     )
 
                 bic = float(gm.bic(X))
                 aic = float(gm.aic(X))
-                ll  = float(gm.score(X))  # mean log-likelihood per sample
-                rows.append({"k": k, "covariance_type": cov_type, "bic": bic, "aic": aic, "log_likelihood": ll})
+                ll = float(gm.score(X))  # mean log-likelihood per sample
+                rows.append(
+                    {
+                        "k": k,
+                        "covariance_type": cov_type,
+                        "bic": bic,
+                        "aic": aic,
+                        "log_likelihood": ll,
+                    }
+                )
                 models[(k, cov_type)] = gm
                 log.info("GMM k=%d cov=%s  BIC=%.1f  AIC=%.1f  LL=%.4f", k, cov_type, bic, aic, ll)
             except Exception as exc:

@@ -65,7 +65,7 @@ def predict_current(model, X_now):
     """
     proba = model.predict_proba(X_now.iloc[[-1]])[0]
     classes = model.classes_
-    prob_by_class = {int(c): float(p) for c, p in zip(classes, proba)}
+    prob_by_class = {int(c): float(p) for c, p in zip(classes, proba, strict=False)}
     best_regime = max(prob_by_class.items(), key=lambda kv: kv[1])[0]
     return {"regime": best_regime, "probabilities": prob_by_class}
 
@@ -82,4 +82,3 @@ __all__ = [
     "train_forward_classifiers",
     "predict_current",
 ]
-

@@ -54,7 +54,9 @@ def test_weekly_report_skips_diagnostics_when_disabled(tmp_path, monkeypatch) ->
     monkeypatch.setattr("trading_crab_lib.OUTPUT_DIR", tmp_path)
     diag = tmp_path / "reports" / "diagnostics"
     diag.mkdir(parents=True)
-    pd.DataFrame({"name": ["A"], "latest_zscore": [1.0]}).to_parquet(diag / "ratios_current.parquet")
+    pd.DataFrame({"name": ["A"], "latest_zscore": [1.0]}).to_parquet(
+        diag / "ratios_current.parquet"
+    )
 
     rec = pd.DataFrame(
         {

@@ -10,6 +10,9 @@ python --version || echo "[check_env] python not found"
 echo "[check_env] pytest: $(command -v pytest || true)"
 pytest --version || echo "[check_env] pytest not found"
 
+echo "[check_env] ruff: $(command -v ruff || true)"
+ruff --version 2>/dev/null || echo "[check_env] ruff not found (optional: pip install -e \".[dev]\")"
+
 echo "[check_env] Importing trading_crab_lib…"
 python - <<'PY'
 import sys

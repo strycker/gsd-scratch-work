@@ -40,7 +40,7 @@ import logging
 import numpy as np
 import pandas as pd
 from sklearn.cluster import DBSCAN
-from sklearn.metrics import davies_bouldin_score, silhouette_score
+from sklearn.metrics import silhouette_score
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 
@@ -97,7 +97,8 @@ def fit_dbscan_sweep(
             log.warning(
                 "DBSCAN eps=%.2f: all %d points are noise — eps may be too small or "
                 "min_samples too large",
-                eps, n_noise,
+                eps,
+                n_noise,
             )
         elif n_clusters == 1:
             log.warning(
@@ -114,16 +115,21 @@ def fit_dbscan_sweep(
                 except Exception as exc:
                     log.debug("silhouette_score failed for eps=%.2f: %s", eps, exc)
 
-        rows.append({
-            "eps":        eps,
-            "n_clusters": n_clusters,
-            "n_noise":    n_noise,
-            "noise_pct":  round(100 * n_noise / len(labels), 1),
-            "silhouette": sil,
-        })
+        rows.append(
+            {
+                "eps": eps,
+                "n_clusters": n_clusters,
+                "n_noise": n_noise,
+                "noise_pct": round(100 * n_noise / len(labels), 1),
+                "silhouette": sil,
+            }
+        )
         log.info(
             "DBSCAN eps=%.2f  clusters=%d  noise=%d (%.1f%%)  sil=%s",
-            eps, n_clusters, n_noise, 100 * n_noise / len(labels),
+            eps,
+            n_clusters,
+            n_noise,
+            100 * n_noise / len(labels),
             f"{sil:.4f}" if sil is not None else "N/A",
         )
 
@@ -159,18 +165,25 @@ def fit_dbscan(
         log.warning(
             "DBSCAN (eps=%.2f, min_samples=%d): ALL %d points are noise — "
             "try increasing eps or decreasing min_samples",
-            eps, min_samples, n_noise,
+            eps,
+            min_samples,
+            n_noise,
         )
     elif n_clusters == 1:
         log.warning(
             "DBSCAN (eps=%.2f, min_samples=%d): only 1 cluster found — "
             "clustering metrics require at least 2 clusters",
-            eps, min_samples,
+            eps,
+            min_samples,
         )
     else:
         log.info(
             "DBSCAN (eps=%.2f, min_samples=%d): %d clusters, %d noise points (%.1f%%)",
-            eps, min_samples, n_clusters, n_noise, 100 * n_noise / len(labels),
+            eps,
+            min_samples,
+            n_clusters,
+            n_noise,
+            100 * n_noise / len(labels),
         )
     return series
 
@@ -193,7 +206,7 @@ def fit_hdbscan_sweep(
         raise ImportError(
             "hdbscan not installed.  Run: pip install hdbscan\n"
             "Or use fit_dbscan_sweep() for the sklearn DBSCAN alternative."
-        )
+        ) from None
 
     if pca_df.empty:
         raise ValueError("pca_df is empty — cannot run HDBSCAN sweep")
@@ -213,7 +226,8 @@ def fit_hdbscan_sweep(
             log.warning(
                 "HDBSCAN min_cluster_size=%d: all %d points are noise — "
                 "try decreasing min_cluster_size",
-                mcs, n_noise,
+                mcs,
+                n_noise,
             )
         elif n_clusters == 1:
             log.warning(
@@ -231,16 +245,21 @@ def fit_hdbscan_sweep(
                 except Exception as exc:
                     log.debug("silhouette_score failed for min_cluster_size=%d: %s", mcs, exc)
 
-        rows.append({
-            "min_cluster_size": mcs,
-            "n_clusters":       n_clusters,
-            "n_noise":          n_noise,
-            "noise_pct":        round(100 * n_noise / len(labels), 1),
-            "silhouette":       sil,
-        })
+        rows.append(
+            {
+                "min_cluster_size": mcs,
+                "n_clusters": n_clusters,
+                "n_noise": n_noise,
+                "noise_pct": round(100 * n_noise / len(labels), 1),
+                "silhouette": sil,
+            }
+        )
         log.info(
             "HDBSCAN min_cluster_size=%d  clusters=%d  noise=%d (%.1f%%)  sil=%s",
-            mcs, n_clusters, n_noise, 100 * n_noise / len(labels),
+            mcs,
+            n_clusters,
+            n_noise,
+            100 * n_noise / len(labels),
             f"{sil:.4f}" if sil is not None else "N/A",
         )
 
@@ -258,7 +277,7 @@ def hdbscan_labels(pca_df: pd.DataFrame, min_cluster_size: int = 15) -> pd.Serie
     try:
         import hdbscan as hdbscan_lib  # type: ignore[import]
     except ImportError:
-        raise ImportError("hdbscan not installed.  Run: pip install hdbscan")
+        raise ImportError("hdbscan not installed.  Run: pip install hdbscan") from None
 
     if pca_df.empty:
         raise ValueError("pca_df is empty — cannot run HDBSCAN")
@@ -274,7 +293,8 @@ def hdbscan_labels(pca_df: pd.DataFrame, min_cluster_size: int = 15) -> pd.Serie
         log.warning(
             "HDBSCAN (min_cluster_size=%d): ALL %d points are noise — "
             "try decreasing min_cluster_size",
-            min_cluster_size, n_noise,
+            min_cluster_size,
+            n_noise,
         )
     elif n_clusters == 1:
         log.warning(
@@ -285,6 +305,9 @@ def hdbscan_labels(pca_df: pd.DataFrame, min_cluster_size: int = 15) -> pd.Serie
     else:
         log.info(
             "HDBSCAN (min_cluster_size=%d): %d clusters, %d noise (%.1f%%)",
-            min_cluster_size, n_clusters, n_noise, 100 * n_noise / len(labels),
+            min_cluster_size,
+            n_clusters,
+            n_noise,
+            100 * n_noise / len(labels),
         )
     return series

@@ -101,7 +101,8 @@ def compare_all_methods(
         if n_missing > 0:
             log.warning(
                 "%s: %d quarters have no label (NaN) after reindex — excluded from metrics",
-                name, n_missing,
+                name,
+                n_missing,
             )
 
         X_clean = X[valid.values]
@@ -112,31 +113,36 @@ def compare_all_methods(
         if n_clusters >= 2 and len(labels_clean) >= n_clusters:
             try:
                 sil = silhouette_score(X_clean, labels_clean)
-                db  = davies_bouldin_score(X_clean, labels_clean)
-                ch  = calinski_harabasz_score(X_clean, labels_clean)
+                db = davies_bouldin_score(X_clean, labels_clean)
+                ch = calinski_harabasz_score(X_clean, labels_clean)
             except Exception as exc:
                 log.warning("%s: metric computation failed — %s", name, exc)
         elif n_clusters < 2:
             log.warning(
                 "%s: only %d cluster(s) found after excluding noise — "
                 "metrics require at least 2 clusters",
-                name, n_clusters,
+                name,
+                n_clusters,
             )
 
-        rows.append({
-            "method":         name,
-            "n_clusters":     n_clusters,
-            "n_noise":        n_noise,
-            "silhouette":     sil,
-            "davies_bouldin": db,
-            "calinski":       ch,
-        })
+        rows.append(
+            {
+                "method": name,
+                "n_clusters": n_clusters,
+                "n_noise": n_noise,
+                "silhouette": sil,
+                "davies_bouldin": db,
+                "calinski": ch,
+            }
+        )
         log.info(
             "%-30s  k=%d  noise=%d  sil=%.4f  DB=%.4f  CH=%.1f",
-            name, n_clusters, n_noise,
+            name,
+            n_clusters,
+            n_noise,
             sil if np.isfinite(sil) else -99,
-            db  if np.isfinite(db)  else -99,
-            ch  if np.isfinite(ch)  else -99,
+            db if np.isfinite(db) else -99,
+            ch if np.isfinite(ch) else -99,
         )
 
     df = pd.DataFrame(rows)
@@ -181,7 +187,8 @@ def pairwise_rand_index(labels_dict: dict[str, pd.Series]) -> pd.DataFrame:
             if valid.sum() < 2:
                 log.warning(
                     "ARI(%s, %s): fewer than 2 valid (non-noise) common points — setting NaN",
-                    names[i], names[j],
+                    names[i],
+                    names[j],
                 )
                 ari = float("nan")
             else:
@@ -192,6 +199,7 @@ def pairwise_rand_index(labels_dict: dict[str, pd.Series]) -> pd.DataFrame:
 
 
 # ── RF feature importance for clustering feature selection ─────────────────────
+
 
 def extract_rf_feature_importances(
     model_path: Path,
@@ -248,7 +256,9 @@ def extract_rf_feature_importances(
         name="importance",
     ).sort_values(ascending=False)
 
-    log.info("RF feature importances loaded: %d features from %s", len(importances), model_path.name)
+    log.info(
+        "RF feature importances loaded: %d features from %s", len(importances), model_path.name
+    )
     return importances
 
 
@@ -293,7 +303,8 @@ def recommend_clustering_features(
         log.warning(
             "%d clustering_features not found in RF model (may be derivatives "
             "not used in supervised step): %s",
-            len(not_in_rf), not_in_rf[:5],
+            len(not_in_rf),
+            not_in_rf[:5],
         )
 
     # Rank by importance (descending) among the intersection
@@ -304,7 +315,9 @@ def recommend_clustering_features(
         log.warning(
             "recommend_clustering_features: intersection has only %d features "
             "(< top_k=%d) — returning all %d available",
-            len(recommended), top_k, len(recommended),
+            len(recommended),
+            top_k,
+            len(recommended),
         )
 
     # Use a set for O(1) membership test in the loop
@@ -313,24 +326,30 @@ def recommend_clustering_features(
     # Build comparison table
     rows = []
     for rank, (feat, imp) in enumerate(ranked.items(), start=1):
-        rows.append({
-            "feature":         feat,
-            "rf_importance":   round(float(imp), 6),
-            "rank":            rank,
-            "in_recommended":  feat in recommended_set,
-        })
+        rows.append(
+            {
+                "feature": feat,
+                "rf_importance": round(float(imp), 6),
+                "rank": rank,
+                "in_recommended": feat in recommended_set,
+            }
+        )
     for feat in not_in_rf:
-        rows.append({
-            "feature":        feat,
-            "rf_importance":  float("nan"),
-            "rank":           len(ranked) + 1,
-            "in_recommended": False,
-        })
+        rows.append(
+            {
+                "feature": feat,
+                "rf_importance": float("nan"),
+                "rank": len(ranked) + 1,
+                "in_recommended": False,
+            }
+        )
 
     comparison_df = pd.DataFrame(rows).sort_values("rank").reset_index(drop=True)
 
     log.info(
         "Recommended %d/%d clustering features (top-%d by RF importance)",
-        len(recommended), len(current_clustering_features), top_k,
+        len(recommended),
+        len(current_clustering_features),
+        top_k,
     )
     return recommended, comparison_df

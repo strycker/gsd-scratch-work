@@ -1,20 +1,15 @@
+"""multpl.com HTML scraper for valuation and macro series.
+
+Fetches all series in ``cfg["multpl"]["datasets"]``, resamples to quarterly
+frequency, and returns one wide DataFrame. Each dataset entry is
+``[short_name, description, url, value_type]``; ``value_type`` controls parsing
+(``num``, ``percent``, ``million``, ``trillion``).
+
+Uses **lxml** CSS selectors (``#datatable``) to match the legacy scraper. A
+fixed rate limit applies between requests (see ``RATE_LIMIT_SECONDS``).
+"""
+
 from __future__ import annotations
-
-"""
-multpl.com scraper.
-
-Fetches all series defined in cfg["multpl"]["datasets"], resamples each to
-quarterly frequency, and returns a single wide DataFrame.
-
-Each dataset entry is [short_name, description, url, value_type] where
-value_type controls how the raw string value is parsed:
-  num      → strip commas, cast to float
-  percent  → strip %, cast to float, divide by 100 (stored as decimal)
-  million  → strip " million", cast to float
-  trillion → strip " trillion", cast to float
-
-Uses lxml CSS selectors to match the legacy scraping approach exactly.
-"""
 
 import logging
 import time
@@ -35,8 +30,8 @@ HEADERS = {
 RATE_LIMIT_SECONDS = 2.0  # be polite to the server
 
 _SUFFIX_MAP = {
-    "percent":  "%",
-    "million":  " million",
+    "percent": "%",
+    "million": " million",
     "trillion": " trillion",
 }
 
@@ -65,21 +60,13 @@ def _parse_series(raw_rows: list, short_name: str, value_type: str) -> pd.Series
         df[short_name] = df[short_name].str.replace(suffix, "", regex=False)
 
     df[short_name] = (
-        df[short_name]
-        .replace("", np.nan)
-        .str.replace(",", "", regex=False)
-        .astype(float)
+        df[short_name].replace("", np.nan).str.replace(",", "", regex=False).astype(float)
     )
 
     if value_type == "percent":
         df[short_name] /= 100.0
 
-    return (
-        df.dropna()
-        .set_index("date")[short_name]
-        .resample("QE")
-        .last()
-    )
+    return df.dropna().set_index("date")[short_name].resample("QE").last()
 
 
 def fetch_all(cfg: dict, *, columns: set[str] | None = None) -> pd.DataFrame:

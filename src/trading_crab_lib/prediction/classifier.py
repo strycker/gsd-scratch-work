@@ -1,13 +1,25 @@
+"""Supervised regime classifiers: current-regime RF/DT/GB, forward binaries, behavior models.
+
+Implements walk-forward :class:`~sklearn.model_selection.TimeSeriesSplit` evaluation,
+persists per-fold diagnostics in :class:`FoldReport`, and writes optional model-metric
+artifacts. **Features must** come from causal ``features_supervised.parquet`` unless
+callers explicitly accept leakage (see :mod:`trading_crab_lib.prediction.feature_gating`).
+
+The top-level :mod:`trading_crab_lib.prediction` package re-exports stable names for
+``run_pipeline.py`` and tests.
+"""
+
 from __future__ import annotations
 
-import logging
-from dataclasses import dataclass
-from typing import Any, Callable, Dict, Hashable, Iterable, List, Tuple
 import copy
+import logging
+from collections.abc import Callable, Hashable, Iterable
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.metrics import classification_report
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.tree import DecisionTreeClassifier
@@ -19,14 +31,14 @@ log = logging.getLogger(__name__)
 class FoldReport:
     """Container for a single CV fold report and its indices."""
 
-    report: Dict[str, dict]
-    train_indices: List[int]
-    test_indices: List[int]
+    report: dict[str, dict]
+    train_indices: list[int]
+    test_indices: list[int]
     # Optional fields used for richer diagnostics (confusion matrix, calibration).
-    y_true_test: List[object] | None = None
-    y_pred_test: List[object] | None = None
-    proba_test: List[List[float]] | None = None
-    class_order: List[object] | None = None
+    y_true_test: list[object] | None = None
+    y_pred_test: list[object] | None = None
+    proba_test: list[list[float]] | None = None
+    class_order: list[object] | None = None
 
 
 def _tscv_reports(
@@ -35,7 +47,7 @@ def _tscv_reports(
     y: pd.Series,
     n_splits: int,
     label: str,
-) -> List[FoldReport]:
+) -> list[FoldReport]:
     """
     Run TimeSeriesSplit CV and return per-fold classification_report dicts.
 
@@ -56,14 +68,14 @@ def _tscv_reports(
     # running on trimmed feature sets. TimeSeriesSplit requires n_splits < n_samples.
     max_splits = min(max(n_splits, 2), len(X) - 1)
     tscv = TimeSeriesSplit(n_splits=max_splits)
-    results: List[FoldReport] = []
+    results: list[FoldReport] = []
 
     for fold, (train_idx, test_idx) in enumerate(tscv.split(X), start=1):
         clf = model_factory()
         clf.fit(X.iloc[train_idx], y.iloc[train_idx])
         y_pred = clf.predict(X.iloc[test_idx])
-        proba_test: List[List[float]] | None = None
-        class_order: List[object] | None = None
+        proba_test: list[list[float]] | None = None
+        class_order: list[object] | None = None
         if hasattr(clf, "predict_proba"):
             proba = clf.predict_proba(X.iloc[test_idx])
             proba_test = proba.tolist()
@@ -117,13 +129,11 @@ def _tscv_scores(
     future plans to extend scoring/metrics without duplicating TimeSeriesSplit usage.
     """
     reports = _tscv_reports(model_factory, X, y, n_splits=n_splits, label=label)
-    fold_indices = [
-        {"train": fr.train_indices, "test": fr.test_indices} for fr in reports
-    ]
+    fold_indices = [{"train": fr.train_indices, "test": fr.test_indices} for fr in reports]
     return {"reports": reports, "fold_indices": fold_indices}
 
 
-def _unique_labels(labels: pd.Series | Iterable[Hashable]) -> List[Hashable]:
+def _unique_labels(labels: pd.Series | Iterable[Hashable]) -> list[Hashable]:
     """Return a stable, sorted list of unique labels."""
     if isinstance(labels, pd.Series):
         uniques = pd.unique(labels)
@@ -198,11 +208,11 @@ def train_current_regime(
     def make_gb() -> GradientBoostingClassifier:
         return make_gradient_boosting_classifier(cfg)
 
-    cv_scores: Dict[str, dict] = {
+    cv_scores: dict[str, dict] = {
         "dt": _tscv_scores(make_dt, features, labels, cv_splits, "DT current-regime"),
         "rf": _tscv_scores(make_rf, features, labels, cv_splits, "RF current-regime"),
     }
-    models: Dict[str, object] = {
+    models: dict[str, object] = {
         "dt": make_dt(),
         "rf": make_rf(),
     }
@@ -232,10 +242,10 @@ def train_current_regime(
 def train_forward_classifiers(
     features: pd.DataFrame,
     regimes: pd.Series,
-    horizons: List[int],
+    horizons: list[int],
     cfg: dict | None = None,
     cv_splits: int = 5,
-) -> Dict[int, dict]:
+) -> dict[int, dict]:
     """
     Train forward regime classifiers for each horizon in `horizons`.
 
@@ -272,7 +282,7 @@ def train_forward_classifiers(
     if cfg is not None:
         cv_splits = int(pcfg.get("cv_splits", cv_splits))
 
-    results: Dict[int, dict] = {}
+    results: dict[int, dict] = {}
 
     for h in horizons:
         if h <= 0:
@@ -308,21 +318,19 @@ def train_forward_classifiers(
         def make_gb() -> GradientBoostingClassifier:
             return make_gradient_boosting_classifier(cfg)
 
-        cv_scores: Dict[str, dict] = {
+        cv_scores: dict[str, dict] = {
             "dt": _tscv_scores(make_dt, X_h, y_h, cv_splits, f"DT forward h={h}"),
             "rf": _tscv_scores(make_rf, X_h, y_h, cv_splits, f"RF forward h={h}"),
         }
 
-        models: Dict[str, object] = {
+        models: dict[str, object] = {
             "dt": make_dt(),
             "rf": make_rf(),
         }
         if use_boosted:
             try:
                 models["gb"] = make_gb()
-                cv_scores["gb"] = _tscv_scores(
-                    make_gb, X_h, y_h, cv_splits, f"GB forward h={h}"
-                )
+                cv_scores["gb"] = _tscv_scores(make_gb, X_h, y_h, cv_splits, f"GB forward h={h}")
             except Exception as exc:  # pragma: no cover - defensive
                 log.warning("Boosted forward model h=%d failed init: %s", h, exc)
         for name, clf in models.items():
@@ -344,7 +352,7 @@ def train_forward_classifiers(
 
 
 def _aggregate_classification_reports(
-    reports: List[Dict[str, dict]],
+    reports: list[dict[str, dict]],
 ) -> dict:
     """
     Aggregate a list of classification_report(output_dict=True) dicts.
@@ -362,12 +370,8 @@ def _aggregate_classification_reports(
     per_model = {
         "overall": {
             "accuracy": float(np.mean([rep.get("accuracy", 0.0) for rep in reports])),
-            "macro_f1": float(
-                np.mean([rep["macro avg"]["f1-score"] for rep in reports])
-            ),
-            "weighted_f1": float(
-                np.mean([rep["weighted avg"]["f1-score"] for rep in reports])
-            ),
+            "macro_f1": float(np.mean([rep["macro avg"]["f1-score"] for rep in reports])),
+            "weighted_f1": float(np.mean([rep["weighted avg"]["f1-score"] for rep in reports])),
         },
         "per_class": {},
     }
@@ -415,7 +419,7 @@ def model_metrics_summary(results: dict) -> dict:
 
     # Single-bundle (current-regime) case
     if "cv_scores" in data and isinstance(data.get("cv_scores"), dict):
-        summary: Dict[str, dict] = {}
+        summary: dict[str, dict] = {}
         for model_name, score_blob in data["cv_scores"].items():
             folds = score_blob.get("reports", [])
             rep_dicts = [fr.report if isinstance(fr, FoldReport) else fr for fr in folds]
@@ -436,10 +440,10 @@ def model_metrics_summary(results: dict) -> dict:
         return {"rows": rows}
 
     # Multi-horizon case
-    out: Dict[int, dict] = {}
+    out: dict[int, dict] = {}
     for horizon, bundle in data.items():
         cv_scores = bundle.get("cv_scores", {})
-        model_summaries: Dict[str, dict] = {}
+        model_summaries: dict[str, dict] = {}
         for model_name, score_blob in cv_scores.items():
             folds = score_blob.get("reports", [])
             rep_dicts = [fr.report if isinstance(fr, FoldReport) else fr for fr in folds]
@@ -481,7 +485,7 @@ def train_forward_behavior_models(
     features: pd.DataFrame,
     regimes: pd.Series,
     returns: pd.DataFrame,
-    horizons: List[int],
+    horizons: list[int],
     cv_splits: int = 3,
 ) -> dict:
     """
@@ -504,12 +508,12 @@ def train_forward_behavior_models(
     if not horizons:
         raise ValueError("horizons must be a non-empty list of integers")
 
-    models: Dict[str, Dict[int, RandomForestClassifier]] = {}
-    cv_scores: Dict[str, Dict[int, dict]] = {}
+    models: dict[str, dict[int, RandomForestClassifier]] = {}
+    cv_scores: dict[str, dict[int, dict]] = {}
 
     for asset in returns.columns:
-        asset_models: Dict[int, RandomForestClassifier] = {}
-        asset_cv: Dict[int, dict] = {}
+        asset_models: dict[int, RandomForestClassifier] = {}
+        asset_cv: dict[int, dict] = {}
         for h in horizons:
             if h <= 0:
                 raise ValueError(f"horizon must be positive, got {h}")
@@ -520,9 +524,7 @@ def train_forward_behavior_models(
                 up_threshold=0.0,
                 down_threshold=0.0,
             )
-            idx_joint = (
-                labels.index.intersection(features.index).intersection(regimes.index)
-            )
+            idx_joint = labels.index.intersection(features.index).intersection(regimes.index)
             if idx_joint.empty:
                 continue
 
@@ -565,9 +567,9 @@ def train_forward_behavior_models(
 
 def extract_top_features(
     model,
-    feature_names: List[str],
+    feature_names: list[str],
     top_k: int,
-) -> List[str]:
+) -> list[str]:
     """
     Extract the top_k feature names from a fitted model with feature_importances_.
 
@@ -585,7 +587,7 @@ def train_interpretability_tree(
     features: pd.DataFrame,
     labels: pd.Series,
     cfg: dict | None = None,
-) -> Tuple[DecisionTreeClassifier, List[str]]:
+) -> tuple[DecisionTreeClassifier, list[str]]:
     """
     Fit a shallow DecisionTree on the top-K features from a base model.
 
@@ -603,4 +605,3 @@ def train_interpretability_tree(
     tree = DecisionTreeClassifier(max_depth=max_depth, random_state=42)
     tree.fit(X_sub, labels)
     return tree, top_features
-

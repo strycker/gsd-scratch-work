@@ -5,13 +5,12 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import StandardScaler
 
 from trading_crab_lib.gmm import fit_gmm, gmm_labels, gmm_probabilities, select_gmm_k
 
-
 # ── Shared fixtures ───────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def pca_df():
@@ -19,27 +18,32 @@ def pca_df():
     rng = np.random.default_rng(42)
     idx = pd.date_range("2000-03-31", periods=60, freq="QE")
     # Three well-separated clusters in PC1 direction
-    data = np.vstack([
-        rng.multivariate_normal([3, 0, 0, 0, 0], np.eye(5), 20),
-        rng.multivariate_normal([-3, 0, 0, 0, 0], np.eye(5), 20),
-        rng.multivariate_normal([0, 3, 0, 0, 0], np.eye(5), 20),
-    ])
-    return pd.DataFrame(data, index=idx, columns=[f"PC{i+1}" for i in range(5)])
+    data = np.vstack(
+        [
+            rng.multivariate_normal([3, 0, 0, 0, 0], np.eye(5), 20),
+            rng.multivariate_normal([-3, 0, 0, 0, 0], np.eye(5), 20),
+            rng.multivariate_normal([0, 3, 0, 0, 0], np.eye(5), 20),
+        ]
+    )
+    return pd.DataFrame(data, index=idx, columns=[f"PC{i + 1}" for i in range(5)])
 
 
 @pytest.fixture
 def small_bic_df():
     """Minimal BIC DataFrame with two rows."""
-    return pd.DataFrame({
-        "k": [2, 3, 4],
-        "covariance_type": ["diag", "diag", "diag"],
-        "bic": [200.0, 150.0, 180.0],
-        "aic": [190.0, 140.0, 170.0],
-        "log_likelihood": [-1.0, -0.8, -0.9],
-    })
+    return pd.DataFrame(
+        {
+            "k": [2, 3, 4],
+            "covariance_type": ["diag", "diag", "diag"],
+            "bic": [200.0, 150.0, 180.0],
+            "aic": [190.0, 140.0, 170.0],
+            "log_likelihood": [-1.0, -0.8, -0.9],
+        }
+    )
 
 
 # ── fit_gmm ───────────────────────────────────────────────────────────────────
+
 
 class TestFitGmm:
     def test_returns_three_values(self, pca_df):
@@ -52,7 +56,9 @@ class TestFitGmm:
             assert col in bic_df.columns, f"Missing column: {col}"
 
     def test_bic_df_row_count(self, pca_df):
-        bic_df, _, _ = fit_gmm(pca_df, k_range=range(2, 5), covariance_types=("diag", "tied"), n_init=3)
+        bic_df, _, _ = fit_gmm(
+            pca_df, k_range=range(2, 5), covariance_types=("diag", "tied"), n_init=3
+        )
         # 3 k values × 2 cov types = 6 rows
         assert len(bic_df) == 6
 
@@ -86,6 +92,7 @@ class TestFitGmm:
 
 # ── select_gmm_k ─────────────────────────────────────────────────────────────
 
+
 class TestSelectGmmK:
     def test_returns_minimum_bic(self, small_bic_df):
         best_k, best_cov = select_gmm_k(small_bic_df)
@@ -102,18 +109,22 @@ class TestSelectGmmK:
             select_gmm_k(pd.DataFrame())
 
     def test_all_nan_bic_raises(self):
-        df = pd.DataFrame({"k": [2, 3], "covariance_type": ["diag", "diag"], "bic": [float("nan"), float("nan")]})
+        df = pd.DataFrame(
+            {"k": [2, 3], "covariance_type": ["diag", "diag"], "bic": [float("nan"), float("nan")]}
+        )
         with pytest.raises(ValueError, match="NaN"):
             select_gmm_k(df)
 
     def test_mixed_cov_types_picks_overall_minimum(self):
-        df = pd.DataFrame({
-            "k":               [2, 2, 3, 3],
-            "covariance_type": ["diag", "full", "diag", "full"],
-            "bic":             [300.0, 200.0, 250.0, 100.0],
-            "aic":             [290.0, 190.0, 240.0, 90.0],
-            "log_likelihood":  [-1.0, -0.9, -0.8, -0.7],
-        })
+        df = pd.DataFrame(
+            {
+                "k": [2, 2, 3, 3],
+                "covariance_type": ["diag", "full", "diag", "full"],
+                "bic": [300.0, 200.0, 250.0, 100.0],
+                "aic": [290.0, 190.0, 240.0, 90.0],
+                "log_likelihood": [-1.0, -0.9, -0.8, -0.7],
+            }
+        )
         best_k, best_cov = select_gmm_k(df)
         assert best_k == 3
         assert best_cov == "full"
@@ -121,27 +132,36 @@ class TestSelectGmmK:
 
 # ── gmm_labels ────────────────────────────────────────────────────────────────
 
+
 class TestGmmLabels:
     def test_returns_series(self, pca_df):
-        _, models, scaler = fit_gmm(pca_df, k_range=range(2, 3), covariance_types=("diag",), n_init=3)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(2, 3), covariance_types=("diag",), n_init=3
+        )
         model = models[(2, "diag")]
         labels = gmm_labels(pca_df, model, scaler=scaler)
         assert isinstance(labels, pd.Series)
 
     def test_index_matches_pca_df(self, pca_df):
-        _, models, scaler = fit_gmm(pca_df, k_range=range(2, 3), covariance_types=("diag",), n_init=3)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(2, 3), covariance_types=("diag",), n_init=3
+        )
         model = models[(2, "diag")]
         labels = gmm_labels(pca_df, model, scaler=scaler)
         assert labels.index.equals(pca_df.index)
 
     def test_label_count_matches_k(self, pca_df):
-        _, models, scaler = fit_gmm(pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3
+        )
         model = models[(3, "diag")]
         labels = gmm_labels(pca_df, model, scaler=scaler)
         assert labels.nunique() == 3
 
     def test_labels_are_non_negative_integers(self, pca_df):
-        _, models, scaler = fit_gmm(pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3
+        )
         model = models[(3, "diag")]
         labels = gmm_labels(pca_df, model, scaler=scaler)
         assert (labels >= 0).all()
@@ -149,7 +169,9 @@ class TestGmmLabels:
 
     def test_canonicalized_cluster0_has_smallest_mean_pc1(self, pca_df):
         """Cluster 0 must correspond to smallest mean PC1 value."""
-        _, models, scaler = fit_gmm(pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=5)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=5
+        )
         model = models[(3, "diag")]
         labels = gmm_labels(pca_df, model, scaler=scaler)
         pc1 = pca_df.iloc[:, 0]
@@ -166,13 +188,17 @@ class TestGmmLabels:
         assert len(labels) == len(pca_df)
 
     def test_name_is_gmm_cluster(self, pca_df):
-        _, models, scaler = fit_gmm(pca_df, k_range=range(2, 3), covariance_types=("diag",), n_init=3)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(2, 3), covariance_types=("diag",), n_init=3
+        )
         labels = gmm_labels(pca_df, models[(2, "diag")], scaler=scaler)
         assert labels.name == "gmm_cluster"
 
     def test_scaler_consistency(self, pca_df):
         """Labels should be identical whether scaler is passed or freshly fitted (same data)."""
-        _, models, scaler = fit_gmm(pca_df, k_range=range(2, 3), covariance_types=("diag",), n_init=5)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(2, 3), covariance_types=("diag",), n_init=5
+        )
         model = models[(2, "diag")]
         labels_with_scaler = gmm_labels(pca_df, model, scaler=scaler)
         labels_no_scaler = gmm_labels(pca_df, model, scaler=None)
@@ -182,35 +208,48 @@ class TestGmmLabels:
 
 # ── gmm_probabilities ─────────────────────────────────────────────────────────
 
+
 class TestGmmProbabilities:
     def test_returns_dataframe(self, pca_df):
-        _, models, scaler = fit_gmm(pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3
+        )
         probs = gmm_probabilities(pca_df, models[(3, "diag")], scaler=scaler)
         assert isinstance(probs, pd.DataFrame)
 
     def test_shape(self, pca_df):
-        _, models, scaler = fit_gmm(pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3
+        )
         probs = gmm_probabilities(pca_df, models[(3, "diag")], scaler=scaler)
         assert probs.shape == (len(pca_df), 3)
 
     def test_rows_sum_to_one(self, pca_df):
-        _, models, scaler = fit_gmm(pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3
+        )
         probs = gmm_probabilities(pca_df, models[(3, "diag")], scaler=scaler)
         row_sums = probs.sum(axis=1)
         np.testing.assert_allclose(row_sums.values, 1.0, atol=1e-6)
 
     def test_probs_between_0_and_1(self, pca_df):
-        _, models, scaler = fit_gmm(pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3
+        )
         probs = gmm_probabilities(pca_df, models[(3, "diag")], scaler=scaler)
         assert (probs.values >= 0).all()
         assert (probs.values <= 1).all()
 
     def test_column_names(self, pca_df):
-        _, models, scaler = fit_gmm(pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3
+        )
         probs = gmm_probabilities(pca_df, models[(3, "diag")], scaler=scaler)
         assert list(probs.columns) == ["gmm_prob_0", "gmm_prob_1", "gmm_prob_2"]
 
     def test_index_matches_pca_df(self, pca_df):
-        _, models, scaler = fit_gmm(pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3)
+        _, models, scaler = fit_gmm(
+            pca_df, k_range=range(3, 4), covariance_types=("diag",), n_init=3
+        )
         probs = gmm_probabilities(pca_df, models[(3, "diag")], scaler=scaler)
         assert probs.index.equals(pca_df.index)

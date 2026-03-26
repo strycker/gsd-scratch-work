@@ -11,7 +11,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 _BLUEPRINT = ROOT / ".planning" / "research" / "SUBMODULE_UNIFICATION_BLUEPRINT.md"
-_SUMMARY = ROOT / ".planning" / "phases" / "30-v1-3-submodule-unification-blueprint" / "30-SUMMARY.md"
+_SUMMARY = (
+    ROOT / ".planning" / "phases" / "30-v1-3-submodule-unification-blueprint" / "30-SUMMARY.md"
+)
 _REQUIREMENTS = ROOT / ".planning" / "REQUIREMENTS.md"
 _ROADMAP = ROOT / ".planning" / "ROADMAP.md"
 
@@ -31,7 +33,13 @@ def test_phase30_blueprint_exists_with_acceptance_substrings() -> None:
 
 def test_phase30_batches_have_five_field_labels_each() -> None:
     text = _BLUEPRINT.read_text(encoding="utf-8")
-    for label in ("**Objective:**", "**Source:**", "**Risk:**", "**Depends on:**", "**Owner-confirm gate:**"):
+    for label in (
+        "**Objective:**",
+        "**Source:**",
+        "**Risk:**",
+        "**Depends on:**",
+        "**Owner-confirm gate:**",
+    ):
         assert text.count(label) >= 5, f"Expected >= 5 occurrences of {label}"
 
 

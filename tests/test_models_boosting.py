@@ -79,4 +79,3 @@ def test_train_forward_classifiers_supports_gb_flag() -> None:
         proba = bundle["models"]["gb"].predict_proba(X_h)
         assert proba.shape[0] == len(X_h)
         np.testing.assert_allclose(proba.sum(axis=1), np.ones(len(X_h)), rtol=1e-6)
-

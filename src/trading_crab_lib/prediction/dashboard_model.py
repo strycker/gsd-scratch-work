@@ -1,4 +1,9 @@
-"""Resolve which pickled current-regime model the dashboard uses (RF vs GB)."""
+"""Resolve which pickled current-regime model the dashboard uses (RF vs GB).
+
+The training pipeline may save both ``current_regime.pkl`` (random forest) and
+``current_regime_gb.pkl`` (gradient boosting). This module picks the path implied
+by ``dashboard.regime_model`` in settings, with safe fallback to RF.
+"""
 
 from __future__ import annotations
 

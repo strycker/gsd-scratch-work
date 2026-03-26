@@ -9,8 +9,8 @@ import pandas as pd
 from trading_crab_lib.prediction.classifier import (
     model_metrics_summary,
     train_current_regime,
-    train_forward_classifiers,
     train_forward_behavior_models,
+    train_forward_classifiers,
 )
 from trading_crab_lib.prediction.model_metrics_artifacts import write_model_metrics_artifacts
 
@@ -69,14 +69,14 @@ def test_model_metrics_summary_current_bundle():
     cur = summary["current"]
     assert set(cur.keys()) == {"dt", "rf"}
 
-    for model_name, stats in cur.items():
+    for _model_name, stats in cur.items():
         overall = stats["overall"]
         assert 0.0 <= overall["accuracy"] <= 1.0
         assert 0.0 <= overall["macro_f1"] <= 1.0
         assert 0.0 <= overall["weighted_f1"] <= 1.0
 
         per_class = stats["per_class"]
-        for cls, metrics in per_class.items():
+        for _cls, metrics in per_class.items():
             assert metrics["precision"] >= 0.0
             assert metrics["recall"] >= 0.0
             assert metrics["f1"] >= 0.0
@@ -114,7 +114,7 @@ def test_model_metrics_summary_forward_horizons():
     assert fake_forward == original
 
     assert set(summary.keys()) == {1, 2}
-    for h, models in summary.items():
+    for _h, models in summary.items():
         assert "rf" in models
         overall = models["rf"]["overall"]
         assert 0.0 <= overall["accuracy"] <= 1.0
@@ -179,9 +179,7 @@ def test_model_metrics_summary_combined_regime_and_behavior() -> None:
     etf1_up = [
         r
         for r in rows
-        if r["family"] == "behavior"
-        and r["asset"] == "ETF1"
-        and r["class_label"] == "up"
+        if r["family"] == "behavior" and r["asset"] == "ETF1" and r["class_label"] == "up"
     ]
     assert len(etf1_up) == 1
     assert 0.0 <= etf1_up[0]["value"] <= 1.0
@@ -209,12 +207,8 @@ def test_model_metrics_artifacts_schema_and_behavior_coverage(tmp_path) -> None:
     )
 
     current_bundle = train_current_regime(X, regimes, cv_splits=3)
-    forward_models = train_forward_classifiers(
-        X, regimes, horizons=[1], cv_splits=3
-    )
-    behavior_bundle = train_forward_behavior_models(
-        X, regimes, returns, horizons=[1], cv_splits=3
-    )
+    forward_models = train_forward_classifiers(X, regimes, horizons=[1], cv_splits=3)
+    behavior_bundle = train_forward_behavior_models(X, regimes, returns, horizons=[1], cv_splits=3)
 
     out_dir = tmp_path / "outputs" / "reports" / "model_metrics"
     write_model_metrics_artifacts(
@@ -273,4 +267,3 @@ def test_model_metrics_artifacts_schema_and_behavior_coverage(tmp_path) -> None:
         first = json.loads(next(iter(f)))
     assert "train_indices" in first and "test_indices" in first
     assert "classification_report" in first
-
