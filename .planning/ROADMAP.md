@@ -1,5 +1,9 @@
 ## Trading-Crab Roadmap
 
+## Current focus: v1.5 — Next milestone, not started
+
+Planned entry point for the next product milestone; use **`$gsd-new-milestone`** when execution begins.
+
 ## Milestones
 
 - ✅ **v1.0 — Core pipeline + planning evidence** — Phases 1–16 (shipped 2026-03-20) — [full roadmap](milestones/v1.0-ROADMAP.md) · [requirements](milestones/v1.0-REQUIREMENTS.md) · [audit](milestones/v1.0-MILESTONE-AUDIT.md)
