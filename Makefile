@@ -3,6 +3,9 @@
 
 .PHONY: help setup setup-dev install install-dev test lint run run-full run-steps clean-checkpoints clean-all
 
+# Python for `make lint` when `ruff` is not on PATH (use `.venv/bin/python` if ruff is only installed in the venv).
+PYTHON ?= python3
+
 # ── default ────────────────────────────────────────────────────────────────────
 
 help:
@@ -16,7 +19,7 @@ help:
 	@echo ""
 	@echo "  make test           Run the full test suite"
 	@echo "  make test-fast      Run tests, stop at first failure"
-	@echo "  make lint           Ruff lint + format check (src, tests, pipelines)"
+	@echo "  make lint           Ruff lint + format (ruff on PATH, else PYTHON -m ruff; set PYTHON=.venv/bin/python if needed)"
 	@echo ""
 	@echo "  make run            Steps 3-7 from cached data (fast, no re-scraping)"
 	@echo "  make run-full       Full pipeline — re-scrape + recompute + plots"
@@ -52,9 +55,15 @@ test:
 test-fast:
 	pytest tests/ -x -q
 
+# Prefer `ruff` on PATH; otherwise `$(PYTHON) -m ruff` (CI / venv without a ruff shim).
 lint:
-	ruff check src tests run_pipeline.py pipelines scripts
-	ruff format --check src tests run_pipeline.py pipelines scripts
+	@if command -v ruff >/dev/null 2>&1; then \
+	  ruff check src tests run_pipeline.py pipelines scripts; \
+	  ruff format --check src tests run_pipeline.py pipelines scripts; \
+	else \
+	  $(PYTHON) -m ruff check src tests run_pipeline.py pipelines scripts; \
+	  $(PYTHON) -m ruff format --check src tests run_pipeline.py pipelines scripts; \
+	fi
 
 # ── pipeline ───────────────────────────────────────────────────────────────────
 

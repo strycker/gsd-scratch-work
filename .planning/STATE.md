@@ -4,7 +4,7 @@ milestone: v1.3
 milestone_last_shipped: v1.3
 milestone_name: Consolidation, submodule parity & PyPI
 status: idle
-last_updated: "2026-03-26T22:10:00.000Z"
+last_updated: "2026-03-26T23:20:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 7
@@ -19,12 +19,12 @@ progress:
 - **Phase:** **34** — **complete** (DOCS-10 / library documentation pass)
 - **Plan:** **`.planning/phases/34-v1-3-library-documentation-pass/34-v1-3-library-documentation-pass-01-PLAN.md`**
 - **Status:** Milestone **v1.3** backlog (phases **28–34**) **complete** per **`.planning/REQUIREMENTS.md`** and **`.planning/ROADMAP.md`**
-- **Last activity:** 2026-03-26 — **34-UAT.md** complete; **`.planning/GSD_INVENTORY.md`** added; **`validate health`** clean
+- **Last activity:** 2026-03-26 — **28–31, 33 UAT** files complete; **`make lint`** Ruff fallback; submodule trees clean; **`GSD_INVENTORY`** updated
 
 ## Next actions
 
-1. **Next milestone:** Plan **v1.4** or archive v1.3 per **`$gsd:complete-milestone`** when ready.
-2. **Optional:** Add conversational **`*-UAT.md`** for v1.3 phases **28–31, 33** if you want parity with **32** / **34** (not required for automated health).
+1. **Archive milestone:** Run **`$gsd:complete-milestone`** when ready, or define **v1.4** in **ROADMAP** / **PROJECT.md**.
+2. **Push:** `git push` (branch ahead of **origin**).
 
 ## Milestone v1.3 — phase index (28–34)
 
