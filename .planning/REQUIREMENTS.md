@@ -1,12 +1,36 @@
 # Trading-Crab — Requirements
 
-**Status:** All REQ rows below are **Complete** through milestone **v1.4**. Per-milestone snapshots: **`.planning/milestones/v*-REQUIREMENTS.md`**. Milestone audit: **`milestones/v1.4-MILESTONE-AUDIT.md`**.
+**Status:** Milestone **v1.5** is **active** (requirements below). Shipped through **v1.4**: per-milestone snapshots **`.planning/milestones/v*-REQUIREMENTS.md`**.
 
-**Next:** Define a new milestone via **`$gsd-new-milestone`** when scope is chosen.
-
-**Research:** `.planning/research/SUMMARY.md` (2026-03-25)
+**Research:** Skipped for v1.5 (brownfield doc parity + small UX; no new domain ecosystem). Prior: `.planning/research/SUMMARY.md` (2026-03-25).
 
 **Archived (historical):** v1.0 / v1.1 / v1.2 / v1.3 / v1.4 — `.planning/milestones/v*-REQUIREMENTS.md`
+
+---
+
+## Milestone v1.5 — Template hardening & doc parity *(active)*
+
+### 1. Fork & dependency clarity
+
+- [ ] **TMPL-01** — **Single source of truth for dependencies** is documented for forks: role of **`pyproject.toml`** vs **`requirements.txt`** / **`requirements-dev.txt`**; recommended install (`pip install -e ".[dev]"`). Cross-link **`notebooks/README.md`** from root **`README.md`** if not already prominent.
+
+### 2. Product doc reconciliation
+
+- [ ] **TMPL-02** — **Reconcile backlog markdown with shipped code:** update root **`ROADMAP.md`**, **`.planning/FUTURE-TODO.md`**, and **`CLAUDE.md`** (legacy gaps section) so forward-window / yield-curve / naming matches **`src/trading_crab_lib`** (e.g. `build_forward_window_probabilities`, `yc_*` in `transforms.py`). Remove or retitle stale `compute_forward_probabilities` / wrong file paths if still present.
+
+### 3. Classifier diagnostics (CLAUDE gap)
+
+- [ ] **TMPL-03** — **Confusion matrix visualization** for supervised regime classifiers: implement in **`plotting.py`**, wire to step 5 or model-metrics artifacts, save under **`outputs/plots/`** when `--plots`; add or extend tests if feasible without network.
+
+---
+
+## Traceability (v1.5)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| TMPL-01 | 37 | Pending |
+| TMPL-02 | 38 | Pending |
+| TMPL-03 | 39 | Pending |
 
 ---
 
@@ -57,3 +81,5 @@
 **Milestone v1.3 roadmap scope:** phases **28–34** (archived **`.planning/milestones/v1.3-REQUIREMENTS.md`**).
 
 **Milestone v1.4 gap closure:** phases **35–36** (archived **`.planning/milestones/v1.4-REQUIREMENTS.md`**).
+
+**Milestone v1.5:** phases **37–39** (active — this file).

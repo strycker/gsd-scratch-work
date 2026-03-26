@@ -4,9 +4,11 @@
 
 ## Immediate (GSD)
 
-1. **Start the next milestone** — Run **`$gsd-new-milestone`** to define **v1.5** (or your chosen version). Current state: **v1.4 complete** (see `.planning/STATE.md`).
+1. **Milestone v1.5 is open** — Requirements: **`.planning/REQUIREMENTS.md`** · Roadmap: **`.planning/ROADMAP.md`** · State: **`.planning/STATE.md`**.
 
-2. **Use the cleanup backlog** — **[`.planning/v1.5-CLEANUP-BACKLOG.md`](v1.5-CLEANUP-BACKLOG.md)** lists repaired items, outstanding doc drift, and suggested v1.5 themes (doc parity, notebook/fork guide, backlog triage). Pull requirements from there into **`v1.5-REQUIREMENTS.md`** when you open the milestone.
+2. **Start execution** — **`$gsd-discuss-phase 37`** or **`$gsd-plan-phase 37`** (fork & dependency docs — **TMPL-01**).
+
+3. **Historical notes** — Pre-milestone list: **[`v1.5-CLEANUP-BACKLOG.md`](v1.5-CLEANUP-BACKLOG.md)** (superseded by formal requirements).
 
 ## Product / engineering
 

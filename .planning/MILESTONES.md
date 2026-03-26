@@ -1,5 +1,13 @@
 # Milestones
 
+## v1.5 Template hardening & doc parity *(in progress)*
+
+**Phases:** 37–39 (see **`.planning/ROADMAP.md`**, **`.planning/REQUIREMENTS.md`**)  
+**Started:** 2026-03-26 — **`$gsd-new-milestone`**  
+**Goal:** Fork dependency clarity, product-doc reconciliation, confusion matrix for classifiers.
+
+---
+
 ## v1.4 Audit gap closure (Shipped: 2026-03-26)
 
 **Phases completed:** 2 phases (35–36), 2 plans

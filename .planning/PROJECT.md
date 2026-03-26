@@ -1,5 +1,19 @@
 ## Project: Trading-Crab — Market Regime Analysis & ETF Portfolio Guidance
 
+## Current Milestone: v1.5 — Template hardening & doc parity
+
+**Goal:** Keep the repository a **clean fork template**: one clear dependency story, product docs that match shipped code, and closure of the small supervised-model visualization gap (confusion matrix) where feasible.
+
+**Target features:**
+
+- **Fork onboarding** — Document `pyproject.toml` vs `requirements.txt` for installs; reinforce `notebooks/README.md` and `trading_crab_lib` imports.
+- **Backlog reconciliation** — Align root `ROADMAP.md`, `FUTURE-TODO.md`, and `CLAUDE.md` with implementations (e.g. forward-window probabilities, yield-curve features in `transforms.py`).
+- **Classifier diagnostics** — Add confusion-matrix visualization (and optional report text) for step-5 regime classifiers to match legacy alignment notes.
+
+*Defined: 2026-03-26 — `$gsd-new-milestone`*
+
+---
+
 ### What This Is
 
 Trading-Crab is a Python-based research and execution environment for understanding macro-driven market regimes and turning that understanding into ETF-level portfolio decisions. It is the living, code-centered expression of the ideas captured in `CLAUDE.md`, using GSD-style planning (`.planning/`) to keep architecture, requirements, and implementation in sync.
@@ -108,7 +122,7 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 #### Active (next)
 
-- (none — define in **`$gsd-new-milestone`** or **PROJECT.md** when v1.5 scope is chosen)
+- **v1.5** — Template hardening & doc parity (see **Current Milestone** above and **`.planning/REQUIREMENTS.md`**).
 
 #### Deferred (post-v1.3 / future)
 
@@ -156,11 +170,13 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 ## Current position
 
+**v1.5 — Template hardening & doc parity** is **in progress** (phases **37–39**). Requirements: **`.planning/REQUIREMENTS.md`**; roadmap: **`.planning/ROADMAP.md`**.
+
 **v1.3 — Consolidation, submodule parity & PyPI** is **shipped** (**2026-03-26**, git tag **`v1.3`**). Archives: **`.planning/milestones/v1.3-ROADMAP.md`**, **`v1.3-REQUIREMENTS.md`**, **`v1.3-MILESTONE-AUDIT.md`**.
 
 **v1.4 — Audit gap closure** (phases **35–36**) is **shipped** (**2026-03-26**, git tag **`v1.4`**) — **AUDIT-10**, **DOC-ALIGN-10**; **`.planning/milestones/v1.4-REQUIREMENTS.md`**, **`v1.4-MILESTONE-AUDIT.md`**. Ledger: **`.planning/MILESTONES.md`**.
 
-**Next:** define **v1.5** (or next product milestone) via **`$gsd-new-milestone`** when ready.
+**Next:** execute **v1.5** — **`$gsd-discuss-phase 37`** or **`$gsd-plan-phase 37`**.
 
 ---
 
@@ -182,5 +198,5 @@ These constitute the **baseline capabilities** that v1 will refine and productiz
 
 ---
 
-*Last updated: 2026-03-26 — **v1.3** + **v1.4** milestones archived*
+*Last updated: 2026-03-26 — **v1.5** milestone started; **v1.3** + **v1.4** archived*
 

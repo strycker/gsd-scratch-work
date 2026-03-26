@@ -1,11 +1,41 @@
 ## Trading-Crab Roadmap
 
-## Current focus: v1.5 — Next milestone, not started
+## Current focus: v1.5 — Template hardening & doc parity *(active)*
 
-Planned entry point for the next product milestone; use **`$gsd-new-milestone`** when execution begins.
+**Milestone:** v1.5 — phases **37–39**  
+**Requirements:** **`.planning/REQUIREMENTS.md`** (TMPL-01 … TMPL-03)
+
+### Phase overview
+
+| # | Name | Goal | Requirements | Success criteria (observable) |
+|---|------|------|--------------|------------------------------|
+| **37** | Fork & dependency docs | Forks know how to install and which file is canonical for deps | TMPL-01 | README (or `docs/`) states pyproject vs requirements; `make`/CI story unchanged or documented |
+| **38** | Backlog reconciliation | Product markdown matches code | TMPL-02 | Root ROADMAP / FUTURE-TODO / CLAUDE gaps aligned with `trading_crab_lib` implementation |
+| **39** | Confusion matrix | Close CLAUDE visualization gap for classifiers | TMPL-03 | Plot saved under `outputs/plots/` when plots enabled; tests or smoke path documented |
+
+### Phase 37 — Fork & dependency docs
+
+- **Goal:** Remove ambiguity for new repos cloning this template.
+- **Deliverables:** README section (or small `docs/DEPENDENCIES.md`) describing `pip install -e ".[dev]"` vs `requirements.txt`; optional `CONTRIBUTING.md` pointer.
+- **Maps to:** TMPL-01
+
+### Phase 38 — Backlog reconciliation
+
+- **Goal:** No “phantom” gaps in top-level docs.
+- **Deliverables:** Edits to `ROADMAP.md`, `FUTURE-TODO.md`, `CLAUDE.md` as needed; optional note in `v1.5-CLEANUP-BACKLOG.md` that items moved to shipped/deferred.
+- **Maps to:** TMPL-02
+
+### Phase 39 — Confusion matrix
+
+- **Goal:** Per-class confusion matrix for current-regime (or CV) predictions — parity with legacy `supervised` reporting style.
+- **Deliverables:** `plotting.plot_confusion_matrix` (or similar), call site from step 5 pipeline or metrics writer; PNG in `outputs/plots/`.
+- **Maps to:** TMPL-03
+
+---
 
 ## Milestones
 
+- 🔄 **v1.5 — Template hardening & doc parity** — Phases **37–39** *(active)* — requirements: **`.planning/REQUIREMENTS.md`**
 - ✅ **v1.0 — Core pipeline + planning evidence** — Phases 1–16 (shipped 2026-03-20) — [full roadmap](milestones/v1.0-ROADMAP.md) · [requirements](milestones/v1.0-REQUIREMENTS.md) · [audit](milestones/v1.0-MILESTONE-AUDIT.md)
 - ✅ **v1.2 — Tactics, triggers & expanded signals** — Phases 17–27 (shipped 2026-03-24) — [full roadmap](milestones/v1.2-ROADMAP.md) · [requirements](milestones/v1.2-REQUIREMENTS.md) · [audit](milestones/v1.2-MILESTONE-AUDIT.md)
 - ✅ **v1.3 — Consolidation, submodule parity & PyPI** — Phases 28–34 (shipped 2026-03-26) — [full roadmap](milestones/v1.3-ROADMAP.md) · [requirements](milestones/v1.3-REQUIREMENTS.md) · [audit](milestones/v1.3-MILESTONE-AUDIT.md)
@@ -38,6 +68,8 @@ GSD folder **`01-data-and-constraints-foundations/`** — plans **`01-data-and-c
 - [x] **Phase 35: v1.4 — Phase 28 verification parity (audit)** — **AUDIT-10**
 - [x] **Phase 36: v1.4 — Root docs & import alignment** — **DOC-ALIGN-10**
 
-## Next milestone
+## v1.5 execution checklist
 
-*(Not defined.)* Use **`$gsd-new-milestone`** when starting **v1.5** (or the next product milestone).
+- [ ] **Phase 37** — TMPL-01 (fork & dependency docs)
+- [ ] **Phase 38** — TMPL-02 (ROADMAP / FUTURE-TODO / CLAUDE reconciliation)
+- [ ] **Phase 39** — TMPL-03 (confusion matrix plot + wiring)
