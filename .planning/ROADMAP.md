@@ -18,7 +18,7 @@
 - [x] **Phase 32: v1.3 — PyPI release engineering & publish story** — **PKG-11**
 - [x] **Phase 33: v1.3 — Root prune (redundancy removal)** — **PRUNE-10**
 - [x] **Phase 34: v1.3 — Library documentation & rationale pass** — **DOCS-10**
-- [ ] **Phase 35: v1.4 — Phase 28 verification parity (audit)** — **AUDIT-10**
+- [x] **Phase 35: v1.4 — Phase 28 verification parity (audit)** — **AUDIT-10**
 - [ ] **Phase 36: v1.4 — Root docs & import alignment** — **DOC-ALIGN-10**
 
 ### Phase 35: v1.4 — Phase 28 verification parity (audit)
