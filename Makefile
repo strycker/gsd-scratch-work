@@ -1,10 +1,11 @@
 # Makefile — shortcuts for common Trading-Crab tasks.
 # Run `make help` to see all available targets.
 
-.PHONY: help setup setup-dev install install-dev test lint run run-full run-steps clean-checkpoints clean-all
+.PHONY: help setup setup-dev install install-dev test lint submodules check run run-full run-steps clean-checkpoints clean-all
 
-# Python for `make lint` when `ruff` is not on PATH (use `.venv/bin/python` if ruff is only installed in the venv).
-PYTHON ?= python3
+# Optional: `make lint PYTHON=/path/to/venv/bin/python` forces that interpreter for `python -m ruff`
+# (scripts/lint.sh also auto-picks `.venv/bin/python` when ruff is not on PATH).
+export PYTHON
 
 # ── default ────────────────────────────────────────────────────────────────────
 
@@ -19,7 +20,9 @@ help:
 	@echo ""
 	@echo "  make test           Run the full test suite"
 	@echo "  make test-fast      Run tests, stop at first failure"
-	@echo "  make lint           Ruff lint + format (ruff on PATH, else PYTHON -m ruff; set PYTHON=.venv/bin/python if needed)"
+	@echo "  make lint           Ruff via scripts/lint.sh (see scripts/lint.sh header for PATH / .venv order)"
+	@echo "  make submodules     git submodule update --init --recursive (needs network; SKIP_SUBMODULE_SYNC=1 to skip)"
+	@echo "  make check          submodules + lint + test (local CI / Cursor)"
 	@echo ""
 	@echo "  make run            Steps 3-7 from cached data (fast, no re-scraping)"
 	@echo "  make run-full       Full pipeline — re-scrape + recompute + plots"
@@ -40,6 +43,9 @@ setup:
 setup-dev:
 	bash scripts/setup.sh --dev
 
+submodules:
+	bash scripts/sync_submodules.sh
+
 # Install into whatever environment is currently active (no venv management)
 install:
 	pip install -r requirements.txt
@@ -55,15 +61,11 @@ test:
 test-fast:
 	pytest tests/ -x -q
 
-# Prefer `ruff` on PATH; otherwise `$(PYTHON) -m ruff` (CI / venv without a ruff shim).
 lint:
-	@if command -v ruff >/dev/null 2>&1; then \
-	  ruff check src tests run_pipeline.py pipelines scripts; \
-	  ruff format --check src tests run_pipeline.py pipelines scripts; \
-	else \
-	  $(PYTHON) -m ruff check src tests run_pipeline.py pipelines scripts; \
-	  $(PYTHON) -m ruff format --check src tests run_pipeline.py pipelines scripts; \
-	fi
+	bash scripts/lint.sh
+
+# Submodule sync + lint + tests (run before push or in Cursor task)
+check: submodules lint test
 
 # ── pipeline ───────────────────────────────────────────────────────────────────
 

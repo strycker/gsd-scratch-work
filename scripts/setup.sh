@@ -7,6 +7,7 @@
 #   bash scripts/setup.sh --help
 #
 # What this script does:
+#   0. Runs scripts/sync_submodules.sh (unless SKIP_SUBMODULE_SYNC=1)
 #   1. Verifies Python >= 3.10
 #   2. Creates a virtual environment at .venv/ (skipped if already present)
 #   3. Installs pinned dependencies from requirements.txt (or requirements-dev.txt)
@@ -28,6 +29,13 @@ yellow() { printf '\033[0;33m%s\033[0m\n' "$*"; }
 red()    { printf '\033[0;31m%s\033[0m\n' "$*"; }
 die()    { red "ERROR: $*"; exit 1; }
 step()   { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
+
+# ── 0. Git submodules (parity copies — keep in sync with recorded SHAs) ───────
+
+if [[ "${SKIP_SUBMODULE_SYNC:-}" != "1" ]] && [[ -f "$REPO_ROOT/.gitmodules" ]]; then
+  step "Syncing git submodules"
+  bash "$REPO_ROOT/scripts/sync_submodules.sh" || die "Submodule sync failed (network or auth?). Retry or set SKIP_SUBMODULE_SYNC=1"
+fi
 
 # ── argument parsing ───────────────────────────────────────────────────────────
 

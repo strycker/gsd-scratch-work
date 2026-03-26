@@ -162,16 +162,20 @@ pytest
 ### Common Commands (via Makefile)
 
 ```bash
-make setup          # Automated setup (runs scripts/setup.sh)
+make setup          # Automated setup (runs scripts/setup.sh; syncs git submodules first)
 make setup-dev      # Setup with testing + notebook extras
+make submodules     # git submodule update --init --recursive (SKIP_SUBMODULE_SYNC=1 to skip)
+make check          # submodules + lint + test (good before push / in Cursor)
 make run            # Steps 3-7 from cached checkpoints (fast)
 make run-full       # Full pipeline — re-scrape + recompute + plots
 make test           # Run the test suite
-make lint           # Ruff lint + format check
+make lint           # Ruff (scripts/lint.sh: ruff on PATH, else .venv, else python3 -m ruff)
 make dashboard      # Print current regime dashboard
 make notebooks      # Launch JupyterLab
 make help           # Show all available targets
 ```
+
+**Ruff on `PATH`:** after `make setup-dev`, either `source .venv/bin/activate` (then `ruff` resolves), or `export PATH="$PWD/.venv/bin:$PATH"`, or install a global shim: `pipx install ruff`. **`make lint`** does not require `ruff` on `PATH` if `.venv` has dev deps or `python3 -m ruff` works.
 
 ### Running the Pipeline
 

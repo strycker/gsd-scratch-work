@@ -18,7 +18,11 @@
 
 ## Developer lint
 
-`make lint` runs **Ruff** via `ruff` on **`PATH`** if present; otherwise **`$(PYTHON) -m ruff`** (default **`PYTHON=python3`**). If Ruff is only installed in a venv, run e.g. **`make PYTHON=.venv/bin/python lint`**.
+`make lint` runs **`scripts/lint.sh`**: **`ruff`** on **`PATH`** → **`.venv/bin/python -m ruff`** (if that venv has Ruff) → **`python3 -m ruff`**. Override: **`PYTHON=/path/to/venv/bin/python make lint`**.
+
+## Git submodules
+
+**`scripts/sync_submodules.sh`** / **`make submodules`** — `git submodule update --init --recursive`. Runs at the start of **`scripts/setup.sh`** unless **`SKIP_SUBMODULE_SYNC=1`**. **`.github/workflows/ci.yml`** checks out submodules; **`.vscode/tasks.json`** includes “Sync git submodules” and **“Check”** (`make check`).
 
 ## `gsd-tools validate health`
 

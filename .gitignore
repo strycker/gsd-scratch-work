@@ -36,6 +36,7 @@ config/email.local.yaml
 Thumbs.db
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode/tasks.json
 .idea/
 *.swp
