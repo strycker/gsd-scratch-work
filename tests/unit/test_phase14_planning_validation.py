@@ -37,10 +37,10 @@ def _traceability_table_chunk(text: str) -> str:
     return chunk if j < 0 else chunk[:j]
 
 
-def test_roadmap_phase1_lists_01_null_plans_not_phase3() -> None:
+def test_roadmap_phase1_lists_phase1_data_foundations_plans_not_phase3() -> None:
     block = _roadmap_phase1_block_resolved()
     assert "03-supervised-regime-behavior-models" not in block
-    assert "01-null-01-PLAN.md" in block
+    assert "01-data-and-constraints-foundations-01-PLAN.md" in block
 
 
 def test_state_points_at_phase14_not_stale_phase3() -> None:
@@ -69,7 +69,7 @@ def test_state_points_at_phase14_not_stale_phase3() -> None:
 
 def test_early_verification_bodies_use_trading_crab_lib_paths() -> None:
     paths = [
-        ROOT / ".planning/phases/01-null/01-null-VERIFICATION.md",
+        ROOT / ".planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-VERIFICATION.md",
         ROOT
         / ".planning/phases/02-regime-clustering-interpretation/02-regime-clustering-interpretation-VERIFICATION.md",
         ROOT

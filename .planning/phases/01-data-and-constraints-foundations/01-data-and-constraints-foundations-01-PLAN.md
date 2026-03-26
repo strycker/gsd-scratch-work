@@ -1,5 +1,5 @@
 ---
-phase: 01-null
+phase: 01-data-and-constraints-foundations
 plan: 01
 type: execute
 wave: 1
@@ -71,7 +71,7 @@ Output: Updated config, ingestion pipeline code, and CLI wiring for macro_raw an
 @.planning/REQUIREMENTS.md
 @.planning/ROADMAP.md
 @.planning/STATE.md
-@.planning/phases/01-null/01-RESEARCH.md
+@.planning/phases/01-data-and-constraints-foundations/01-RESEARCH.md
 </execution_context>
 
 <context>

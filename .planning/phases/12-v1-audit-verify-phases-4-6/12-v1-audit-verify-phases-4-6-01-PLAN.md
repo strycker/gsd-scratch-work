@@ -119,7 +119,7 @@ Produce GSD-grade **verification evidence** for roadmap Phases **4–6** so mile
     YAML frontmatter: `phase`, `verified` (date), `status: passed | gaps_found`, `score` if applicable. Body: goal, observable truths table, artifacts table, key_links table, requirements table mapping PORT-01..03 to evidence. If template / ETF-behavior artifacts are only produced by standalone pipeline, state **gaps_found** and cite whether canonical path is `run_pipeline` or `pipelines/06_asset_returns.py`.
   </behavior>
   <action>
-    Create the file following the tone/structure of `01-null-VERIFICATION.md` / `03-supervised-regime-behavior-models-VERIFICATION.md`.
+    Create the file following the tone/structure of `01-data-and-constraints-foundations-VERIFICATION.md` / `03-supervised-regime-behavior-models-VERIFICATION.md`.
   </action>
   <verify>
     File exists; each PORT-* row has ≥1 concrete code or artifact reference.

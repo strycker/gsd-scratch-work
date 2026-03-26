@@ -1,5 +1,5 @@
 ---
-phase: 01-null
+phase: 01-data-and-constraints-foundations
 plan: 01
 subsystem: data
 tags: [ingestion, checkpoints, fred, multpl, yfinance]
@@ -101,6 +101,6 @@ None - no additional external service configuration was introduced beyond the ex
 - Ready for downstream phases to rely on `macro_raw` and ETF price data via checkpoints, and for subsequent plans to extend FRED series, feature engineering, and validation around cadence and constraints.
 
 ---
-*Phase: 01-null*
+*Phase: 01-data-and-constraints-foundations*
 *Completed: 2026-03-16*
 

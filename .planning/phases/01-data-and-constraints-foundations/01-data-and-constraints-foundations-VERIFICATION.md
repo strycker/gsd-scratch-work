@@ -1,5 +1,5 @@
 ---
-phase: 01-null
+phase: 01-data-and-constraints-foundations
 verified: 2026-03-16T00:00:00Z
 status: passed
 score: 12/12 must-haves verified

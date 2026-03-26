@@ -8,7 +8,7 @@ files_modified:
   - .planning/ROADMAP.md
   - .planning/REQUIREMENTS.md
   - .planning/STATE.md
-  - .planning/phases/01-null/01-null-VERIFICATION.md
+  - .planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-VERIFICATION.md
   - .planning/phases/02-regime-clustering-interpretation/02-regime-clustering-interpretation-VERIFICATION.md
   - .planning/phases/03-supervised-regime-behavior-models/03-supervised-regime-behavior-models-VERIFICATION.md
   - .planning/phases/14-v1-audit-planning-reconciliation/14-SUMMARY.md
@@ -19,8 +19,8 @@ must_haves:
   truths:
     - "ROADMAP completion language and Phase 1 plan list match .planning/REQUIREMENTS.md traceability (or REQUIREMENTS edited with explicit rationale where intentional divergence remains)."
     - ".planning/STATE.md frontmatter and narrative reflect Phase 14 as current focus, v1.0 milestone, and non-stale phase/plan counts vs ROADMAP Progress table."
-    - "Phase 1 detail block in ROADMAP no longer lists Phase 3 plan filenames under Phase 1; it lists Phase 1 (01-null) plans or honest TBD."
-    - "Bodies of 01-null, 02, and 03 *-VERIFICATION.md cite src/trading_crab_lib/ paths and trading_crab_lib import paths where they previously said market_regime."
+    - "Phase 1 detail block in ROADMAP no longer lists Phase 3 plan filenames under Phase 1; it lists Phase 1 (01-data-and-constraints-foundations) plans or honest TBD."
+    - "Bodies of 01-data-and-constraints-foundations, 02, and 03 *-VERIFICATION.md cite src/trading_crab_lib/ paths and trading_crab_lib import paths where they previously said market_regime."
     - "Phase 2 VERIFICATION explains why status gaps_found coexists with 02-VALIDATION.md nyquist_compliant true (different lenses: product gaps vs test-contract freshness)."
   artifacts:
     - path: ".planning/phases/14-v1-audit-planning-reconciliation/14-SUMMARY.md"
@@ -48,7 +48,7 @@ Close **Phase 14: v1.0 Audit — Planning source reconciliation** with documenta
 
 **Phase 2 nuance:** `02-regime-clustering-interpretation-VERIFICATION.md` frontmatter `status: gaps_found` reflects *product* gaps (e.g. ETF rows in profiles, pinned names). `02-VALIDATION.md` frontmatter `nyquist_compliant: true` reflects *test/validation contract* status. Add a short subsection under Phase 2 VERIFICATION (or frontmatter-adjacent prose) so readers do not treat these as contradictory.
 
-**ROADMAP hygiene:** Under "### Phase 1" details, the nested `Plans:` list must not point at `03-supervised-regime-behavior-models-*` files; correct targets are `.planning/phases/01-null/01-null-01-PLAN.md`, `01-null-02-PLAN.md`, `01-null-03-PLAN.md` with accurate checkmarks vs `.planning/ROADMAP.md` Progress table.
+**ROADMAP hygiene:** Under "### Phase 1" details, the nested `Plans:` list must not point at `03-supervised-regime-behavior-models-*` files; correct targets are `.planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-01-PLAN.md`, `01-data-and-constraints-foundations-02-PLAN.md`, `01-data-and-constraints-foundations-03-PLAN.md` with accurate checkmarks vs `.planning/ROADMAP.md` Progress table.
 </context>
 
 <tasks>
@@ -58,17 +58,17 @@ Close **Phase 14: v1.0 Audit — Planning source reconciliation** with documenta
   <read_first>
     - .planning/ROADMAP.md
     - .planning/REQUIREMENTS.md (Traceability table)
-    - .planning/phases/01-null/01-null-01-PLAN.md
-    - .planning/phases/01-null/01-null-02-PLAN.md
-    - .planning/phases/01-null/01-null-03-PLAN.md
+    - .planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-01-PLAN.md
+    - .planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-02-PLAN.md
+    - .planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-03-PLAN.md
   </read_first>
   <action>
-    1. In **ROADMAP.md**, under `### Phase 1: Data & Constraints Foundations`, replace the `Plans:` bullets that reference `03-supervised-regime-behavior-models-*` with the three `01-null-0*-PLAN.md` filenames (paths relative to `.planning/phases/01-null/` or full repo-relative paths — match the style used for Phase 12/13 plan lists). Set `[x]` / `[ ]` per whether those plans are actually complete (infer from ROADMAP Progress row "Phase 1 | 2/3" and plan SUMMARY files if needed).
+    1. In **ROADMAP.md**, under `### Phase 1: Data & Constraints Foundations`, replace the `Plans:` bullets that reference `03-supervised-regime-behavior-models-*` with the three `01-data-and-constraints-foundations-0*-PLAN.md` filenames (paths relative to `.planning/phases/01-data-and-constraints-foundations/` or full repo-relative paths — match the style used for Phase 12/13 plan lists). Set `[x]` / `[ ]` per whether those plans are actually complete (infer from ROADMAP Progress row "Phase 1 | 2/3" and plan SUMMARY files if needed).
     2. Scan ROADMAP top-level checkboxes (`- [ ] **Phase 1**` vs `- [x] **Phase 2**` …) and Progress table **Status** column; align Phase 1 checkbox and any "Complete" language with REQUIREMENTS rows DATA-01..03 and CONSTR-01..02 all **Complete** (either mark Phase 1 complete in ROADMAP or add a one-line NOTE in ROADMAP if Phase 1 is intentionally still open — must not silently contradict the traceability table without explanation).
   </action>
   <acceptance_criteria>
     - `grep -n "03-supervised-regime-behavior-models" .planning/ROADMAP.md` returns no matches inside the `### Phase 1` section (lines from `### Phase 1:` through the line before `### Phase 2:`).
-    - `.planning/ROADMAP.md` contains literal substring `01-null-01-PLAN.md` at least once in the Phase 1 details block.
+    - `.planning/ROADMAP.md` contains literal substring `01-data-and-constraints-foundations-01-PLAN.md` at least once in the Phase 1 details block.
     - If Phase 1 remains `- [ ]` at the top of ROADMAP, the Phase 1 details block includes an explicit sentence explaining why (e.g. one remaining plan incomplete); otherwise top checkbox matches Progress table.
   </acceptance_criteria>
 </task>
@@ -107,7 +107,7 @@ Close **Phase 14: v1.0 Audit — Planning source reconciliation** with documenta
 <task type="auto" tdd="false">
   <name>Task 4 — VERIFICATION path renames (phases 01–03)</name>
   <read_first>
-    - .planning/phases/01-null/01-null-VERIFICATION.md
+    - .planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-VERIFICATION.md
     - .planning/phases/02-regime-clustering-interpretation/02-regime-clustering-interpretation-VERIFICATION.md
     - .planning/phases/03-supervised-regime-behavior-models/03-supervised-regime-behavior-models-VERIFICATION.md
     - List actual files: run `ls src/trading_crab_lib`; confirm legacy tree is absent (`test ! -d src/market_regime`).
@@ -119,7 +119,7 @@ Close **Phase 14: v1.0 Audit — Planning source reconciliation** with documenta
     - For Phase 02, tables that say `src/market_regime/regime.py` must become `src/trading_crab_lib/regime.py` (single module file, not a directory — verify on disk).
   </action>
   <acceptance_criteria>
-    - `grep -r "src/market_regime" .planning/phases/01-null/01-null-VERIFICATION.md .planning/phases/02-regime-clustering-interpretation/02-regime-clustering-interpretation-VERIFICATION.md .planning/phases/03-supervised-regime-behavior-models/03-supervised-regime-behavior-models-VERIFICATION.md` exits 1 (no matches).
+    - `grep -r "src/market_regime" .planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-VERIFICATION.md .planning/phases/02-regime-clustering-interpretation/02-regime-clustering-interpretation-VERIFICATION.md .planning/phases/03-supervised-regime-behavior-models/03-supervised-regime-behavior-models-VERIFICATION.md` exits 1 (no matches).
     - `grep -n "trading_crab_lib" .planning/phases/03-supervised-regime-behavior-models/03-supervised-regime-behavior-models-VERIFICATION.md | head -5` prints at least one line (file demonstrates new package name).
   </acceptance_criteria>
 </task>

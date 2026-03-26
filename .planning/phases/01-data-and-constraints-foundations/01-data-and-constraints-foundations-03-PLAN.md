@@ -1,11 +1,11 @@
 ---
-phase: 01-null
+phase: 01-data-and-constraints-foundations
 plan: 03
 type: execute
 wave: 3
 depends_on:
-  - 01-null-01
-  - 01-null-02
+  - 01-data-and-constraints-foundations-01
+  - 01-data-and-constraints-foundations-02
 files_modified:
   - tests/test_constraints_etf_universe.py
   - tests/test_constraints_frequency.py
@@ -65,9 +65,9 @@ Output: New constraint-focused tests and pipeline smoke tests wired into the exi
 @.planning/REQUIREMENTS.md
 @.planning/ROADMAP.md
 @.planning/STATE.md
-@.planning/phases/01-null/01-RESEARCH.md
-@.planning/phases/01-null/01-null-01-PLAN.md
-@.planning/phases/01-null/01-null-02-PLAN.md
+@.planning/phases/01-data-and-constraints-foundations/01-RESEARCH.md
+@.planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-01-PLAN.md
+@.planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-02-PLAN.md
 </execution_context>
 
 <context>
@@ -168,4 +168,4 @@ After completion, ensure Phase 1 verification and any future `/gsd:verify-work` 
 
 ## PLANNING COMPLETE
 
-**Closed:** 2026-03-20 — Implementation matches `<verification>`; see `01-null-03-SUMMARY.md`. Quick check: `pytest tests/ -k "constraints_etf_universe or constraints_frequency or pipelines_ingest_features" -v`.
+**Closed:** 2026-03-20 — Implementation matches `<verification>`; see `01-data-and-constraints-foundations-03-SUMMARY.md`. Quick check: `pytest tests/ -k "constraints_etf_universe or constraints_frequency or pipelines_ingest_features" -v`.

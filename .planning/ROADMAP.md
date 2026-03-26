@@ -22,6 +22,10 @@ Planned entry point for the next product milestone; use **`$gsd-new-milestone`**
 
 Phase directories remain under **`.planning/phases/`** as execution history.
 
+## Phase directory — 01 (Data & Constraints Foundations)
+
+GSD folder **`01-data-and-constraints-foundations/`** — plans **`01-data-and-constraints-foundations-01-PLAN.md`**, **`01-data-and-constraints-foundations-02-PLAN.md`**, **`01-data-and-constraints-foundations-03-PLAN.md`**. Full narrative and success criteria: [v1.0 roadmap — Phase 1](milestones/v1.0-ROADMAP.md).
+
 ## Shipped phase checklist *(compact — details in milestone archives)*
 
 - [x] **Phase 28: v1.3 — Hybrid PLAN/SUMMARY closure (I001)** — **GSD-10**

@@ -1,12 +1,12 @@
 ---
-phase: 01-null
+phase: 01-data-and-constraints-foundations
 plan: 03
 subsystem: testing
 tags: [pytest, checkpoints, data-constraints]
 
 # Dependency graph
 requires:
-  - phase: 01-null
+  - phase: 01-data-and-constraints-foundations
     provides: data ingestion checkpoints and ETF configuration
 provides:
   - Constraint tests enforcing ETF-only universe for price checkpoints
@@ -100,6 +100,6 @@ None specific to this phase beyond the existing project prerequisites:
 - Subsequent phases can assume that ETF universe and non-intraday cadence constraints are enforced via the pytest suite, and that ingestion/feature pipelines can be exercised under Nyquist using mocks and checkpoints.
 
 ---
-*Phase: 01-null*
+*Phase: 01-data-and-constraints-foundations*
 *Completed: 2026-03-16*
 

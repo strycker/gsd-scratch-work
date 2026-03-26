@@ -19,9 +19,9 @@ score: 5/5 must-have truths verified
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | ROADMAP completion language and Phase 1 plan list match REQUIREMENTS traceability (or explicit rationale for divergence). | ✓ VERIFIED | `.planning/REQUIREMENTS.md` traceability table has no `| Pending |` rows; `.planning/ROADMAP.md` Phase 1 block lists `01-null-0*` plans and includes a **Note** reconciling top-checkbox `[ ]` + Progress **2/3** vs DATA/CONSTR **Complete**. |
+| 1 | ROADMAP completion language and Phase 1 plan list match REQUIREMENTS traceability (or explicit rationale for divergence). | ✓ VERIFIED | `.planning/REQUIREMENTS.md` traceability table has no `| Pending |` rows; `.planning/ROADMAP.md` Phase 1 block lists `01-data-and-constraints-foundations-0*` plans and includes a **Note** reconciling top-checkbox `[ ]` + Progress **2/3** vs DATA/CONSTR **Complete**. |
 | 2 | `STATE.md` reflects Phase 14 focus and non-stale counts. | ✓ VERIFIED | `.planning/STATE.md` YAML `current_phase: 14`; narrative describes post–phase-12/13 audit; no `Current Phase: 03`. |
-| 3 | Phase 1 detail block does not list Phase 3 plan filenames under Phase 1. | ✓ VERIFIED | Phase 1 slice (from `### Phase 1:` through `### Phase 2:`) contains `01-null-01-PLAN.md` and does not contain `03-supervised-regime-behavior-models`. |
+| 3 | Phase 1 detail block does not list Phase 3 plan filenames under Phase 1. | ✓ VERIFIED | Phase 1 slice (from `### Phase 1:` through `### Phase 2:`) contains `01-data-and-constraints-foundations-01-PLAN.md` and does not contain `03-supervised-regime-behavior-models`. |
 | 4 | Bodies of `01`–`03` `*-VERIFICATION.md` cite `src/trading_crab_lib/` (not `src/market_regime/`). | ✓ VERIFIED | `grep -r src/market_regime` on the three files returns no matches; import lines use `trading_crab_lib` where applicable. |
 | 5 | Phase 2 VERIFICATION explains `gaps_found` vs `02-VALIDATION.md` `nyquist_compliant: true`. | ✓ VERIFIED | `02-regime-clustering-interpretation-VERIFICATION.md` contains `## Notes: VERIFICATION vs VALIDATION` covering deliverables vs test contract; `02-VALIDATION.md` points to VERIFICATION for requirement-level status. |
 

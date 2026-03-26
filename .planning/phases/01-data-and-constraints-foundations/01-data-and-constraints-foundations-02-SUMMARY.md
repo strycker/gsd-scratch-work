@@ -1,12 +1,12 @@
 ---
-phase: 01-null
+phase: 01-data-and-constraints-foundations
 plan: 02
 subsystem: data
 tags: [features, checkpoints, pandas]
 
 # Dependency graph
 requires:
-  - phase: 01-null
+  - phase: 01-data-and-constraints-foundations
     provides: "checkpointed macro_raw inputs with optional market_code overlay"
 provides:
   - "Config-driven feature engineering via engineer_all(causal=...) using settings.yaml lists"
@@ -61,7 +61,7 @@ completed: 2026-03-16
 Each task was committed atomically where it required code or docs changes:
 
 1. **Task 1: Ensure config-driven feature lists and causal flags are explicit** - *no code changes required* (existing implementation already satisfied the plan conditions).
-2. **Task 2: Wire Step 02 features to produce dual checkpoints from raw data** - `98d522f` (test/feat; implemented in earlier 01-null-03 work and reused by this plan).
+2. **Task 2: Wire Step 02 features to produce dual checkpoints from raw data** - `98d522f` (test/feat; implemented in earlier 01-data-and-constraints-foundations-03 work and reused by this plan).
 3. **Task 3: Document the feature contract for downstream phases** - `6caf53f` (docs).
 
 **Plan metadata:** not yet committed (will be captured in a separate docs commit with STATE/ROADMAP updates).
@@ -91,6 +91,6 @@ None - feature engineering and checkpointing reuse existing runtime configuratio
 - Future plans in Phases 2–3 should load features via `CheckpointManager` using these names and treat the README section as the user-facing contract for feature regeneration.
 
 ---
-*Phase: 01-null*
+*Phase: 01-data-and-constraints-foundations*
 *Completed: 2026-03-16*
 

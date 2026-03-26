@@ -1,10 +1,10 @@
 ---
-phase: 01-null
+phase: 01-data-and-constraints-foundations
 plan: 02
 type: execute
 wave: 2
 depends_on:
-  - 01-null-01
+  - 01-data-and-constraints-foundations-01
 files_modified:
   - config/settings.yaml
   - pipelines/02_features.py
@@ -61,8 +61,8 @@ Output: Updated feature orchestration, documented feature artifacts, and clear s
 @.planning/REQUIREMENTS.md
 @.planning/ROADMAP.md
 @.planning/STATE.md
-@.planning/phases/01-null/01-RESEARCH.md
-@.planning/phases/01-null/01-null-01-PLAN.md
+@.planning/phases/01-data-and-constraints-foundations/01-RESEARCH.md
+@.planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-01-PLAN.md
 </execution_context>
 
 <context>
