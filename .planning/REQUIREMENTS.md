@@ -12,7 +12,7 @@
 
 - [x] **AUDIT-10** — Formal **`28-VERIFICATION.md`** aligned with **28-SUMMARY** / **28-VALIDATION** and **`validate health`**. **Roadmap:** **Phase 35**. **Evidence:** **`.planning/phases/28-v1-3-hybrid-i001-summaries/28-VERIFICATION.md`**, **`35-SUMMARY.md`**.
 
-- [x] **DOC-ALIGN-10** — Root **README** / **CLAUDE** (and related) use **`trading_crab_lib`** imports and correct paths; **34-VALIDATION** / **34-VERIFICATION** refreshed. **Roadmap:** **Phase 36**. **Evidence:** **`.planning/phases/36-v1-4-root-docs-import-alignment/36-SUMMARY.md`**, **`CLAUDE.md`**, **`README.md`**.
+- [x] **DOC-ALIGN-10** — Root **README** / **CLAUDE** (and related) use **`trading_crab_lib`** imports and correct paths; **34-VALIDATION** / **34-VERIFICATION** refreshed. **Roadmap:** **Phase 36**. **Evidence:** **`.planning/phases/36-v1-4-root-docs-import-alignment/36-SUMMARY.md`**, **`36-VERIFICATION.md`**, **`CLAUDE.md`**, **`README.md`**.
 
 ---
 

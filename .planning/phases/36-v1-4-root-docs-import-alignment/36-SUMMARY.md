@@ -13,9 +13,12 @@
 - **`.planning/phases/34-v1-3-library-documentation-pass/34-VERIFICATION.md`** — Automated checks / pytest counts refreshed (this execute).
 - **`.planning/REQUIREMENTS.md`** — **DOC-ALIGN-10** complete; traceability row **Complete**.
 - **`36-v1-4-root-docs-import-alignment-01-SUMMARY.md`** — hybrid **I001** summary beside **`01-PLAN.md`**.
+- **`36-VERIFICATION.md`** — goal-backward **`$gsd:verify-phase 36`** report (**passed**).
 - **`tests/unit/test_phase14_planning_validation.py`** — Accept **`milestone: v1.4`** in **`.planning/STATE.md`** (Nyquist hook).
 
 ## Verification
+
+Formal report: **`36-VERIFICATION.md`**.
 
 ```bash
 grep -E 'from market_regime|market_regime\.io' CLAUDE.md README.md
