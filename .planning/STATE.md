@@ -1,30 +1,31 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.3
+milestone: v1.4
 milestone_last_shipped: v1.3
-milestone_name: Consolidation, submodule parity & PyPI
-status: idle
-last_updated: "2026-03-26T23:20:00.000Z"
+milestone_name: Audit gap closure
+status: planning
+last_updated: "2026-03-26T23:55:00.000Z"
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 7
-  completed_plans: 7
+  total_phases: 2
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 ## Project state — Trading-Crab (GSD)
 
 ## Current position
 
-- **Phase:** **34** — **complete** (DOCS-10 / library documentation pass)
-- **Plan:** **`.planning/phases/34-v1-3-library-documentation-pass/34-v1-3-library-documentation-pass-01-PLAN.md`**
-- **Status:** Milestone **v1.3** backlog (phases **28–34**) **complete** per **`.planning/REQUIREMENTS.md`** and **`.planning/ROADMAP.md`**
-- **Last activity:** 2026-03-26 — **28–31, 33 UAT** files complete; **`make lint`** Ruff fallback; submodule trees clean; **`GSD_INVENTORY`** updated
+- **Phase:** **35** — **next** (v1.4 — **AUDIT-10** / Phase 28 **VERIFICATION** parity)
+- **Plan:** (to be created — **`$gsd:plan-phase 35`**)
+- **Status:** Milestone **v1.3** **shipped**; **v1.4** gap-closure phases **35–36** opened from **`.planning/v1.3-MILESTONE-AUDIT.md`** (`$gsd:plan-milestone-gaps`).
+- **Last activity:** 2026-03-26 — Roadmap + REQUIREMENTS updated for **AUDIT-10**, **DOC-ALIGN-10**
 
 ## Next actions
 
-1. **Archive milestone:** Run **`$gsd:complete-milestone`** when ready, or define **v1.4** in **ROADMAP** / **PROJECT.md**.
-2. **Push:** `git push` (branch ahead of **origin**).
+1. **`$gsd:plan-phase 35`** (then execute or **`$gsd:execute-phase 35`**).
+2. **`$gsd:plan-phase 36`** — root docs / **`trading_crab_lib`** alignment.
+3. When **v1.4** done: **`$gsd:audit-milestone`** → **`$gsd:complete-milestone v1.4`** (or archive per **PROJECT.md**).
 
 ## Milestone v1.3 — phase index (28–34)
 

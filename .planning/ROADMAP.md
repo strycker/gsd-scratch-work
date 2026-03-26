@@ -5,10 +5,11 @@
 - ✅ **v1.0 — Core pipeline + planning evidence** — Phases 1–16 (shipped 2026-03-20) — [full roadmap](milestones/v1.0-ROADMAP.md) · [requirements](milestones/v1.0-REQUIREMENTS.md) · [audit](milestones/v1.0-MILESTONE-AUDIT.md)
 - ✅ **v1.2 — Tactics, triggers & expanded signals** — Phases 17–27 (shipped 2026-03-24) — [full roadmap](milestones/v1.2-ROADMAP.md) · [requirements](milestones/v1.2-REQUIREMENTS.md) · [audit](milestones/v1.2-MILESTONE-AUDIT.md)
 - ✅ **v1.3 — Consolidation, submodule parity & PyPI** — Research **`.planning/research/`** (2026-03-25). **Phases 28–34** shipped; DOCS-10 / Phase 34 complete (2026-03-26).
+- **v1.4 — Audit gap closure** — **`.planning/v1.3-MILESTONE-AUDIT.md`** (2026-03-26). Phases **35–36** close process + onboarding gaps.
 
-## Phases (v1.3 — current)
+## Phases (v1.4 — current)
 
-**Analysts:** Shipped **v1.0** / **v1.2** phase lists remain in **`milestones/v1.0-ROADMAP.md`** and **`milestones/v1.2-ROADMAP.md`**. Active v1.3 work is tracked below for **`gsd-tools roadmap get-phase`**.
+**Analysts:** Shipped **v1.0** / **v1.2** / **v1.3** phase lists remain in **`milestones/`** and above. Active **v1.4** gap-closure work is tracked below.
 
 - [x] **Phase 28: v1.3 — Hybrid PLAN/SUMMARY closure (I001)** — **GSD-10**
 - [x] **Phase 29: v1.3 — Submodule comparison matrix (read-only mirrors)** — **SYNC-10**
@@ -17,6 +18,41 @@
 - [x] **Phase 32: v1.3 — PyPI release engineering & publish story** — **PKG-11**
 - [x] **Phase 33: v1.3 — Root prune (redundancy removal)** — **PRUNE-10**
 - [x] **Phase 34: v1.3 — Library documentation & rationale pass** — **DOCS-10**
+- [ ] **Phase 35: v1.4 — Phase 28 verification parity (audit)** — **AUDIT-10**
+- [ ] **Phase 36: v1.4 — Root docs & import alignment** — **DOC-ALIGN-10**
+
+### Phase 35: v1.4 — Phase 28 verification parity (audit)
+
+**Goal:** Add **`28-VERIFICATION.md`** in **`28-v1-3-hybrid-i001-summaries/`** so GSD milestone audits have the same artifact shape as other phases. Content is derived from existing **28-SUMMARY.md**, **28-VALIDATION.md**, and **`gsd-tools validate health`** — no replan of GSD-10 deliverables.
+
+**Gap closure:** **`.planning/v1.3-MILESTONE-AUDIT.md`** — missing formal VERIFICATION for Phase 28.
+
+**Requirements:** AUDIT-10
+
+**Depends on:** None (documentation-only).
+
+**Success criteria:**
+
+1. **`28-VERIFICATION.md`** exists with frontmatter **`status: passed`** (or equivalent) and cites **validate health** + hybrid summary evidence.
+2. **`REQUIREMENTS.md`** row **AUDIT-10** → **Complete** after execute.
+3. Re-run **`gsd-tools validate health`** — still **healthy**.
+
+### Phase 36: v1.4 — Root docs & import alignment
+
+**Goal:** Fix **copy-paste onboarding** gaps: replace stale **`market_regime`** / wrong paths in **README.md**, **CLAUDE.md**, and any other root-level guides with **`trading_crab_lib`** and correct module paths (e.g. **`CheckpointManager`** import). Refresh **34-VERIFICATION.md** command log / pytest counts and set **34-VALIDATION.md** **`nyquist_compliant: true`** when work is complete.
+
+**Gap closure:** **`.planning/v1.3-MILESTONE-AUDIT.md`** — integration partial (PKG-10 / PRUNE-10 / DOCS-10 doc drift); Nyquist partial for Phase 34.
+
+**Requirements:** DOC-ALIGN-10
+
+**Depends on:** Phase **35** optional (can parallelize if desired; no code conflict).
+
+**Success criteria:**
+
+1. Grep-based spot-check: no remaining **`from market_regime`** / misleading **`market_regime.io`** in **README** / **CLAUDE** (or documented exceptions with rationale).
+2. **Integration checker** scenario: import examples run against **`pip install -e ".[dev]"`** layout.
+3. **34-VALIDATION.md** / **34-VERIFICATION.md** updated to reflect final state.
+4. **`REQUIREMENTS.md`** row **DOC-ALIGN-10** → **Complete** after execute.
 
 ### Phase 28: v1.3 — Hybrid PLAN/SUMMARY closure (I001)
 

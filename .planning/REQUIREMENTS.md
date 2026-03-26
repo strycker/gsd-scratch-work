@@ -1,9 +1,18 @@
-# Trading-Crab — Requirements (v1.3)
+# Trading-Crab — Requirements (v1.3 + v1.4)
 
-**Milestone:** v1.3 — Consolidation, submodule parity & PyPI  
+**Milestone (shipped):** v1.3 — Consolidation, submodule parity & PyPI  
+**Milestone (active gap closure):** v1.4 — Audit gap closure (see **`.planning/v1.3-MILESTONE-AUDIT.md`**)  
 **Research:** `.planning/research/SUMMARY.md` (2026-03-25)
 
 **Archived:** v1.0 / v1.2 — `.planning/milestones/v1.*-REQUIREMENTS.md`
+
+---
+
+## Milestone v1.4 — Audit gap closure
+
+- [ ] **AUDIT-10** — Formal **`28-VERIFICATION.md`** aligned with **28-SUMMARY** / **28-VALIDATION** and **`validate health`**. **Roadmap:** **Phase 35**. **Evidence:** (pending) **`.planning/phases/28-v1-3-hybrid-i001-summaries/28-VERIFICATION.md`**.
+
+- [ ] **DOC-ALIGN-10** — Root **README** / **CLAUDE** (and related) use **`trading_crab_lib`** imports and correct paths; **34-VALIDATION** / **34-VERIFICATION** refreshed. **Roadmap:** **Phase 36**. **Evidence:** (pending) phase **36-SUMMARY**.
 
 ---
 
@@ -40,5 +49,9 @@
 | PKG-11 | 32 | Complete |
 | PRUNE-10 | 33 | Complete |
 | DOCS-10 | 34 | Complete |
+| AUDIT-10 | 35 | Pending |
+| DOC-ALIGN-10 | 36 | Pending |
 
-**Milestone v1.3 roadmap scope:** phases **28–34** on **`.planning/ROADMAP.md`** (all REQ rows above are mapped).
+**Milestone v1.3 roadmap scope:** phases **28–34** on **`.planning/ROADMAP.md`** (all v1.3 REQ rows **Complete**).
+
+**Milestone v1.4 gap closure:** phases **35–36** on **`.planning/ROADMAP.md`**.
