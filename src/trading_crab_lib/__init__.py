@@ -2,12 +2,13 @@
 trading_crab_lib — Market Regime Classification & Prediction Pipeline
 """
 
-from pathlib import Path
+from .paths import LibraryPaths, resolve_library_paths  # noqa: E402
 
-ROOT = Path(__file__).parent.parent.parent   # repo root
-CONFIG_DIR = ROOT / "config"
-DATA_DIR = ROOT / "data"
-OUTPUT_DIR = ROOT / "outputs"
+_paths = resolve_library_paths()
+ROOT = _paths.root
+CONFIG_DIR = _paths.config_dir
+DATA_DIR = _paths.data_dir
+OUTPUT_DIR = _paths.output_dir
 
 # Convenience re-exports so callers can use:
 #   import trading_crab_lib as crab
@@ -21,6 +22,8 @@ __all__ = [
     "CONFIG_DIR",
     "DATA_DIR",
     "OUTPUT_DIR",
+    "LibraryPaths",
+    "resolve_library_paths",
     "load",
     "load_portfolio",
     "setup_logging",

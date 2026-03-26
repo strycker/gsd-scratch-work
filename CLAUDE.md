@@ -443,7 +443,7 @@ See `ARCHITECTURE.md` for design decisions.  See `PITFALLS.md` for known gotchas
 - **Clustering investigation suite** — GMM (`gmm.py`), DBSCAN/HDBSCAN (`density.py`), Spectral (`spectral.py`), multi-method comparison (`cluster_comparison.py`), gap statistic + SVD + PCA sweep in `clustering.py`
 - **Config-driven var lists** — `plotting.sample_series`, `plotting.key_indicators`, `assets.etfs` all in `settings.yaml`
 - **16 ETFs** — expanded from 8 to 16 (added HYG, XLK, XLP, XLE, GDX, TIP, BIL, EDV)
-- **`pythonpath = ["src"]`** in `pyproject.toml` pytest config — tests run without `pip install -e .`
+- **`pythonpath = ["src", "."]`** in `pyproject.toml` pytest config — tests run without `pip install -e .` (repo root on path for `run_pipeline` imports in pipeline tests).
 
 ### Next Priority (implement in upcoming sessions)
 1. **Additional FRED series** — VIX (VIXCLS), unemployment (UNRATE), M2 (M2NS),

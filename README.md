@@ -92,6 +92,33 @@ mkdir -p data/{raw,processed,regimes,checkpoints}
 mkdir -p outputs/{plots,models,reports}
 ```
 
+### Install from PyPI
+
+When the package is published:
+
+```bash
+pip install trading-crab-lib
+```
+
+Pre-release builds may be installed from TestPyPI using the index URL and version pin described in [docs/RELEASING.md](docs/RELEASING.md).
+
+After a `pip` install, point the library at your config/data/output tree — see [Library-only install (`pip`)](#library-only-install-pip) and set `TRADING_CRAB_ROOT` (or the granular `TRADING_CRAB_*` variables).
+
+**Maintainers:** build, TestPyPI, and production upload steps are in [RELEASING.md](docs/RELEASING.md).
+
+### Library-only install (`pip`)
+
+A **full repo checkout** (above) places `config/`, `data/`, and `outputs/` at the repository root; `import trading_crab_lib` resolves them automatically by walking up from the package until it finds `config/settings.yaml`.
+
+If you install the library **without** that layout (e.g. `pip install trading-crab-lib` into a clean venv), set a project root **before** importing:
+
+```bash
+export TRADING_CRAB_ROOT=/path/to/your/project   # must contain config/, data/, outputs/
+python -c "import trading_crab_lib as c; print(c.CONFIG_DIR)"
+```
+
+Alternatively set all three directories explicitly: `TRADING_CRAB_CONFIG` (folder containing `settings.yaml`), `TRADING_CRAB_DATA`, `TRADING_CRAB_OUTPUT`. See `src/trading_crab_lib/paths.py` for details.
+
 ### Conda / Miniconda setup
 
 If you use conda, the simplest path is to create and activate the `py310` env and then source the repo helper:

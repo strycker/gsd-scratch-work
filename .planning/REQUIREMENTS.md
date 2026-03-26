@@ -19,8 +19,8 @@
 
 ## 3. Library packaging & PyPI
 
-- [ ] **PKG-10** — Consumer-safe workspace/path API for `pip install` (no implicit repo `ROOT`). **Roadmap:** **Phase 31**.
-- [ ] **PKG-11** — Release engineering: build, TestPyPI, PyPI, trusted publishing, README install story. **Roadmap:** **Phase 32**.
+- [x] **PKG-10** — Consumer-safe workspace/path API for `pip install` (no implicit repo `ROOT`). **Roadmap:** **Phase 31**. **Evidence:** `src/trading_crab_lib/paths.py`, **`.planning/phases/31-v1-3-library-workspace-paths/31-SUMMARY.md`**, **`tests/unit/test_library_paths.py`**, **`README.md`** (Library-only install).
+- [x] **PKG-11** — Release engineering: build, TestPyPI, PyPI, trusted publishing, README install story. **Roadmap:** **Phase 32**. **Evidence:** **`LICENSE`**, **`pyproject.toml`**, **`docs/RELEASING.md`**, **`scripts/build_dist.sh`**, **`README.md`** (Install from PyPI), **`.planning/phases/32-v1-3-pypi-release-engineering/32-SUMMARY.md`**.
 
 ## 4. Root prune & narrative docs
 
@@ -36,8 +36,8 @@
 | GSD-10 | 28 | Complete |
 | SYNC-10 | 29 | Complete |
 | SYNC-11 | 30 | Complete |
-| PKG-10 | 31 | Not started |
-| PKG-11 | 32 | Not started |
+| PKG-10 | 31 | Complete |
+| PKG-11 | 32 | Complete |
 | PRUNE-10 | 33 | Not started |
 | DOCS-10 | 34 | Not started |
 

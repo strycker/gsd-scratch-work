@@ -7,7 +7,6 @@ import types
 import pandas as pd
 import pytest
 
-from trading_crab_lib import DATA_DIR
 from trading_crab_lib.checkpoints import CheckpointManager
 from trading_crab_lib.config import load
 
@@ -33,6 +32,29 @@ step01 = _load_step_module("01_ingest.py")
 step02 = _load_step_module("02_features.py")
 
 
+@pytest.fixture
+def isolated_pipeline_data(monkeypatch, tmp_path: Path) -> Path:
+    """
+    Point pipeline + checkpoints at tmp_path so pytest never writes real data/*.
+
+    Without this, pipeline smoke tests overwrite repo ``macro_raw`` / checkpoints
+    with tiny synthetic frames and break subsequent ``run_pipeline.py`` runs.
+    """
+    data_root = tmp_path / "data"
+    for sub in ("raw", "processed", "regimes", "checkpoints"):
+        (data_root / sub).mkdir(parents=True, exist_ok=True)
+    ckpt_dir = data_root / "checkpoints"
+
+    import trading_crab_lib as crab
+    import run_pipeline as rp
+    import trading_crab_lib.checkpoints as ckpt_mod
+
+    monkeypatch.setattr(crab, "DATA_DIR", data_root)
+    monkeypatch.setattr(rp, "DATA_DIR", data_root)
+    monkeypatch.setattr(ckpt_mod, "CHECKPOINT_DIR", ckpt_dir)
+    return data_root
+
+
 def _make_synthetic_macro() -> pd.DataFrame:
     dates = pd.date_range("2000-03-31", periods=4, freq="QE")
     return pd.DataFrame(
@@ -49,12 +71,14 @@ def cfg():
     return load()
 
 
-def test_step01_ingest_writes_macro_raw_without_network(monkeypatch, tmp_path, cfg) -> None:
+def test_step01_ingest_writes_macro_raw_without_network(
+    monkeypatch, isolated_pipeline_data: Path, cfg
+) -> None:
     """
     Smoke test for pipelines/01_ingest.py.
 
     Network-dependent fetches are patched to return a tiny synthetic DataFrame.
-    The step should write macro_raw.parquet under DATA_DIR/raw without raising.
+    The step should write macro_raw.parquet under the isolated DATA_DIR/raw.
     """
 
     from trading_crab_lib.ingestion import fred as fred_module
@@ -65,8 +89,7 @@ def test_step01_ingest_writes_macro_raw_without_network(monkeypatch, tmp_path, c
     monkeypatch.setattr(fred_module, "fetch_all", lambda _cfg: synthetic)
     monkeypatch.setattr(multpl_module, "fetch_all", lambda _cfg: pd.DataFrame(index=synthetic.index))
 
-    # Ensure output directory is clean
-    raw_dir = DATA_DIR / "raw"
+    raw_dir = isolated_pipeline_data / "raw"
     out_path = raw_dir / "macro_raw.parquet"
     if out_path.exists():
         out_path.unlink()
@@ -80,23 +103,23 @@ def test_step01_ingest_writes_macro_raw_without_network(monkeypatch, tmp_path, c
     loaded = pd.read_parquet(out_path)
     pd.testing.assert_index_equal(loaded.index, synthetic.index)
 
-    # Also materialise a checkpoint so downstream constraint tests can operate.
     cm = CheckpointManager()
     cm.save(loaded, "macro_raw")
 
 
-def test_step02_features_writes_feature_artifacts_without_network(monkeypatch, cfg) -> None:
+def test_step02_features_writes_feature_artifacts_without_network(
+    monkeypatch, isolated_pipeline_data: Path, cfg
+) -> None:
     """
     Smoke test for pipelines/02_features.py.
 
-    Reads macro_raw from DATA_DIR/raw and writes processed feature artifacts.
+    Reads macro_raw from isolated DATA_DIR/raw and writes processed feature artifacts.
     We patch engineer_all to avoid heavy computation and external dependencies.
     """
 
     from trading_crab_lib import transforms as transforms_module
 
-    # Create a minimal macro_raw if missing
-    raw_dir = DATA_DIR / "raw"
+    raw_dir = isolated_pipeline_data / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
     macro_path = raw_dir / "macro_raw.parquet"
     if not macro_path.exists():
@@ -112,7 +135,7 @@ def test_step02_features_writes_feature_artifacts_without_network(monkeypatch, c
 
     monkeypatch.setattr(transforms_module, "engineer_all", fake_engineer_all)
 
-    processed_dir = DATA_DIR / "processed"
+    processed_dir = isolated_pipeline_data / "processed"
     features_path = processed_dir / "features.parquet"
     features_sup_path = processed_dir / "features_supervised.parquet"
     for p in (features_path, features_sup_path):
@@ -133,4 +156,3 @@ def test_step02_features_writes_feature_artifacts_without_network(monkeypatch, c
     cm = CheckpointManager()
     cm.save(features, "features_noncausal")
     cm.save(features_sup, "features_causal")
-
