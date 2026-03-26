@@ -4,12 +4,12 @@ milestone: v1.4
 milestone_last_shipped: v1.4
 milestone_name: Audit gap closure
 status: idle
-last_updated: "2026-03-26T23:59:00.000Z"
+last_updated: "2026-03-25T12:00:00.000Z"
 progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_phases: 36
+  completed_phases: 36
+  total_plans: 43
+  completed_plans: 67
 ---
 
 ## Project state — Trading-Crab (GSD)
