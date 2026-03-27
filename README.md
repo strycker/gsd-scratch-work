@@ -92,6 +92,10 @@ mkdir -p data/{raw,processed,regimes,checkpoints}
 mkdir -p outputs/{plots,models,reports}
 ```
 
+### Dependency files (forks)
+
+**`pyproject.toml`** is the canonical source for the **`trading-crab-lib`** package and its optional extras. **`requirements.txt`** and **`requirements-dev.txt`** are flat **`pip install -r`** mirrors aligned with that file; **`pip install -e ".[dev]"`** is the editable-install path many developers use. For a full comparison (scripts, lockfiles, fork checklist), see **[docs/DEPENDENCIES.md](docs/DEPENDENCIES.md)**.
+
 ### Install from PyPI
 
 When the package is published:

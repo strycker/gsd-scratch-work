@@ -2,6 +2,8 @@
 
 This note is for **anyone opening a new clone** in Cursor, VS Code, or another editor: how to get the same **Python environment** the project expects for tests, lint, and optional clustering tests.
 
+For how **`pyproject.toml`** relates to **`requirements.txt`** / **`requirements-dev.txt`** and which file is authoritative, see **[DEPENDENCIES.md](DEPENDENCIES.md)**.
+
 ## Why `.venv` is not in Git
 
 The directory **`.venv/`** is listed in **`.gitignore`** on purpose. Virtual environments are machine-specific (paths, compiled wheels, OS). Each clone must create its own `.venv` (or use Conda) and install dependencies locally.
