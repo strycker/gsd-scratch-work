@@ -1,12 +1,12 @@
 # Next steps
 
-**Last updated:** 2026-03-26
+**Last updated:** 2026-03-27
 
 ## Immediate (GSD)
 
 1. **Milestone v1.5 is open** — Requirements: **`.planning/REQUIREMENTS.md`** · Roadmap: **`.planning/ROADMAP.md`** · State: **`.planning/STATE.md`**.
 
-2. **Start execution** — **`$gsd-discuss-phase 37`** or **`$gsd-plan-phase 37`** (fork & dependency docs — **TMPL-01**).
+2. **Phase 37 complete** (**TMPL-01**) — see **`37-01-SUMMARY.md`**. Next: **`$gsd-plan-phase 38`** or **`$gsd:execute-phase 38`** (**TMPL-02** — backlog doc reconciliation).
 
 3. **Historical notes** — Pre-milestone list: **[`v1.5-CLEANUP-BACKLOG.md`](v1.5-CLEANUP-BACKLOG.md)** (superseded by formal requirements).
 

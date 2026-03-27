@@ -3,28 +3,27 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_last_shipped: v1.4
 milestone_name: Template hardening & doc parity
-status: planning
-last_updated: "2026-03-26T00:00:00.000Z"
+status: executing
+last_updated: "2026-03-27T12:00:00.000Z"
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
 ---
 
 ## Project state — Trading-Crab (GSD)
 
 ## Current position
 
-- **Phase:** Not started — **Phase 37** next (see **`.planning/ROADMAP.md`**)
+- **Phase:** **37** shipped — **Phase 38** next (backlog doc reconciliation — **TMPL-02**); see **`.planning/ROADMAP.md`**
 - **Plan:** —
-- **Status:** Milestone **v1.5** defined — requirements + roadmap written; execution not started
-- **Last activity:** 2026-03-26 — **`$gsd-new-milestone`** (v1.5 — template hardening & doc parity)
+- **Status:** Milestone **v1.5** in progress (1/3 phases complete)
+- **Last activity:** 2026-03-27 — **Phase 37** executed (**TMPL-01** — **`docs/DEPENDENCIES.md`**, README / CURSOR links)
 
 ## Next actions
 
-1. **`$gsd-discuss-phase 37`** — gather context for fork/dependency documentation  
-2. **`$gsd-plan-phase 37`** — or plan directly from **`.planning/REQUIREMENTS.md`**
+1. **`$gsd-plan-phase 38`** or **`$gsd:execute-phase 38`** — **TMPL-02** (reconcile **ROADMAP.md**, **FUTURE-TODO.md**, **CLAUDE.md** with **`src/trading_crab_lib`**)
 
 ## Milestone v1.3 — phase index (28–34) — archived
 
@@ -53,7 +52,7 @@ progress:
 
 | Phase | Slug | Requirement(s) |
 |------:|------|----------------|
-| 37 | *(pending)* | TMPL-01 |
+| 37 | `37-v1-5-fork-dependency-docs` | TMPL-01 ✅ |
 | 38 | *(pending)* | TMPL-02 |
 | 39 | *(pending)* | TMPL-03 |
 
@@ -61,6 +60,7 @@ See **`.planning/ROADMAP.md`** for goals and success criteria.
 
 ## Accumulated context
 
+- **Phase 37** — **`docs/DEPENDENCIES.md`** + README **Dependency files (forks)** + **`docs/CURSOR.md`** link; evidence **`37-01-SUMMARY.md`**.
 - **v1.3** / **v1.4** — **shipped** and **archived** (2026-03-26).
 - **2026-03-26 housekeeping** — Import examples and notebooks aligned to **`trading_crab_lib`**; **`v1.5-CLEANUP-BACKLOG.md`** informed v1.5 scope.
 - **Submodules (read-only):** `trading-crab-lib-repo-copy`, `claude-scratch-work-repo-copy`, `trading-crab-repo-copy`.
