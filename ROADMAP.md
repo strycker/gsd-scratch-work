@@ -109,12 +109,11 @@ Notebooks read from `cfg["assets"]["etfs"]` — no hardcoded lists in notebook c
   `notebooks/06_assets.ipynb`, `src/trading_crab_lib/plotting.py`
 - **Status**: ✓ Done (settings.yaml + notebooks updated; ETF data fetched on next step 1 run)
 
-### 1.7  Confusion matrix and classification report in plots  `S`
-`legacy/supervised.py` has `generate_classification_report()` that produces a
-confusion matrix; this is not exposed in `src/` plotting or logs.
-- Add `plot_confusion_matrix(model, X, y, regime_names, run_cfg)` to `plotting.py`
-- Call from `pipelines/05_predict.py` when `--plots` is set
-- **Files**: `src/trading_crab_lib/plotting.py`, `pipelines/05_predict.py`
+### 1.7  Confusion matrix and classification report in plots  `S`  ✓ **DONE**
+Walk-forward CV confusion counts are written to **`outputs/reports/model_metrics/confusion_matrices.parquet`**; **`plot_regime_confusion_matrix()`** in **`plotting.py`** saves **`outputs/plots/05_confusion_matrix.png`** when step 5 runs with plots.
+- **`run_pipeline.py --steps 5 --plots`** — full step-5 figures including confusion matrix
+- **`pipelines/05_predict.py --plots`** — saves confusion matrix only (after metrics write)
+- **Files**: `src/trading_crab_lib/plotting.py`, `run_pipeline.py`, `pipelines/05_predict.py`
 
 ---
 
@@ -347,8 +346,7 @@ Implementation approach (when ready):
 1. Add FRED series (VIX, unemployment, M2, additional spreads) — very low effort, high signal
 2. Tune or extend **`yc_*`** yield inputs — base spreads already ship via **`add_yield_curve_features`**; see **`config/settings.yaml`** `features.*`
 3. Surface **`forward_window_probabilities.parquet`** in dashboard or weekly narrative — table is already written by step 4; UX/reporting gap only
-4. Add `plot_confusion_matrix()` to `plotting.py` — **TMPL-03** / visualization gap
-5. Start `macrotrends.py` scraper — extends gold/oil back to 1915/1946
-6. When adding tests for new work, borrow patterns from the `claude-scratch-work-repo-copy` submodule (model/reporting/behavior/constraint tests) rather than re-inventing them
+4. Start `macrotrends.py` scraper — extends gold/oil back to 1915/1946
+5. When adding tests for new work, borrow patterns from the `claude-scratch-work-repo-copy` submodule (model/reporting/behavior/constraint tests) rather than re-inventing them
 
-Items 1–4 can be done in a single session. Item 5 needs care with scraping.
+Items 1–3 can be done in a single session. Item 4 needs care with scraping.

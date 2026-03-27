@@ -68,6 +68,26 @@ No OIDC workflow is checked into this repository by default; use the appendix be
 
 The distribution name is **`trading-crab-lib`**. If that name is already taken on PyPI, choose a new **`[project].name`** in `pyproject.toml` (and update imports/docs accordingly) or confirm ownership of the existing project. Validating on **TestPyPI** first is recommended.
 
+## GitHub Actions SHA refresh (maintenance)
+
+To keep pinned actions secure and maintainable, run this checklist on a schedule
+(recommended: **monthly**, or at least once per quarter):
+
+1. Review `.github/workflows/*.yml` for pinned `uses: owner/repo@<sha>` refs.
+2. Resolve the latest commit SHA for each intended major tag/branch (for example `v4`, `v5`, `release/v1`).
+3. Update workflow `uses:` lines to new SHAs and keep an inline comment with the corresponding tag/branch.
+4. Open a PR titled `chore(ci): refresh pinned GitHub Action SHAs`.
+5. Confirm CI passes after the refresh.
+6. If behavior changes, pin back to the previous known-good SHA and investigate release notes.
+
+Suggested PR checklist:
+
+- [ ] `actions/checkout` pinned to latest `v4` commit
+- [ ] `actions/setup-python` pinned to latest `v5` commit
+- [ ] `actions/upload-artifact` pinned to latest `v4` commit
+- [ ] `actions/download-artifact` pinned to latest `v4` commit
+- [ ] `pypa/gh-action-pypi-publish` pinned to latest `release/v1` commit
+
 ---
 
 ## Appendix: example GitHub Actions workflow (optional)

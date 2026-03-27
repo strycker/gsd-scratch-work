@@ -366,7 +366,7 @@ ground truth.  Items marked ✓ are verified as matching in `src/`.  Items marke
 - ✓ `TimeSeriesSplit` cross-validation — implemented via `_tscv_scores()` helper
 - ✓ Portfolio construction — `generate_recommendation()` / blended portfolios in `reporting.py`
 - ✓ Macro-data fallback for asset returns — `compute_proxy_returns()` in `asset_returns.py`
-- ✗ Confusion matrix in classification report — `generate_classification_report()` from `legacy/supervised.py` (**TMPL-03** / Phase 39)
+- ✓ **Confusion matrix heatmap (walk-forward CV)** — `plot_regime_confusion_matrix()` in `plotting.py`; data from `outputs/reports/model_metrics/confusion_matrices.parquet`; PNG `outputs/plots/05_confusion_matrix.png` when step 5 runs with plots (`run_pipeline.py --steps 5 --plots` or `pipelines/05_predict.py --plots`). Legacy `generate_classification_report()` console formatting is not duplicated; sklearn `classification_report()` string remains in logs only.
 
 ### Things src/ does better than legacy (do not regress)
 
@@ -429,7 +429,7 @@ See `ARCHITECTURE.md` for design decisions.  See `PITFALLS.md` for known gotchas
 - `RunConfig` — fully implemented, including `from_args()` factory
 - `run_pipeline.py` — master runner with full CLI (all flags implemented)
 - `ingestion/assets.py` — yfinance ETF price fetcher + 3-phase fallback chain (stooq → OpenBB → macro proxy)
-- `plotting.py` — 17 visualization helpers covering all 7 pipeline steps
+- `plotting.py` — 18 visualization helpers covering all 7 pipeline steps (includes `plot_regime_confusion_matrix`)
 - `notebooks/01–09` — all notebooks present; 03_clustering expanded with 28 investigation cells
 - Requirements — minimum-bound strategy, Python 3.10+ compatible
 - `from __future__ import annotations` — present in all source files using `X | Y` syntax
@@ -447,13 +447,12 @@ See `ARCHITECTURE.md` for design decisions.  See `PITFALLS.md` for known gotchas
 ### Next Priority (implement in upcoming sessions)
 1. **Additional FRED series** — VIX (VIXCLS), unemployment (UNRATE), M2 (M2NS),
    yield spreads (T10Y2Y, T10Y3M, GS2), housing starts (HOUST), consumer sentiment (UMCSENT)
-2. **Confusion matrix plot** — `plot_confusion_matrix()` in `plotting.py` (**TMPL-03** / Phase 39)
-3. **macrotrends.net scraper** — gold/oil spot prices back to 1915/1946
-4. **LightGBM classifier** — alongside RF + DT in `classifier.py`
-5. **Expand test suite** — classifier, portfolio, dashboard
-6. **`end_date: null`** in settings.yaml → use today's date at runtime
-7. **Per-asset regime probability models** ("Putting it all together — Part I")
-8. **Weekly automated report** with AI-written narrative via Claude API
+2. **macrotrends.net scraper** — gold/oil spot prices back to 1915/1946
+3. **LightGBM classifier** — alongside RF + DT in `classifier.py`
+4. **Expand test suite** — classifier, portfolio, dashboard
+5. **`end_date: null`** in settings.yaml → use today's date at runtime
+6. **Per-asset regime probability models** ("Putting it all together — Part I")
+7. **Weekly automated report** with AI-written narrative via Claude API
 
 > **Note:** Yield-curve spreads **`yc_*`** and **`build_forward_window_probabilities()`** are shipped — see **`transforms.py`**, **`regime.py`**, and root **`ROADMAP.md`** §1.3–1.4.
 
@@ -481,13 +480,15 @@ Full comparison of `legacy/*.py` vs `src/trading_crab_lib/` completed March 2026
 - ✓ **Gap 4** — Macro-data proxy returns fallback (`legacy/asset_returns.py` → `assets/returns.py`)
 - ✓ **Gap 5** — Causal/backward rolling windows for supervised learning (`transforms.py`)
 - ✓ **Gap 6** — Empirical forward-window probabilities — **`build_forward_window_probabilities()`** in **`regime.py`**, **`pipelines/04_regime_label.py`** writes **`data/regimes/forward_window_probabilities.parquet`**; legacy name **`compute_forward_probabilities()`** in **`legacy/regime_analysis.py`**
+- ✓ **Gap 7** — Confusion matrix visualization — **`plot_regime_confusion_matrix()`** in **`plotting.py`** (aggregated out-of-fold counts from **`confusion_matrices.parquet`**); wired in **`run_pipeline.py`** step 5 when **`generate_plots`**; optional **`pipelines/05_predict.py --plots`**
 
 ### Remaining Gaps
 
-#### Confusion matrix report (`legacy/supervised.py` → `plotting.py`)
-`generate_classification_report()` prints a per-class confusion matrix.  Currently
-we only log the in-sample `classification_report()` string but do not visualize
-the confusion matrix.  Status: not implemented.
+#### Classification report console parity (`legacy/supervised.py`)
+Legacy **`generate_classification_report()`** prints a per-class confusion matrix in
+text form.  We log sklearn’s **`classification_report()`** string for the current-regime
+model but do not replicate the legacy print layout.  **Heatmap visualization** of
+CV confusion counts is implemented (**Gap 7**).
 
 ---
 

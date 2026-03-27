@@ -411,6 +411,12 @@ pip-compile pyproject.toml --extra dev --upgrade --output-file requirements-dev.
 | `PITFALLS.md` | Known gotchas, anti-patterns, and things not to break |
 | `STATE.md` | Current implementation status and test coverage |
 
+## Maintenance
+
+- **Monthly CI security hygiene:** an automated issue reminder is created by `.github/workflows/monthly-ci-sha-refresh-issue.yml`.
+- **Issue template:** use `.github/ISSUE_TEMPLATE/ci-sha-refresh.md` for the action-SHA refresh checklist.
+- **Process details:** see `docs/RELEASING.md` section **GitHub Actions SHA refresh (maintenance)**.
+
 ---
 
 ## To Do
@@ -420,11 +426,8 @@ Short summary:
 
 ### Next Up (Tier 1)
 - [ ] Add FRED series: VIX, unemployment, M2, yield spreads (10Y-2Y, 10Y-3M), housing starts
-- [ ] Add yield curve derived features in `transforms.py`
 - [ ] macrotrends.net scraper for gold (1915+) and oil (1946+) price backfill
 - [ ] LightGBM classifier alongside RandomForest + Decision Tree
-- [ ] Empirical forward probabilities in `profiler.py` (small remaining legacy gap)
-- [ ] Confusion matrix visualization in `plotting.py`
 - [ ] `end_date: null` → use today in `settings.yaml`
 - [ ] Expand test suite (classifier, portfolio, dashboard, profiler)
 
@@ -450,6 +453,7 @@ Short summary:
 - ✓ Regime profiling, naming heuristics, transition matrix
 - ✓ RandomForest + DecisionTree with TimeSeriesSplit 5-fold walk-forward CV
 - ✓ Forward binary classifiers for each (horizon, regime) pair
+- ✓ Confusion matrix visualization for current-regime classifier (`plot_regime_confusion_matrix`)
 - ✓ Asset returns by regime (yfinance ETFs + macro proxy fallback)
 - ✓ Portfolio construction: simple + blended weights + BUY/SELL/HOLD recommendations
 - ✓ Text + CSV dashboard with GREEN/YELLOW/RED asset signals
@@ -461,4 +465,5 @@ Short summary:
 - ✓ **Clustering investigation suite** — gap statistic, GMM, DBSCAN/HDBSCAN, Spectral,
   SVD vs PCA, PCA component sweep, multi-method comparison + ARI heatmap, RF feature selection
 - ✓ **yfinance fallback chain** — stooq → OpenBB → macro proxy
+- ✓ **Yield-curve + forward-window docs parity** — `yc_*` and `build_forward_window_probabilities` reflected in roadmap/planning docs
 - ✓ **213 unit tests** covering all core modules and new clustering investigation suite

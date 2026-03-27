@@ -1,0 +1,65 @@
+name: Monthly CI SHA Refresh Issue
+
+on:
+  schedule:
+    # 09:00 UTC on the first day of each month
+    - cron: "0 9 1 * *"
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  open-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create monthly CI SHA refresh issue
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const now = new Date();
+            const yyyy = now.getUTCFullYear();
+            const mm = String(now.getUTCMonth() + 1).padStart(2, "0");
+            const stamp = `${yyyy}-${mm}`;
+            const title = `chore(ci): monthly GitHub Action SHA refresh (${stamp})`;
+            const labels = ["ci", "maintenance", "security", "ci-sha-refresh"];
+
+            // Avoid creating duplicate open reminders for the same month.
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: "open",
+              labels: "ci-sha-refresh",
+              per_page: 100
+            });
+
+            const exists = issues.some((i) => i.title === title);
+            if (exists) {
+              core.info(`Issue already exists: ${title}`);
+              return;
+            }
+
+            const body = [
+              "Automated monthly reminder to refresh pinned GitHub Action SHAs.",
+              "",
+              "Use issue template: `.github/ISSUE_TEMPLATE/ci-sha-refresh.md`.",
+              "",
+              "Checklist:",
+              "- Review `.github/workflows/*.yml` for pinned `uses:` refs",
+              "- Refresh SHAs for approved tags/branches",
+              "- Open PR with updates and confirm CI green"
+            ].join("\n");
+
+            await github.rest.issues.create({
+              owner,
+              repo,
+              title,
+              body,
+              labels
+            });
