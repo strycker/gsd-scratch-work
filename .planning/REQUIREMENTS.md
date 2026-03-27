@@ -16,7 +16,7 @@
 
 ### 2. Product doc reconciliation
 
-- [ ] **TMPL-02** — **Reconcile backlog markdown with shipped code:** update root **`ROADMAP.md`**, **`.planning/FUTURE-TODO.md`**, and **`CLAUDE.md`** (legacy gaps section) so forward-window / yield-curve / naming matches **`src/trading_crab_lib`** (e.g. `build_forward_window_probabilities`, `yc_*` in `transforms.py`). Remove or retitle stale `compute_forward_probabilities` / wrong file paths if still present.
+- [x] **TMPL-02** — **Reconcile backlog markdown with shipped code:** update root **`ROADMAP.md`**, **`.planning/FUTURE-TODO.md`**, and **`CLAUDE.md`** (legacy gaps section) so forward-window / yield-curve / naming matches **`src/trading_crab_lib`** (e.g. `build_forward_window_probabilities`, `yc_*` in `transforms.py`). Remove or retitle stale `compute_forward_probabilities` / wrong file paths if still present.
 
 ### 3. Classifier diagnostics (CLAUDE gap)
 
@@ -29,7 +29,7 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | TMPL-01 | 37 | Complete |
-| TMPL-02 | 38 | Pending |
+| TMPL-02 | 38 | Complete |
 | TMPL-03 | 39 | Pending |
 
 ---

@@ -10,7 +10,7 @@
 | # | Name | Goal | Requirements | Success criteria (observable) |
 |---|------|------|--------------|------------------------------|
 | **37** | Fork & dependency docs | Forks know how to install and which file is canonical for deps | TMPL-01 | Complete — `docs/DEPENDENCIES.md` + README/CURSOR links (2026-03-27) |
-| **38** | Backlog reconciliation | Product markdown matches code | TMPL-02 | Root ROADMAP / FUTURE-TODO / CLAUDE gaps aligned with `trading_crab_lib` implementation |
+| **38** | Backlog reconciliation | Product markdown matches code | TMPL-02 | Complete — `yc_*` / `build_forward_window_probabilities` docs; **TMPL-02** (2026-03-27) |
 | **39** | Confusion matrix | Close CLAUDE visualization gap for classifiers | TMPL-03 | Plot saved under `outputs/plots/` when plots enabled; tests or smoke path documented |
 
 ### Phase 37 — Fork & dependency docs
@@ -71,5 +71,5 @@ GSD folder **`01-data-and-constraints-foundations/`** — plans **`01-data-and-c
 ## v1.5 execution checklist
 
 - [x] **Phase 37** — TMPL-01 (fork & dependency docs) (completed 2026-03-27)
-- [ ] **Phase 38** — TMPL-02 (ROADMAP / FUTURE-TODO / CLAUDE reconciliation)
+- [x] **Phase 38** — TMPL-02 (ROADMAP / FUTURE-TODO / CLAUDE reconciliation) (completed 2026-03-27)
 - [ ] **Phase 39** — TMPL-03 (confusion matrix plot + wiring)

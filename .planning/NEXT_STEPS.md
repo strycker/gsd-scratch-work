@@ -6,7 +6,7 @@
 
 1. **Milestone v1.5 is open** — Requirements: **`.planning/REQUIREMENTS.md`** · Roadmap: **`.planning/ROADMAP.md`** · State: **`.planning/STATE.md`**.
 
-2. **Phase 37 complete** (**TMPL-01**) — see **`37-01-SUMMARY.md`**. Next: **`$gsd-plan-phase 38`** or **`$gsd:execute-phase 38`** (**TMPL-02** — backlog doc reconciliation).
+2. **Phases 37–38 complete** (**TMPL-01**, **TMPL-02**) — see **`37-01-SUMMARY.md`**, **`38-01-SUMMARY.md`**. Next: **`$gsd-plan-phase 39`** or **`$gsd:execute-phase 39`** (**TMPL-03** — confusion matrix plot + wiring).
 
 3. **Historical notes** — Pre-milestone list: **[`v1.5-CLEANUP-BACKLOG.md`](v1.5-CLEANUP-BACKLOG.md)** (superseded by formal requirements).
 

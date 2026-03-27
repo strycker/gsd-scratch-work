@@ -4,26 +4,26 @@ milestone: v1.5
 milestone_last_shipped: v1.4
 milestone_name: Template hardening & doc parity
 status: executing
-last_updated: "2026-03-27T12:00:00.000Z"
+last_updated: "2026-03-27T18:00:00.000Z"
 progress:
   total_phases: 3
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
 ---
 
 ## Project state — Trading-Crab (GSD)
 
 ## Current position
 
-- **Phase:** **37** shipped — **Phase 38** next (backlog doc reconciliation — **TMPL-02**); see **`.planning/ROADMAP.md`**
+- **Phase:** **38** shipped — **Phase 39** next (confusion matrix — **TMPL-03**); see **`.planning/ROADMAP.md`**
 - **Plan:** —
-- **Status:** Milestone **v1.5** in progress (1/3 phases complete)
-- **Last activity:** 2026-03-27 — **Phase 37** executed (**TMPL-01** — **`docs/DEPENDENCIES.md`**, README / CURSOR links)
+- **Status:** Milestone **v1.5** in progress (2/3 phases complete)
+- **Last activity:** 2026-03-27 — **Phase 38** executed (**TMPL-02** — root **`ROADMAP.md`**, **`CLAUDE.md`**, **`FUTURE-TODO.md`**, **`v1.5-CLEANUP-BACKLOG.md`**)
 
 ## Next actions
 
-1. **`$gsd-plan-phase 38`** or **`$gsd:execute-phase 38`** — **TMPL-02** (reconcile **ROADMAP.md**, **FUTURE-TODO.md**, **CLAUDE.md** with **`src/trading_crab_lib`**)
+1. **`$gsd-plan-phase 39`** or **`$gsd:execute-phase 39`** — **TMPL-03** (`plot_confusion_matrix` + wiring)
 
 ## Milestone v1.3 — phase index (28–34) — archived
 
@@ -53,14 +53,14 @@ progress:
 | Phase | Slug | Requirement(s) |
 |------:|------|----------------|
 | 37 | `37-v1-5-fork-dependency-docs` | TMPL-01 ✅ |
-| 38 | *(pending)* | TMPL-02 |
+| 38 | `38-v1-5-backlog-reconciliation` | TMPL-02 ✅ |
 | 39 | *(pending)* | TMPL-03 |
 
 See **`.planning/ROADMAP.md`** for goals and success criteria.
 
 ## Accumulated context
 
-- **Phase 37** — **`docs/DEPENDENCIES.md`** + README **Dependency files (forks)** + **`docs/CURSOR.md`** link; evidence **`37-01-SUMMARY.md`**.
+- **Phase 37** — **`docs/DEPENDENCIES.md`** + README / **`docs/CURSOR.md`**; **`37-01-SUMMARY.md`**.
+- **Phase 38** — Root **`ROADMAP.md`** §1.3–1.4, **`CLAUDE.md`** Gap 6 + next priority, **`FUTURE-TODO.md`**, **`v1.5-CLEANUP-BACKLOG.md`**; **`38-01-SUMMARY.md`**.
 - **v1.3** / **v1.4** — **shipped** and **archived** (2026-03-26).
-- **2026-03-26 housekeeping** — Import examples and notebooks aligned to **`trading_crab_lib`**; **`v1.5-CLEANUP-BACKLOG.md`** informed v1.5 scope.
 - **Submodules (read-only):** `trading-crab-lib-repo-copy`, `claude-scratch-work-repo-copy`, `trading-crab-repo-copy`.

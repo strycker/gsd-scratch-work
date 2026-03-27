@@ -61,20 +61,19 @@ Several high-signal FRED series are free and require no new scraping infrastruct
 - Rerun PCA + clustering after adding — expect silhouette improvement
 - **Files**: `config/settings.yaml`, `src/trading_crab_lib/ingestion/fred.py`
 
-### 1.3  Yield curve features  `S`
-Compute derived yield-curve features in `transforms.py`:
-- `yield_spread_10y2y` = GS10 − GS2 (add GS2 to FRED series)
-- `yield_spread_10y3m` = GS10 − TB3MS (already have both)
-- `yield_curve_slope` = (GS10 − TB3MS) / 10
-- These are among the strongest empirical recession predictors in the literature
+### 1.3  Yield curve features  `S` *(shipped — expand / tune)*
+Derived yield-curve columns are built in **`add_yield_curve_features()`** in **`src/trading_crab_lib/transforms.py`** when **fred_gs10**, **fred_gs2**, and **fred_tb3ms** are present:
+- **`yc_10y_2y`** = GS10 − GS2
+- **`yc_10y_3m`** = GS10 − TB3MS
+- **`yc_2y_3m`** = GS2 − TB3MS
+- Listed under **`features.initial_features`** / derivatives under **`features.clustering_features`** in **`config/settings.yaml`** (see Phase 17 redundancy rule: prefer **`yc_*`** over duplicate FRED spread columns in clustering lists).
+- **Backlog:** Add more FRED inputs, alternative spread definitions, or profiler/dashboard surfacing — not greenfield implementation of the above columns.
 - **Files**: `src/trading_crab_lib/transforms.py`, `config/settings.yaml`
 
-### 1.4  Empirical forward probabilities  `S`
-Implement `compute_forward_probabilities()` from `legacy/regime_analysis.py`.
-Computes empirical P(reach regime j within N quarters | currently in regime i)
-as a diagnostic alongside model-based forward classifiers.
-- Already spec'd in `CLAUDE.md` as Low Priority gap 5
-- Output: `data/regimes/forward_probs_{N}q.parquet` for N in [1, 4, 8]
+### 1.4  Empirical forward-window probabilities  `S` *(shipped)*
+Count-based empirical **P(reach regime j within N quarters | currently in regime i)** is implemented as **`build_forward_window_probabilities()`** in **`src/trading_crab_lib/regime.py`**, called from **`pipelines/04_regime_label.py`**, horizons from **`prediction.forward_horizons_quarters`** in **`config/settings.yaml`**. Output: **`data/regimes/forward_window_probabilities.parquet`** (long format: from_regime, to_regime, horizon_quarters, prob).
+- Legacy reference: **`compute_forward_probabilities()`** in **`legacy/regime_analysis.py`** used the older function name; behavior is covered by **`tests/unit/test_forward_window_probabilities.py`**.
+- **Backlog:** Optional parity extras (e.g. surfacing the table in dashboard/weekly report) — not “missing core implementation.”
 - **Files**: `src/trading_crab_lib/regime.py`, `pipelines/04_regime_label.py`
 
 ### 1.5  macrotrends.net historical price backfill  `M`
@@ -345,11 +344,11 @@ Implementation approach (when ready):
 
 ## What to Do This Session (Suggested Starting Points)
 
-1. Add FRED series (VIX, unemployment, M2, yield spreads) — very low effort, high signal
-2. Add yield curve features in `transforms.py` — computed from existing FRED data
-3. Add `compute_forward_probabilities()` to `profiler.py` — small gap, legacy already has it
-4. Add `plot_confusion_matrix()` to `plotting.py` — small visualization gap
+1. Add FRED series (VIX, unemployment, M2, additional spreads) — very low effort, high signal
+2. Tune or extend **`yc_*`** yield inputs — base spreads already ship via **`add_yield_curve_features`**; see **`config/settings.yaml`** `features.*`
+3. Surface **`forward_window_probabilities.parquet`** in dashboard or weekly narrative — table is already written by step 4; UX/reporting gap only
+4. Add `plot_confusion_matrix()` to `plotting.py` — **TMPL-03** / visualization gap
 5. Start `macrotrends.py` scraper — extends gold/oil back to 1915/1946
 6. When adding tests for new work, borrow patterns from the `claude-scratch-work-repo-copy` submodule (model/reporting/behavior/constraint tests) rather than re-inventing them
 
-Items 1-4 can be done in a single session. Item 5 needs care with scraping.
+Items 1–4 can be done in a single session. Item 5 needs care with scraping.

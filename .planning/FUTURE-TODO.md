@@ -16,9 +16,9 @@ Cross-cutting items moved here so early phases (04–05, 07, 09–11) can close 
 
 ## Product / library backlog (see also `CLAUDE.md`, `ROADMAP.md`)
 
-- **Empirical forward probabilities:** Legacy named `compute_forward_probabilities()` in `CLAUDE.md`; code has `build_forward_window_probabilities()` in `regime.py` — **reconcile naming + docs** and any remaining legacy parity (outputs/paths).
-- **Confusion matrix visualization** for classifiers (`plotting.py`).
-- **Additional FRED series**, yield-curve features (beyond current `yc_*` in `transforms.py` if config lists them), **macrotrends** scraper, **LightGBM**, weekly AI narrative report — as prioritized in project **`ROADMAP.md`**.
+- **Empirical forward-window table:** Shipped as **`build_forward_window_probabilities()`** in **`src/trading_crab_lib/regime.py`**; step 4 writes **`data/regimes/forward_window_probabilities.parquet`**. Legacy **`compute_forward_probabilities()`** in **`legacy/regime_analysis.py`** is the historical name only.
+- **Confusion matrix visualization** for classifiers (`plotting.py`) — **TMPL-03** / GSD Phase **39** (see **`.planning/REQUIREMENTS.md`**).
+- **Additional FRED series**, yield-curve tuning (beyond current **`yc_*`** in **`transforms.py`** where config lists them), **macrotrends** scraper, **LightGBM**, weekly AI narrative report — as prioritized in project **`ROADMAP.md`**.
 
 ---
 

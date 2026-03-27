@@ -366,8 +366,7 @@ ground truth.  Items marked ✓ are verified as matching in `src/`.  Items marke
 - ✓ `TimeSeriesSplit` cross-validation — implemented via `_tscv_scores()` helper
 - ✓ Portfolio construction — `generate_recommendation()` / blended portfolios in `reporting.py`
 - ✓ Macro-data fallback for asset returns — `compute_proxy_returns()` in `asset_returns.py`
-- ✗ Empirical forward probabilities — `compute_forward_probabilities()` from `legacy/regime_analysis.py`
-- ✗ Confusion matrix in classification report — `generate_classification_report()` from `legacy/supervised.py`
+- ✗ Confusion matrix in classification report — `generate_classification_report()` from `legacy/supervised.py` (**TMPL-03** / Phase 39)
 
 ### Things src/ does better than legacy (do not regress)
 
@@ -434,7 +433,7 @@ See `ARCHITECTURE.md` for design decisions.  See `PITFALLS.md` for known gotchas
 - `notebooks/01–09` — all notebooks present; 03_clustering expanded with 28 investigation cells
 - Requirements — minimum-bound strategy, Python 3.10+ compatible
 - `from __future__ import annotations` — present in all source files using `X | Y` syntax
-- Unit tests — **213 passing tests** (8 skipped: HDBSCAN) covering all modules including clustering investigation suite
+- Unit tests — **377+ collected tests** (8 skipped: HDBSCAN) covering all modules including clustering investigation suite
 - **Gap 1** — `TimeSeriesSplit` CV in `classifier.py` (5-fold walk-forward)
 - **Gap 2** — `DecisionTreeClassifier` in `classifier.py` (max_depth=8)
 - **Gap 3** — `reporting/portfolio.py` — simple + blended portfolio + BUY/SELL/HOLD
@@ -448,15 +447,15 @@ See `ARCHITECTURE.md` for design decisions.  See `PITFALLS.md` for known gotchas
 ### Next Priority (implement in upcoming sessions)
 1. **Additional FRED series** — VIX (VIXCLS), unemployment (UNRATE), M2 (M2NS),
    yield spreads (T10Y2Y, T10Y3M, GS2), housing starts (HOUST), consumer sentiment (UMCSENT)
-2. **Yield curve derived features** — 10Y-2Y, 10Y-3M spread computed in `transforms.py`
-3. **Empirical forward probabilities** — `compute_forward_probabilities()` from legacy
-4. **Confusion matrix plot** — `plot_confusion_matrix()` in `plotting.py`
-5. **macrotrends.net scraper** — gold/oil spot prices back to 1915/1946
-6. **LightGBM classifier** — alongside RF + DT in `classifier.py`
-7. **Expand test suite** — classifier, portfolio, dashboard, profiler
-8. **`end_date: null`** in settings.yaml → use today's date at runtime
-9. **Per-asset regime probability models** ("Putting it all together — Part I")
-10. **Weekly automated report** with AI-written narrative via Claude API
+2. **Confusion matrix plot** — `plot_confusion_matrix()` in `plotting.py` (**TMPL-03** / Phase 39)
+3. **macrotrends.net scraper** — gold/oil spot prices back to 1915/1946
+4. **LightGBM classifier** — alongside RF + DT in `classifier.py`
+5. **Expand test suite** — classifier, portfolio, dashboard
+6. **`end_date: null`** in settings.yaml → use today's date at runtime
+7. **Per-asset regime probability models** ("Putting it all together — Part I")
+8. **Weekly automated report** with AI-written narrative via Claude API
+
+> **Note:** Yield-curve spreads **`yc_*`** and **`build_forward_window_probabilities()`** are shipped — see **`transforms.py`**, **`regime.py`**, and root **`ROADMAP.md`** §1.3–1.4.
 
 ### Known Limitations
 - `profiler.py` naming heuristics silently skip 4 features (`10yr_ustreas`, `fred_gs10`,
@@ -481,13 +480,9 @@ Full comparison of `legacy/*.py` vs `src/trading_crab_lib/` completed March 2026
 - ✓ **Gap 3** — Portfolio construction (`legacy/portfolio.py` → `reporting/portfolio.py`)
 - ✓ **Gap 4** — Macro-data proxy returns fallback (`legacy/asset_returns.py` → `assets/returns.py`)
 - ✓ **Gap 5** — Causal/backward rolling windows for supervised learning (`transforms.py`)
+- ✓ **Gap 6** — Empirical forward-window probabilities — **`build_forward_window_probabilities()`** in **`regime.py`**, **`pipelines/04_regime_label.py`** writes **`data/regimes/forward_window_probabilities.parquet`**; legacy name **`compute_forward_probabilities()`** in **`legacy/regime_analysis.py`**
 
 ### Remaining Gaps
-
-#### Empirical forward probabilities (`legacy/regime_analysis.py` → `regime.py`)
-`compute_forward_probabilities()` computes count-based empirical P(reach regime j
-within N quarters | currently in regime i).  Useful as a sanity check alongside the
-model-based binary RF forward classifiers.  Low effort.  Status: not implemented.
 
 #### Confusion matrix report (`legacy/supervised.py` → `plotting.py`)
 `generate_classification_report()` prints a per-class confusion matrix.  Currently
