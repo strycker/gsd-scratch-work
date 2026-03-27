@@ -1,10 +1,15 @@
 # Milestones
 
-## v1.5 Template hardening & doc parity *(in progress)*
+## v1.5 Template hardening & doc parity (Shipped: 2026-03-27)
 
-**Phases:** 37–39 (see **`.planning/ROADMAP.md`**, **`.planning/REQUIREMENTS.md`**)  
-**Started:** 2026-03-26 — **`$gsd-new-milestone`**  
-**Goal:** Fork dependency clarity, product-doc reconciliation, confusion matrix for classifiers.
+**Phases completed:** 3 phases (37–39), 3 plans
+
+**Archives:** `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`, `v1.5-MILESTONE-AUDIT.md`
+
+**Key accomplishments:**
+- **TMPL-01 (Phase 37):** Added `docs/DEPENDENCIES.md` and linked it from `README.md` and `docs/CURSOR.md` for fork install clarity.
+- **TMPL-02 (Phase 38):** Reconciled backlog docs (`ROADMAP.md`, `.planning/FUTURE-TODO.md`, `CLAUDE.md`) with shipped code (`yc_*`, `build_forward_window_probabilities`).
+- **TMPL-03 (Phase 39):** Shipped confusion-matrix visualization (`plot_regime_confusion_matrix`), wired step-5 plot paths, and added validation tests.
 
 ---
 

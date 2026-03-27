@@ -1,6 +1,6 @@
 ## Project: Trading-Crab — Market Regime Analysis & ETF Portfolio Guidance
 
-## Current Milestone: v1.5 — Template hardening & doc parity
+## Current Milestone: v1.5 — Template hardening & doc parity *(shipped)*
 
 **Goal:** Keep the repository a **clean fork template**: one clear dependency story, product docs that match shipped code, and closure of the small supervised-model visualization gap (confusion matrix) where feasible.
 
@@ -10,7 +10,8 @@
 - **Backlog reconciliation** — Align root `ROADMAP.md`, `FUTURE-TODO.md`, and `CLAUDE.md` with implementations (e.g. forward-window probabilities, yield-curve features in `transforms.py`).
 - **Classifier diagnostics** — Add confusion-matrix visualization (and optional report text) for step-5 regime classifiers to match legacy alignment notes.
 
-*Defined: 2026-03-26 — `$gsd-new-milestone`*
+*Defined: 2026-03-26 — `$gsd-new-milestone`*  
+*Shipped: 2026-03-27 — `$gsd-complete-milestone v1.5`*
 
 ---
 
