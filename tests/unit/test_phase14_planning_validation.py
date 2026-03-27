@@ -69,7 +69,8 @@ def test_state_points_at_phase14_not_stale_phase3() -> None:
 
 def test_early_verification_bodies_use_trading_crab_lib_paths() -> None:
     paths = [
-        ROOT / ".planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-VERIFICATION.md",
+        ROOT
+        / ".planning/phases/01-data-and-constraints-foundations/01-data-and-constraints-foundations-VERIFICATION.md",
         ROOT
         / ".planning/phases/02-regime-clustering-interpretation/02-regime-clustering-interpretation-VERIFICATION.md",
         ROOT

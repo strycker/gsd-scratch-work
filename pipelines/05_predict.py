@@ -17,15 +17,20 @@ Saves fitted models to outputs/models/.
 
 Run:
     python pipelines/05_predict.py
+    python pipelines/05_predict.py --plots   # confusion matrix PNG (after metrics write)
+
+Full step-5 plots (importance, forward probs, predicted vs actual, confusion matrix):
+    python run_pipeline.py --steps 5 --plots
 """
 
-# Supervised step: maps *observable* causal features → regime — this is the tradable layer.
-# RandomForest captures nonlinear interactions; decision tree is for narrative; forward models are binary "hit regime j in h quarters".
-
 import argparse
+import logging
 import pickle
 import sys
 from pathlib import Path
+
+# Supervised step: maps *observable* causal features → regime — this is the tradable layer.
+# RandomForest captures nonlinear interactions; decision tree is for narrative; forward models are binary "hit regime j in h quarters".
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
@@ -51,6 +56,8 @@ from trading_crab_lib.prediction.feature_gating import select_step5_feature_path
 from trading_crab_lib.prediction.model_metrics_artifacts import write_model_metrics_artifacts
 from trading_crab_lib.transforms import trim_incomplete_tail
 
+log = logging.getLogger(__name__)
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Step 5 — supervised regime + behavior prediction")
@@ -58,6 +65,11 @@ def main() -> None:
         "--allow-noncausal-features",
         action="store_true",
         help="Allow falling back to data/processed/features.parquet when features_supervised.parquet is missing.",
+    )
+    parser.add_argument(
+        "--plots",
+        action="store_true",
+        help="Save confusion matrix heatmap to outputs/plots/ (reads reports/model_metrics/confusion_matrices.parquet).",
     )
     args = parser.parse_args()
 
@@ -164,6 +176,26 @@ def main() -> None:
         forward_models=forward_models,
         behavior_bundle=behavior_bundle,
     )
+
+    if args.plots:
+        from trading_crab_lib import plotting
+        from trading_crab_lib.runtime import RunConfig
+
+        run_cfg = RunConfig(generate_plots=True, save_plots=True)
+        cm_path = metrics_dir / "confusion_matrices.parquet"
+        regime_names: dict[int, str] = {}
+        regime_names_path = DATA_DIR / "regimes" / "regime_names_suggested.yaml"
+        if regime_names_path.exists():
+            import yaml
+
+            with open(regime_names_path, encoding="utf-8") as f:
+                raw = yaml.safe_load(f) or {}
+            regime_names = {int(k): v for k, v in raw.items()}
+        if cm_path.exists():
+            conf_df = pd.read_parquet(cm_path)
+            plotting.plot_regime_confusion_matrix(conf_df, regime_names, run_cfg)
+        else:
+            log.warning("Step 5 --plots: %s not found — skip confusion matrix", cm_path.name)
 
     report_dir = OUTPUT_DIR / "reports"
     report_dir.mkdir(parents=True, exist_ok=True)

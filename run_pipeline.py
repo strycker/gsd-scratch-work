@@ -972,6 +972,12 @@ def step5_predict(cfg: dict, run_cfg: RunConfig) -> None:
                 run_cfg,
             )
             plotting.plot_predicted_vs_actual(X, y, rf_model, regime_names, run_cfg)
+            cm_path = metrics_dir / "confusion_matrices.parquet"
+            if cm_path.exists():
+                conf_df = pd.read_parquet(cm_path)
+                plotting.plot_regime_confusion_matrix(conf_df, regime_names, run_cfg)
+            else:
+                log.warning("Step 5 plots: %s not found — skip confusion matrix", cm_path.name)
         except Exception as exc:
             log.warning("Could not generate prediction plots: %s", exc)
 

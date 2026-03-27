@@ -53,8 +53,9 @@ log = logging.getLogger(__name__)
 
 # Figure map (functions below): raw coverage → feature EDA → clustering (PCA/elbow)
 # → regime narrative (timeline, transitions, profiles) → supervised (importance,
-# forward probs) → assets (returns heatmaps) → diagnostics (ratios, RRG). Filenames
-# use step_NN_* for traceability in outputs/plots/.
+# forward probs, predicted vs actual, confusion matrix from model_metrics parquet)
+# → assets (returns heatmaps) → diagnostics (ratios, RRG). Filenames use step_NN_*
+# for traceability in outputs/plots/.
 
 # ── Color palette ──────────────────────────────────────────────────────────────
 # Fixed palette keeps regime colors stable across runs so PDFs and slides are comparable year to year.
@@ -644,6 +645,95 @@ def plot_predicted_vs_actual(
     )
     fig.tight_layout()
     _save_or_show(fig, "05_predicted_vs_actual.png", run_cfg)
+
+
+def plot_regime_confusion_matrix(
+    confusion_df: pd.DataFrame,
+    regime_names: dict[int, str],
+    run_cfg: RunConfig,
+    *,
+    model: str = "rf",
+    filename: str = "05_confusion_matrix.png",
+) -> None:
+    """
+    Heatmap of aggregated out-of-fold confusion counts for the current-regime
+    classifier (Walk-Forward CV), sourced from ``confusion_matrices.parquet``
+    written by :func:`~trading_crab_lib.prediction.model_metrics_artifacts.write_model_metrics_artifacts`.
+
+    Rows = true regime, columns = predicted regime. Counts are summed across folds.
+    """
+    import seaborn as sns
+
+    if confusion_df.empty:
+        log.warning("plot_regime_confusion_matrix: empty confusion dataframe")
+        return
+
+    sub = confusion_df[confusion_df["family"].eq("regime") & confusion_df["model"].eq(model)].copy()
+    if "horizon" in sub.columns:
+        sub = sub[sub["horizon"].isna()]
+    if sub.empty:
+        log.warning(
+            "plot_regime_confusion_matrix: no rows for family=regime model=%s (current-regime)",
+            model,
+        )
+        return
+
+    agg = sub.groupby(["true_label", "pred_label"], as_index=False)["count"].sum()
+    if agg.empty:
+        log.warning("plot_regime_confusion_matrix: no confusion counts after groupby")
+        return
+
+    pivot = agg.pivot(index="true_label", columns="pred_label", values="count").fillna(0.0)
+
+    # Stable ordering: numeric regime ids when possible
+    def _sort_labels(labels: list) -> list:
+        out: list = []
+        for x in labels:
+            try:
+                out.append(int(float(x)))
+            except (ValueError, TypeError):
+                out.append(x)
+        try:
+            return sorted(out, key=lambda z: (isinstance(z, str), z))
+        except TypeError:
+            return sorted(out, key=str)
+
+    rlabels = _sort_labels(pivot.index.tolist())
+    clabels = _sort_labels(pivot.columns.tolist())
+    pivot = pivot.reindex(index=rlabels, columns=clabels, fill_value=0.0)
+
+    def _tick(s: str | int | float) -> str:
+        try:
+            i = int(float(s))
+            return regime_names.get(i, f"Regime {i}")
+        except (ValueError, TypeError):
+            return str(s)
+
+    tick_r = [_tick(x) for x in pivot.index]
+    tick_c = [_tick(x) for x in pivot.columns]
+
+    fig, ax = plt.subplots(
+        figsize=(max(6, 0.9 + len(pivot.columns)), max(5, 0.9 + len(pivot.index)))
+    )
+    sns.heatmap(
+        pivot,
+        annot=True,
+        fmt=".0f",
+        cmap="Blues",
+        linewidths=0.5,
+        ax=ax,
+        cbar_kws={"label": "Count (sum over CV folds)"},
+    )
+    ax.set_xlabel("Predicted regime", fontsize=10)
+    ax.set_ylabel("True regime (test fold)", fontsize=10)
+    ax.set_xticklabels(tick_c, rotation=25, ha="right", fontsize=9)
+    ax.set_yticklabels(tick_r, rotation=0, fontsize=9)
+    ax.set_title(
+        f"Confusion matrix — current-regime classifier ({model.upper()}), walk-forward CV",
+        fontsize=11,
+    )
+    fig.tight_layout()
+    _save_or_show(fig, filename, run_cfg)
 
 
 # ── Step 06: Asset Returns ─────────────────────────────────────────────────────
