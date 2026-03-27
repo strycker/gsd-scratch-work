@@ -12,7 +12,7 @@
 
 ### 1. Fork & dependency clarity
 
-- [ ] **TMPL-01** — **Single source of truth for dependencies** is documented for forks: role of **`pyproject.toml`** vs **`requirements.txt`** / **`requirements-dev.txt`**; recommended install (`pip install -e ".[dev]"`). Cross-link **`notebooks/README.md`** from root **`README.md`** if not already prominent.
+- [x] **TMPL-01** — **Single source of truth for dependencies** is documented for forks: role of **`pyproject.toml`** vs **`requirements.txt`** / **`requirements-dev.txt`**; recommended install (`pip install -e ".[dev]"`). Cross-link **`notebooks/README.md`** from root **`README.md`** if not already prominent.
 
 ### 2. Product doc reconciliation
 
@@ -28,7 +28,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TMPL-01 | 37 | Pending |
+| TMPL-01 | 37 | Complete |
 | TMPL-02 | 38 | Pending |
 | TMPL-03 | 39 | Pending |
 
